@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct SecureRentalApp: App {
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LaunchView()
         }
     }
 }
