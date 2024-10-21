@@ -11,6 +11,7 @@ struct HomeView: View {
     
     @Binding var rootView: RootView
     @State private var selectedTab = 0
+
     
     var body: some View {
         ZStack {
@@ -18,6 +19,7 @@ struct HomeView: View {
             TabView(selection: $selectedTab) {
                 NavigationView {
                     //Rental Listings
+                   
                 }
                 .tabItem {
                     Label("Home", systemImage: "house")
@@ -61,6 +63,17 @@ struct HomeView: View {
                 }
             }
         }
+
     }
 }
+
+struct RentalListing: Identifiable {
+    
+    let id = UUID()
+    let title: String
+    let price: String
+    let imageName: String
+}
+
+
     
