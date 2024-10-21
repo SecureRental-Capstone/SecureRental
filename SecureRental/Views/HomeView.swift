@@ -11,6 +11,7 @@ struct HomeView: View {
     
     @Binding var rootView: RootView
     @State private var selectedTab = 0
+    @State private var showMessageView = false // State to show MessageView
     let listings = [
             RentalListing(title: "Cozy Apartment", price: "$1200/month", imageName: "examplepic1"),
             RentalListing(title: "Luxury Condo", price: "$2500/month", imageName: "examplepic2"),
@@ -67,7 +68,8 @@ struct HomeView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        //action to show the chatbot
+                        showMessageView = true
+                        
                         print("Chatbot tapped")
                     }) {
                         Image(systemName: "bubble.right.fill")
@@ -85,7 +87,9 @@ struct HomeView: View {
                 }
             }
         }
-
+        .fullScreenCover(isPresented: $showMessageView) {
+            MessageView() 
+        }
     }
 }
 
