@@ -11,6 +11,11 @@ struct HomeView: View {
     
     @Binding var rootView: RootView
     @State private var selectedTab = 0
+    let listings = [
+            RentalListing(title: "Cozy Apartment", price: "$1200/month", imageName: "examplepic1"),
+            RentalListing(title: "Luxury Condo", price: "$2500/month", imageName: "examplepic2"),
+            RentalListing(title: "Charming Cottage", price: "$1500/month", imageName: "examplepic3")
+        ]
 
     
     var body: some View {
