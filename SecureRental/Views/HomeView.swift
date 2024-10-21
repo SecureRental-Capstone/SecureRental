@@ -24,7 +24,24 @@ struct HomeView: View {
             TabView(selection: $selectedTab) {
                 NavigationView {
                     //Rental Listings
-                   
+                    List(listings) { listing in
+                           HStack {
+                               
+                               Image(listing.imageName)
+                                   .resizable()
+                                   .scaledToFit()
+                                   .frame(width: 100, height: 100)
+                                   .cornerRadius(8)
+                               
+                               VStack(alignment: .leading) {
+                                   Text(listing.title)
+                                       .font(.headline)
+                                   Text(listing.price)
+                                       .font(.subheadline)
+                               }
+                           }
+                       }
+                       .navigationTitle("Rental Listings")
                 }
                 .tabItem {
                     Label("Home", systemImage: "house")
