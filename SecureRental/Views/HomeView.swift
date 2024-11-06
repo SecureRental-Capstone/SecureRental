@@ -49,11 +49,11 @@ struct HomeView: View {
                 }
                 .tag(0)
                 
-                Text("Favorites")
+                    // Message View for the Messages tab
+                MessageView()
                     .tabItem {
-                        Label("Messages", systemImage: "star")
+                        Label("Messages", systemImage: "message")
                     }
-                    .tag(1)
                 
                 Text("Profile")
                     .tabItem {
