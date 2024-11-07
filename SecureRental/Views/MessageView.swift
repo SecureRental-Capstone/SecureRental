@@ -4,8 +4,6 @@
 ////
 ////  Created by Shehnazdeep Kaur on 2024-10-21.
 ////
-//
-
 import SwiftUI
 
     // Models
@@ -34,6 +32,8 @@ let sampleContacts: [Contact] = [
 ]
 
     // Views
+
+    // Main view showing a list of contacts
 struct MessageView: View {
     @Environment(\.dismiss) private var dismiss
     let contacts: [Contact] = sampleContacts
@@ -42,10 +42,28 @@ struct MessageView: View {
         NavigationView {
             List(contacts) { contact in
                 NavigationLink(destination: MessageListView(contact: contact)) {
-                    Text(contact.name)
+                    HStack {
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                            .padding(5)
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(25)
+                        
+                        Text(contact.name)
+                            .font(.title3)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                            .padding(.leading, 10)
+                    }
+                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("Messages")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Back") {
@@ -57,44 +75,30 @@ struct MessageView: View {
     }
 }
 
+    // View displaying messages in the selected contact's thread
 struct MessageListView: View {
     let contact: Contact
     
     var body: some View {
         List(contact.messages) { message in
-            NavigationLink(destination: MessageDetailView(message: message)) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(message.sender)
+                    .font(.headline)
+                    .foregroundColor(.blue)
                 Text(message.content)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .padding()
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .padding(.vertical, 8)
         }
         .navigationTitle(contact.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
-
-struct MessageDetailView: View {
-    let message: Message
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("From: \(message.sender)")
-                .font(.headline)
-                .foregroundColor(.gray)
-                .padding(.top, 8)
-            
-                // Message content styled as a "bubble"
-            Text(message.content)
-                .font(.body)
-                .padding()
-                .background(Color.blue.opacity(0.1))
-                .cornerRadius(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Spacer() // Push content to the top
-        }
-        .padding()
-        .navigationTitle("Message")
-    }
-}
-
 
 struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
