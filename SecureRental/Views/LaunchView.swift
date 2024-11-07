@@ -20,6 +20,8 @@ struct LaunchView: View {
                 SignInView(rootView: self.$rootView)
             case .main:
                 HomeView(rootView: self.$rootView)
+            case .authentication:
+                Authentication(rootView: self.$rootView)
             }
         }
     }

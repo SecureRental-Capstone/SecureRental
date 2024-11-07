@@ -45,6 +45,7 @@ struct SignUpView: View {
                 Button(action: {
                     
 //                    self.createAccount()
+                    self.rootView = .authentication
                 }){
                     Text("Create Account")
                         .padding(EdgeInsets(top: 6, leading: 5, bottom: 6, trailing: 5))
