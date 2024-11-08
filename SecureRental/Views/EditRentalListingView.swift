@@ -5,7 +5,6 @@
 //  Created by Anchal  Sharma  on 2024-11-07.
 //
 
-// EditRentalListingView.swift
 import SwiftUI
 
 struct EditRentalListingView: View {
@@ -96,21 +95,4 @@ struct EditRentalListingView: View {
         viewModel.updateListing(updatedListing)
     }
 }
-//
-//struct EditRentalListingView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        EditRentalListingView(viewModel: RentalListingsViewModel(), listing: RentalListing(
-//            title: "Sample Listing",
-//            description: "Sample Description",
-//            price: "$1000/month",
-//            imageName: "sampleImage",
-//            location: "Sample Location",
-//            isAvailable: true,
-//            datePosted: Date(),
-//            numberOfBedrooms: 1,
-//            numberOfBathrooms: 1,
-//            squareFootage: 500,
-//            amenities: ["WiFi"], coordinates: <#CLLocationCoordinate2D#>
-//        ))
-//    }
-//}
+
