@@ -136,7 +136,7 @@ class RentalListingsViewModel: ObservableObject {
 //             listings[index].comments.append(comment)
 //         }
 //     }
-
+//
 //     func addRating(to listing: RentalListing, rating: Int) {
 //         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
 //             listings[index].ratings.append(rating)
