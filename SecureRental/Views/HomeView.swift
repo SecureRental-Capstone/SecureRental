@@ -14,7 +14,10 @@ struct HomeView: View {
     @State private var showProfileView = false
     @State private var showCreateListingView = false
     @State private var showEditListingView = false
+//    @State private var selectedListing: RentalListing?
+    @State private var showCommentView = false // For comment/ratings view
     @State private var selectedListing: RentalListing?
+    @State private var selectedListingForComment: RentalListing?
     @StateObject var user = User.sampleUser
 
     @StateObject var viewModel = RentalListingsViewModel()
@@ -25,9 +28,16 @@ struct HomeView: View {
             TabView(selection: $selectedTab) {
                 NavigationView {
                     VStack {
-                        SearchBar(text: $viewModel.searchText)
-                            .padding(.horizontal)
+
+                        NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
+                                            .padding()
+//                        List(viewModel.listings) { listing in
+//                                            NavigationLink(destination: EditRentalListingView(viewModel: viewModel, listing: listing)) {
+//                                                Text(listing.title)
+//                                            }
+//                                        }
                         
+
                         List(viewModel.listings) { listing in
                             NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                 HStack {
@@ -44,6 +54,27 @@ struct HomeView: View {
                                             .font(.subheadline)
                                     }
                                     Spacer()
+                                    
+                                    // Favorite Button
+                                    Button(action: {
+                                        viewModel.toggleFavorite(for: listing)
+                                    }) {
+                                        Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
+                                            .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
+
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+
+                                    // Comment (Rate) Button
+                                    Button(action: {
+                                        selectedListingForComment = listing
+                                        showCommentView = true
+                                    }) {
+                                        Image(systemName: "star.circle.fill")
+                                            .foregroundColor(.blue)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+                                    
                                     Button(action: {
                                         selectedListing = listing
                                         showEditListingView = true
@@ -55,7 +86,7 @@ struct HomeView: View {
                                 }
                             }
                         }
-                        .navigationTitle("Rental Listings")
+                        .navigationTitle("Secure Rental")
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button(action: {
@@ -78,11 +109,17 @@ struct HomeView: View {
                         Label("Messages", systemImage: "message")
                     }   .tag(1)
                 
+                FavouriteListingsView()  // Show ProfileView when this tab is selected
+                    .tabItem {
+                        Label("Favourites", systemImage: "star.fill")
+                    }
+                    .tag(2)
+                
                 ProfileView(user: user)  // Show ProfileView when this tab is selected
                     .tabItem {
                         Label("Profile", systemImage: "person.circle")
                     }
-                    .tag(2)
+                    .tag(3)
             }
             
             // Chatbot icon
@@ -117,6 +154,9 @@ struct HomeView: View {
         }
         .sheet(item: $selectedListing) { listing in
             EditRentalListingView(viewModel: viewModel, listing: listing)
+        }
+        .sheet(item: $selectedListingForComment) { listing in
+            CommentView(listing: listing, viewModel: viewModel)
         }
     }
 }
