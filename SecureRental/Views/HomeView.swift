@@ -46,18 +46,24 @@ struct HomeView: View {
 //                                        .scaledToFit()
 //                                        .frame(width: 100, height: 100)
 //                                        .cornerRadius(8)
-                                    ForEach(listing.images, id: \.self) { image in
-                                        Image(uiImage: image)
+//                                    ForEach(listing.images, id: \.self) { image in
+//                                        Image(uiImage: image)
+//                                            .resizable()
+//                                            .scaledToFit()
+//                                            .frame(width: 100, height: 100)
+//                                            .cornerRadius(8)
+//                                    }
+                                    if let firstImage = listing.images.first {
+                                        Image(uiImage: firstImage)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 100, height: 100)
                                             .cornerRadius(8)
                                     }
-                                    
                                     VStack(alignment: .leading) {
                                         Text(listing.title)
                                             .font(.headline)
-                                        Text(listing.price)
+                                        Text("$\(listing.price)/month")
                                             .font(.subheadline)
                                     }
                                     Spacer()

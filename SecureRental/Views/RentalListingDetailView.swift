@@ -44,7 +44,7 @@ struct RentalListingDetailView: View {
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 5)
                 
-                Text(listing.price)
+                Text("$\(listing.price)/month")
                     .font(.title)
                     .foregroundColor(.green)
                     .bold()

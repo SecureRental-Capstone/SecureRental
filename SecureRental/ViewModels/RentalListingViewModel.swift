@@ -49,7 +49,7 @@ class RentalListingsViewModel: ObservableObject {
             RentalListing(
                 title: "Cozy Apartment",
                 description: "A charming one-bedroom apartment in the heart of downtown.",
-                price: "$1200/month",
+                price: "1200",
                 images: [sampleImage],
                 location: "Toronto",
                 isAvailable: true,
@@ -65,7 +65,7 @@ class RentalListingsViewModel: ObservableObject {
             RentalListing(
                 title: "Luxury Condo",
                 description: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
-                price: "$2500/month",
+                price: "2500",
                 images: [UIImage(named: "sampleImage2") ?? UIImage()],
                 location: "Toronto",
                 isAvailable: false,

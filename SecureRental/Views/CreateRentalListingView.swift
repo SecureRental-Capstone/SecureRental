@@ -48,7 +48,7 @@ struct CreateRentalListingView: View {
                 Section(header: Text("Property Details")) {
                     TextFieldWithRequiredIndicator(placeholder: "Title", text: $title)
                     TextFieldWithRequiredIndicator(placeholder: "Description", text: $description)
-                    TextFieldWithRequiredIndicator(placeholder: "Price", text: $price)
+                    TextFieldWithRequiredIndicator(placeholder: "Price per month", text: $price)
                         .keyboardType(.decimalPad)
 //                    TextFieldWithRequiredIndicator(placeholder: "Bedrooms", text: $numberOfBedrooms)
 //                        .keyboardType(.numberPad)
@@ -120,7 +120,7 @@ struct CreateRentalListingView: View {
             title: title,
             description: description,
             price: price,
-            images: [UIImage(named: "sampleimage") ?? UIImage()], // Placeholder for the uploaded image name or path
+            images: images, // Placeholder for the uploaded image name or path
             location: "\(street), \(city), \(province)",
             isAvailable: true,
             datePosted: Date(),
