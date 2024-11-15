@@ -23,11 +23,19 @@ struct ListingsView: View {
                     NavigationLink(destination: RentalListingDetailView(listing: listing)) {
 
                         HStack {
-                            Image(listing.imageName)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 100, height: 100)
-                                .cornerRadius(8)
+                            ForEach(listing.images, id: \.self) { image in
+                                Image(uiImage: image)
+                                      .resizable()
+                                      .scaledToFit()
+                                      .frame(width: 100, height: 100)
+                                      .cornerRadius(8)
+                                
+                            }
+//                            Image(listing.image)
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 100, height: 100)
+//                                .cornerRadius(8)
 
                             VStack(alignment: .leading) {
                                 Text(listing.title)

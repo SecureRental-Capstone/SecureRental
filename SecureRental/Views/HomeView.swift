@@ -41,16 +41,29 @@ struct HomeView: View {
                         List(viewModel.listings) { listing in
                             NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                 HStack {
-                                    Image(listing.imageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 100, height: 100)
-                                        .cornerRadius(8)
-                                    
+//                                    Image(listing.images)
+//                                        .resizable()
+//                                        .scaledToFit()
+//                                        .frame(width: 100, height: 100)
+//                                        .cornerRadius(8)
+//                                    ForEach(listing.images, id: \.self) { image in
+//                                        Image(uiImage: image)
+//                                            .resizable()
+//                                            .scaledToFit()
+//                                            .frame(width: 100, height: 100)
+//                                            .cornerRadius(8)
+//                                    }
+                                    if let firstImage = listing.images.first {
+                                        Image(uiImage: firstImage)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
+                                            .cornerRadius(8)
+                                    }
                                     VStack(alignment: .leading) {
                                         Text(listing.title)
                                             .font(.headline)
-                                        Text(listing.price)
+                                        Text("$\(listing.price)/month")
                                             .font(.subheadline)
                                     }
                                     Spacer()
@@ -109,7 +122,7 @@ struct HomeView: View {
                         Label("Messages", systemImage: "message")
                     }   .tag(1)
                 
-                FavouriteListingsView()  // Show ProfileView when this tab is selected
+                FavouriteListingsView(viewModel: viewModel)  // Show ProfileView when this tab is selected
                     .tabItem {
                         Label("Favourites", systemImage: "star.fill")
                     }

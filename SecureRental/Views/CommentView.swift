@@ -21,9 +21,6 @@ struct CommentView: View {
                     .padding()
 
                 // Rating slider
-//                Slider(value: $rating, in: 1...5, step: 1)
-//                    .padding()
-//                Text("Rating: \(rating)")
                 Slider(value: $rating, in: 1...5, step: 1.0) // Change step to 1.0
                                     .padding()
                 Text("Rating: \(Int(rating))")

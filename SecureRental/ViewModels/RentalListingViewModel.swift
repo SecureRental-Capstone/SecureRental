@@ -14,12 +14,18 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [RentalListing] = []
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
-    @Published var favoriteListings: Set<UUID> = [] // A set of favorite listing IDs
+    @Published private(set) var favoriteListingIDs: Set<UUID> = []
+    
+        // Derived property for favorite listings
+    var favouriteListings: [RentalListing] {
+        listings.filter { favoriteListingIDs.contains($0.id) }
+    }
 
     
     private var cancellables = Set<AnyCancellable>()
@@ -42,13 +48,14 @@ class RentalListingsViewModel: ObservableObject {
     
     // Fetches rental listings from the backend or local storage.
     func fetchListings() {
+        let sampleImage = UIImage(named: "sampleImage") ?? UIImage()  // Provide a default image if nil
         // Placeholder data; replace with actual backend fetching logic
         listings = [
             RentalListing(
                 title: "Cozy Apartment",
                 description: "A charming one-bedroom apartment in the heart of downtown.",
-                price: "$1200/month",
-                imageName: "apartment1",
+                price: "1200",
+                images: [sampleImage],
                 location: "Toronto",
                 isAvailable: true,
                 datePosted: Date(),
@@ -63,8 +70,8 @@ class RentalListingsViewModel: ObservableObject {
             RentalListing(
                 title: "Luxury Condo",
                 description: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
-                price: "$2500/month",
-                imageName: "condo1",
+                price: "2500",
+                images: [UIImage(named: "sampleImage2") ?? UIImage()],
                 location: "Toronto",
                 isAvailable: false,
                 datePosted: Date().addingTimeInterval(-3600),
@@ -116,19 +123,18 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
     
-    // Toggle favorite status
-     func toggleFavorite(for listing: RentalListing) {
-         if favoriteListings.contains(listing.id) {
-             favoriteListings.remove(listing.id)
-         } else {
-             favoriteListings.insert(listing.id)
-         }
-     }
-
-     // Check if the listing is a favorite
-     func isFavorite(_ listing: RentalListing) -> Bool {
-         return favoriteListings.contains(listing.id)
-     }
+    func toggleFavorite(for listing: RentalListing) {
+        if favoriteListingIDs.contains(listing.id) {
+            favoriteListingIDs.remove(listing.id)
+        } else {
+            favoriteListingIDs.insert(listing.id)
+        }
+    }
+    
+    func isFavorite(_ listing: RentalListing) -> Bool {
+        return favoriteListingIDs.contains(listing.id)
+    }
+}
 
      // Add a rating or comment to a listing
 //     func addComment(to listing: RentalListing, comment: String) {
@@ -142,5 +148,5 @@ class RentalListingsViewModel: ObservableObject {
 //             listings[index].ratings.append(rating)
 //         }
 //     }
-}
+
 

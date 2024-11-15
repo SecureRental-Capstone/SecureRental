@@ -8,13 +8,14 @@
 
 import Foundation
 import CoreLocation
+import UIKit
 
 struct RentalListing: Identifiable {
     let id = UUID()
     var title: String
     var description: String
     var price: String
-    var imageName: String
+    var images: [UIImage]  // Store the image data
     var location: String
     var isAvailable: Bool
     var datePosted: Date
@@ -27,6 +28,6 @@ struct RentalListing: Identifiable {
     var province: String
     var comments: [String]? = []
     var ratings: [Double]? = []
-    
+    var isFavourite: Bool = false
 }
 

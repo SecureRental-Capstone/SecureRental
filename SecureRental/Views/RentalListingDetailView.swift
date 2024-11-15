@@ -25,11 +25,18 @@ struct RentalListingDetailView: View {
         ScrollView{
             VStack(spacing: 20) {
                 // Image and Title
-                Image(listing.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
-                    .cornerRadius(10)
+                ForEach(listing.images, id: \.self) { image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .cornerRadius(10)
+                }
+//                Image(listing.imageName)
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame(height: 200)
+//                    .cornerRadius(10)
                 
                 Text(listing.title)
                     .font(.largeTitle)
@@ -37,7 +44,7 @@ struct RentalListingDetailView: View {
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 5)
                 
-                Text(listing.price)
+                Text("$\(listing.price)/month")
                     .font(.title)
                     .foregroundColor(.green)
                     .bold()
