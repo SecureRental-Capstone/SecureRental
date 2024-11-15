@@ -6,134 +6,164 @@
 //
 
 // RentalListingDetailView.swift
-import SwiftUI
-import MapKit
 
-//struct RentalListingDetailView: View {
-//    var listing: RentalListing
-//    @State private var region: MKCoordinateRegion
 //
-//    init(listing: RentalListing) {
-//        self.listing = listing
-//        _region = State(initialValue: MKCoordinateRegion(
-//            center: listing.coordinates,
-//            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-//        ))
-//    }
-//
-//    var body: some View {
-//        ScrollView {
-//            VStack(alignment: .leading, spacing: 20) {
-//                Image(listing.imageName)
-//                    .resizable()
-//                    .scaledToFit()
-//                    .cornerRadius(10)
-//                
-//                Text(listing.title)
-//                    .font(.largeTitle)
-//                    .bold()
-//                
-//                Text(listing.price)
-//                    .font(.title2)
-//                    .foregroundColor(.green)
-//                
-//                Text(listing.description)
-//                    .font(.body)
-//                
-//                HStack {
-//                    Text("Bedrooms: \(listing.numberOfBedrooms)")
-//                    Spacer()
-//                    Text("Bathrooms: \(listing.numberOfBathrooms)")
-//                }
-//                
-//                Text("Square Footage: \(listing.squareFootage) sqft")
-//                
-//                Text("Amenities: \(listing.amenities.joined(separator: ", "))")
-//                
-//                Map(coordinateRegion: $region, annotationItems: [listing]) { listing in
-//                    MapMarker(coordinate: listing.coordinates, tint: .blue)
-//                }
-//                .frame(height: 300)
-//                .cornerRadius(10)
-//            }
-//            .padding()
-//        }
-//        .navigationTitle("Listing Details")
-//        .navigationBarTitleDisplayMode(.inline)
-//    }
-//}
+
+
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct RentalListingDetailView: View {
     var listing: RentalListing
-    @State private var region: MKCoordinateRegion
-
-    init(listing: RentalListing) {
-        self.listing = listing
-        _region = State(initialValue: MKCoordinateRegion(
-            center: listing.coordinates,
-            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-        ))
-    }
-
+    @State private var region: MKCoordinateRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832), // Default to Toronto
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+    
     var body: some View {
-        VStack(spacing: 20) {
-            // Image and Title
-            Image(listing.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 200)
-                .cornerRadius(10)
-            
-            Text(listing.title)
-                .font(.largeTitle)
-                .bold()
-            
-            // Price and Description
-            Text(listing.price)
-                .font(.title2)
-            Text(listing.description)
-                .font(.body)
-                .padding()
-            
-            // Map View
-            Map(coordinateRegion: $region)
-                .frame(height: 200)
-                .cornerRadius(10)
-
-            // Amenities
-            VStack(alignment: .leading) {
-                Text("Amenities:")
-                    .font(.headline)
-                ForEach(listing.amenities, id: \.self) { amenity in
-                    Text("• \(amenity)")
+        ScrollView{
+            VStack(spacing: 20) {
+                // Image and Title
+                Image(listing.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 200)
+                    .cornerRadius(10)
+                
+                Text(listing.title)
+                    .font(.largeTitle)
+                    .bold()
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 5)
+                
+                Text(listing.price)
+                    .font(.title)
+                    .foregroundColor(.green)
+                    .bold()
+                
+                Divider()
+                
+                // Display property description
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Description:")
+                        .font(.headline)
+                        .padding(.bottom, 2)
+                    Text(listing.description)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .padding(.bottom)
                 }
+                .padding(.horizontal)
+                
+                Divider()
+                
+                
+                // Display address
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Location:")
+                        .font(.headline)
+                        .padding(.bottom, 2)
+                    Text("\(listing.street), \(listing.city), \(listing.province)")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                
+                Divider()
+                
+                // Display additional property details
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Property Details:")
+                        .font(.headline)
+                        .padding(.bottom, 2)
+                    
+                    HStack {
+                        Label("\(listing.numberOfBedrooms) Bedrooms", systemImage: "bed.double.fill")
+                            .font(.body)
+                            .foregroundColor(.blue)
+                        Label("\(listing.numberOfBathrooms) Bathrooms", systemImage: "drop.fill")
+                            .font(.body)
+                            .foregroundColor(.blue)
+                    }
+                    
+                    HStack {
+                        Label("\(listing.squareFootage) sq ft", systemImage: "ruler")
+                            .font(.body)
+                            .foregroundColor(.blue)
+                        if listing.isAvailable {
+                            Text("Available")
+                                .font(.body)
+                                .foregroundColor(.green)
+                                .padding(6)
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(8)
+                        } else {
+                            Text("Not Available")
+                                .font(.body)
+                                .foregroundColor(.red)
+                                .padding(6)
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                
+                
+                Divider()
+                
+                // Map View with Geocoding for location
+                Text("Map")
+                    .font(.headline)
+                    .padding(.top, 10)
+                Map(coordinateRegion: $region)
+                    .frame(height: 200)
+                    .cornerRadius(12)
+                    .onAppear {
+                        geocodeAddress()
+                    }
+                
+                Divider()
+                
+                // Display Amenities
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Amenities:")
+                        .font(.headline)
+                        .padding(.bottom, 2)
+                    ForEach(listing.amenities, id: \.self) { amenity in
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.blue)
+                            Text(amenity)
+                                .font(.body)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                
+                Spacer()
             }
             .padding()
-
-            Spacer()
+            .navigationTitle(listing.title)
         }
-        .padding()
-        .navigationTitle(listing.title)
     }
-}
-
-struct RentalListingDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        RentalListingDetailView(listing: RentalListing(
-            title: "Sample Listing",
-            description: "Sample Description",
-            price: "$1000/month",
-            imageName: "sampleImage",
-            location: "Sample Location",
-            isAvailable: true,
-            datePosted: Date(),
-            numberOfBedrooms: 1,
-            numberOfBathrooms: 1,
-            squareFootage: 500,
-            amenities: ["WiFi"],
-            coordinates: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832)
-        ))
+    
+    // Function to geocode the address for the map view
+    private func geocodeAddress() {
+        let geocoder = CLGeocoder()
+        let address = "\(listing.street), \(listing.city), \(listing.province)"
+        geocoder.geocodeAddressString(address) { placemarks, error in
+            if let placemark = placemarks?.first, let location = placemark.location {
+                DispatchQueue.main.async {
+                    self.region = MKCoordinateRegion(
+                        center: location.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                    )
+                }
+            }
+        }
     }
 }
