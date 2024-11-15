@@ -14,6 +14,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [RentalListing] = []
@@ -42,13 +43,14 @@ class RentalListingsViewModel: ObservableObject {
     
     // Fetches rental listings from the backend or local storage.
     func fetchListings() {
+        let sampleImage = UIImage(named: "sampleImage") ?? UIImage()  // Provide a default image if nil
         // Placeholder data; replace with actual backend fetching logic
         listings = [
             RentalListing(
                 title: "Cozy Apartment",
                 description: "A charming one-bedroom apartment in the heart of downtown.",
                 price: "$1200/month",
-                imageName: "apartment1",
+                images: [sampleImage],
                 location: "Toronto",
                 isAvailable: true,
                 datePosted: Date(),
@@ -64,7 +66,7 @@ class RentalListingsViewModel: ObservableObject {
                 title: "Luxury Condo",
                 description: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
                 price: "$2500/month",
-                imageName: "condo1",
+                images: [UIImage(named: "sampleImage2") ?? UIImage()],
                 location: "Toronto",
                 isAvailable: false,
                 datePosted: Date().addingTimeInterval(-3600),

@@ -25,7 +25,7 @@ struct EditRentalListingView: View {
     
     // Photos picker
     @State private var isShowingImagePicker = false
-    @State private var selectedImageData: Data?
+    @State private var selectedImageData: UIImage?
 
     init(viewModel: RentalListingsViewModel, listing: RentalListing) {
         self.viewModel = viewModel
@@ -125,7 +125,8 @@ struct EditRentalListingView: View {
             title: title,
             description: description,
             price: price,
-            imageName: selectedImageData != nil ? "uploadedImage" : listing.imageName,
+//            images: selectedImageData != nil ? "uploadedImage" : listing.images,
+            images: [selectedImageData ?? UIImage()],
             location: "\(street), \(city), \(province)",
             isAvailable: listing.isAvailable,
             datePosted: listing.datePosted,

@@ -120,7 +120,7 @@ struct CreateRentalListingView: View {
             title: title,
             description: description,
             price: price,
-            imageName: "uploadedImage", // Placeholder for the uploaded image name or path
+            images: [UIImage(named: "sampleimage") ?? UIImage()], // Placeholder for the uploaded image name or path
             location: "\(street), \(city), \(province)",
             isAvailable: true,
             datePosted: Date(),

@@ -41,11 +41,18 @@ struct HomeView: View {
                         List(viewModel.listings) { listing in
                             NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                 HStack {
-                                    Image(listing.imageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 100, height: 100)
-                                        .cornerRadius(8)
+//                                    Image(listing.images)
+//                                        .resizable()
+//                                        .scaledToFit()
+//                                        .frame(width: 100, height: 100)
+//                                        .cornerRadius(8)
+                                    ForEach(listing.images, id: \.self) { image in
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
+                                            .cornerRadius(8)
+                                    }
                                     
                                     VStack(alignment: .leading) {
                                         Text(listing.title)
