@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ProfileView: View {
     @ObservedObject var user: User
-    
+    @Binding var rootView: RootView
+
     var body: some View {
         VStack {
                 // Profile Header with image and name
@@ -22,10 +23,10 @@ struct ProfileView: View {
                     .padding(.leading, 20)
                 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(user.name)
+                    Text(user.name ?? "")
                         .font(.title)
                         .fontWeight(.bold)
-                    Text(user.email)
+                    Text(user.email ?? "")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -89,6 +90,7 @@ struct ProfileView: View {
                 // Log Out Button
             Button(action: {
                     // Handle Log Out action
+                self.rootView = .login
             }) {
                 Text("Log Out")
                     .font(.headline)
@@ -106,9 +108,9 @@ struct ProfileView: View {
     }
 }
 
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView(user: User.sampleUser)
-            .previewDevice("iPhone 14")
-    }
-}
+//struct ProfileView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ProfileView(user: User.sampleUser)
+//            .previewDevice("iPhone 14")
+//    }
+//}

@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0B4DFD4E2CE724800097B397 /* AWSDynamoDB in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD4D2CE724800097B397 /* AWSDynamoDB */; };
+		0B4DFD502CE724A70097B397 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD4F2CE724A70097B397 /* AWSS3 */; };
+		0B4DFD522CE724AC0097B397 /* AWSLambda in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD512CE724AC0097B397 /* AWSLambda */; };
+		3DC74231025E63264987AD94 /* Pods_SecureRental_SecureRentalUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF521C0B2F7A604D8A5DB547 /* Pods_SecureRental_SecureRentalUITests.framework */; };
+		A2FA6E7760F1C32380C67D29 /* Pods_SecureRental.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A843D400C1132B1A6687D08 /* Pods_SecureRental.framework */; };
+		B0887FE00CD0A017D7679588 /* Pods_SecureRentalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEC2A2E14F6412EED7A09283 /* Pods_SecureRentalTests.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0B3ED3C92CC41BD900136A00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +36,15 @@
 		0B3ED3B82CC41BD800136A00 /* SecureRental.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureRental.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B3ED3C82CC41BD900136A00 /* SecureRentalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureRentalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B3ED3D22CC41BD900136A00 /* SecureRentalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureRentalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		238191AA8D4E990EB326340E /* Pods-SecureRentalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRentalTests.debug.xcconfig"; path = "Target Support Files/Pods-SecureRentalTests/Pods-SecureRentalTests.debug.xcconfig"; sourceTree = "<group>"; };
+		4C4D04F4B7289975644DADC1 /* Pods-SecureRental.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental.release.xcconfig"; path = "Target Support Files/Pods-SecureRental/Pods-SecureRental.release.xcconfig"; sourceTree = "<group>"; };
+		7574162C7600F0465A854353 /* Pods-SecureRental-SecureRentalUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental-SecureRentalUITests.debug.xcconfig"; path = "Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		83D6C2925340AFB24DC3EDB5 /* Pods-SecureRentalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRentalTests.release.xcconfig"; path = "Target Support Files/Pods-SecureRentalTests/Pods-SecureRentalTests.release.xcconfig"; sourceTree = "<group>"; };
+		8A843D400C1132B1A6687D08 /* Pods_SecureRental.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureRental.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A76DAE17C11ECAB1509EDADB /* Pods-SecureRental-SecureRentalUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental-SecureRentalUITests.release.xcconfig"; path = "Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests.release.xcconfig"; sourceTree = "<group>"; };
+		AEC2A2E14F6412EED7A09283 /* Pods_SecureRentalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureRentalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF521C0B2F7A604D8A5DB547 /* Pods_SecureRental_SecureRentalUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureRental_SecureRentalUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E229B0A011F4FCA42F5B59EC /* Pods-SecureRental.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental.debug.xcconfig"; path = "Target Support Files/Pods-SecureRental/Pods-SecureRental.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +70,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B4DFD522CE724AC0097B397 /* AWSLambda in Frameworks */,
+				0B4DFD502CE724A70097B397 /* AWSS3 in Frameworks */,
+				0B4DFD4E2CE724800097B397 /* AWSDynamoDB in Frameworks */,
+				A2FA6E7760F1C32380C67D29 /* Pods_SecureRental.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +81,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0887FE00CD0A017D7679588 /* Pods_SecureRentalTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3DC74231025E63264987AD94 /* Pods_SecureRental_SecureRentalUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,7 +102,9 @@
 				0B3ED3BA2CC41BD800136A00 /* SecureRental */,
 				0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */,
 				0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */,
+				0B4DFD4C2CE724800097B397 /* Frameworks */,
 				0B3ED3B92CC41BD800136A00 /* Products */,
+				84A2179AB5B557F311AD8494 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -92,6 +118,29 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		0B4DFD4C2CE724800097B397 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8A843D400C1132B1A6687D08 /* Pods_SecureRental.framework */,
+				DF521C0B2F7A604D8A5DB547 /* Pods_SecureRental_SecureRentalUITests.framework */,
+				AEC2A2E14F6412EED7A09283 /* Pods_SecureRentalTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		84A2179AB5B557F311AD8494 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E229B0A011F4FCA42F5B59EC /* Pods-SecureRental.debug.xcconfig */,
+				4C4D04F4B7289975644DADC1 /* Pods-SecureRental.release.xcconfig */,
+				7574162C7600F0465A854353 /* Pods-SecureRental-SecureRentalUITests.debug.xcconfig */,
+				A76DAE17C11ECAB1509EDADB /* Pods-SecureRental-SecureRentalUITests.release.xcconfig */,
+				238191AA8D4E990EB326340E /* Pods-SecureRentalTests.debug.xcconfig */,
+				83D6C2925340AFB24DC3EDB5 /* Pods-SecureRentalTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -99,9 +148,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B3ED3DC2CC41BD900136A00 /* Build configuration list for PBXNativeTarget "SecureRental" */;
 			buildPhases = (
+				9BFF2E6CB9FED246AB780136 /* [CP] Check Pods Manifest.lock */,
 				0B3ED3B42CC41BD800136A00 /* Sources */,
 				0B3ED3B52CC41BD800136A00 /* Frameworks */,
 				0B3ED3B62CC41BD800136A00 /* Resources */,
+				4F34B78B7452A868A6900297 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -112,6 +163,9 @@
 			);
 			name = SecureRental;
 			packageProductDependencies = (
+				0B4DFD4D2CE724800097B397 /* AWSDynamoDB */,
+				0B4DFD4F2CE724A70097B397 /* AWSS3 */,
+				0B4DFD512CE724AC0097B397 /* AWSLambda */,
 			);
 			productName = SecureRental;
 			productReference = 0B3ED3B82CC41BD800136A00 /* SecureRental.app */;
@@ -121,6 +175,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B3ED3DF2CC41BD900136A00 /* Build configuration list for PBXNativeTarget "SecureRentalTests" */;
 			buildPhases = (
+				674234BD91299818A473453A /* [CP] Check Pods Manifest.lock */,
 				0B3ED3C42CC41BD900136A00 /* Sources */,
 				0B3ED3C52CC41BD900136A00 /* Frameworks */,
 				0B3ED3C62CC41BD900136A00 /* Resources */,
@@ -134,8 +189,6 @@
 				0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */,
 			);
 			name = SecureRentalTests;
-			packageProductDependencies = (
-			);
 			productName = SecureRentalTests;
 			productReference = 0B3ED3C82CC41BD900136A00 /* SecureRentalTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -144,9 +197,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B3ED3E22CC41BD900136A00 /* Build configuration list for PBXNativeTarget "SecureRentalUITests" */;
 			buildPhases = (
+				57171F0AE0D977AC7550FDD3 /* [CP] Check Pods Manifest.lock */,
 				0B3ED3CE2CC41BD900136A00 /* Sources */,
 				0B3ED3CF2CC41BD900136A00 /* Frameworks */,
 				0B3ED3D02CC41BD900136A00 /* Resources */,
+				B7C6803AC593B2CAC6904E27 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -157,8 +212,6 @@
 				0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */,
 			);
 			name = SecureRentalUITests;
-			packageProductDependencies = (
-			);
 			productName = SecureRentalUITests;
 			productReference = 0B3ED3D22CC41BD900136A00 /* SecureRentalUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -195,6 +248,9 @@
 			);
 			mainGroup = 0B3ED3AF2CC41BD800136A00;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B3ED3B92CC41BD800136A00 /* Products */;
 			projectDirPath = "";
@@ -230,6 +286,109 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F34B78B7452A868A6900297 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental/Pods-SecureRental-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental/Pods-SecureRental-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SecureRental/Pods-SecureRental-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		57171F0AE0D977AC7550FDD3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureRental-SecureRentalUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		674234BD91299818A473453A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureRentalTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9BFF2E6CB9FED246AB780136 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureRental-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B7C6803AC593B2CAC6904E27 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0B3ED3B42CC41BD800136A00 /* Sources */ = {
@@ -306,7 +465,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -369,7 +528,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -390,6 +549,7 @@
 		};
 		0B3ED3DD2CC41BD900136A00 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E229B0A011F4FCA42F5B59EC /* Pods-SecureRental.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -419,6 +579,7 @@
 		};
 		0B3ED3DE2CC41BD900136A00 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C4D04F4B7289975644DADC1 /* Pods-SecureRental.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -448,6 +609,7 @@
 		};
 		0B3ED3E02CC41BD900136A00 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 238191AA8D4E990EB326340E /* Pods-SecureRentalTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -467,6 +629,7 @@
 		};
 		0B3ED3E12CC41BD900136A00 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 83D6C2925340AFB24DC3EDB5 /* Pods-SecureRentalTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -486,6 +649,7 @@
 		};
 		0B3ED3E32CC41BD900136A00 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7574162C7600F0465A854353 /* Pods-SecureRental-SecureRentalUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -503,6 +667,7 @@
 		};
 		0B3ED3E42CC41BD900136A00 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A76DAE17C11ECAB1509EDADB /* Pods-SecureRental-SecureRentalUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -558,6 +723,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aws-amplify/aws-sdk-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.41;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0B4DFD4D2CE724800097B397 /* AWSDynamoDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSDynamoDB;
+		};
+		0B4DFD4F2CE724A70097B397 /* AWSS3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSS3;
+		};
+		0B4DFD512CE724AC0097B397 /* AWSLambda */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSLambda;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B3ED3B02CC41BD800136A00 /* Project object */;
 }

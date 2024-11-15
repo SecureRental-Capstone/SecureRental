@@ -115,7 +115,7 @@ struct HomeView: View {
                     }
                     .tag(2)
                 
-                ProfileView(user: user)  // Show ProfileView when this tab is selected
+                ProfileView(user: user, rootView: $rootView)  // Show ProfileView when this tab is selected
                     .tabItem {
                         Label("Profile", systemImage: "person.circle")
                     }

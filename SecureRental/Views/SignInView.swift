@@ -9,24 +9,29 @@ import SwiftUI
 
 struct SignInView: View {
     
-    @Binding var rootView : RootView
+    @Binding var rootView: RootView
     
-    @State private var email : String = ""
-    @State private var password : String = ""
+    //init DynamoDBService with the region and table name
+    private var dynamoDBService: DynamoDBService
     
-    @State private var showAlert = false
-    @State private var alertMessage = ""
+    //ViewModel with DynamoDBService passed as a dependency
+    @StateObject private var viewModel: UserSignInViewModel
+    
+    //initializer to inject the DynamoDBService into the viewModel
+    init(rootView: Binding<RootView>, dynamoDBService: DynamoDBService) {
+        _rootView = rootView
+        self.dynamoDBService = dynamoDBService
+        _viewModel = StateObject(wrappedValue: UserSignInViewModel(dynamoDBService: dynamoDBService))
+    }
     
     var body: some View {
-        
-        VStack{
-            
+        VStack {
             Spacer()
             
             Text("Secure Rental")
                 .font(.title)
             
-            TextField("username", text: $email)
+            TextField("Email", text: $viewModel.email)
                 .autocorrectionDisabled(true)
                 .textInputAutocapitalization(.never)
                 .padding()
@@ -35,8 +40,7 @@ struct SignInView: View {
                         .stroke(Color.gray, lineWidth: 1)
                 )
             
-            
-            SecureField("password", text: $password)
+            SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled(true)
                 .textInputAutocapitalization(.never)
                 .padding()
@@ -46,12 +50,13 @@ struct SignInView: View {
                 )
             
             Button(action: {
-                
-//                                            self.login()
-                self.rootView = .main
-
-            }){
-                Text("Login")
+                Task {
+                    self.rootView = .main
+                    //UNCOMMENT ONCE COMPLETE
+                    //await viewModel.signIn() // Call ViewModel's signIn method
+                }
+            }) {
+                Text("Log In")
                     .padding(EdgeInsets(top: 6, leading: 5, bottom: 6, trailing: 5))
                     .frame(maxWidth: .infinity)
             }
@@ -61,27 +66,28 @@ struct SignInView: View {
             .padding(.top, 24)
             
             Button(action: {
-                //set rootView to .signUp to navigate to SignUpView
                 self.rootView = .signUp
             }) {
                 Text("Don't have an account? Sign Up")
                     .foregroundColor(.blue)
             }
+            
             Spacer()
         }
         .padding()
-        .alert(isPresented: $showAlert) {
-            Alert(
-                title: Text("Error"),
-                message: Text(alertMessage),
-                dismissButton: .default(Text("OK")) {
-                    showAlert = false
-                }
-            )
-        }
-        
-    }//body
+//        .alert(isPresented: $viewModel.showAlert) {
+//            Alert(
+//                title: Text("Error"),
+//                message: Text(viewModel.alertMessage),
+//                dismissButton: .default(Text("OK")) {
+//                    viewModel.showAlert = false
+//                }
+//            )
+//        }
+    }
 }
+
+
 
 //#Preview {
 //    SignInView()
