@@ -19,6 +19,8 @@ class RentalListingsViewModel: ObservableObject {
     @Published var listings: [RentalListing] = []
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
+    @Published var favoriteListings: Set<UUID> = [] // A set of favorite listing IDs
+
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -38,7 +40,7 @@ class RentalListingsViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    /// Fetches rental listings from the backend or local storage.
+    // Fetches rental listings from the backend or local storage.
     func fetchListings() {
         // Placeholder data; replace with actual backend fetching logic
         listings = [
@@ -77,15 +79,15 @@ class RentalListingsViewModel: ObservableObject {
         ]
     }
     
-    /// Adds a new rental listing.
-    /// - Parameter listing: The `RentalListing` to add.
+    // Adds a new rental listing.
+    // - Parameter listing: The `RentalListing` to add.
     func addListing(_ listing: RentalListing) {
         listings.append(listing)
         // TODO: Add backend call to save the listing
     }
     
-    /// Updates an existing rental listing.
-    /// - Parameter listing: The `RentalListing` with updated information.
+    // Updates an existing rental listing.
+    // - Parameter listing: The `RentalListing` with updated information.
     func updateListing(_ listing: RentalListing) {
         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
             listings[index] = listing
@@ -93,10 +95,10 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
     
-    /// Filters listings based on search text and selected amenities.
-    /// - Parameters:
-    ///   - searchTerm: The text input by the user for searching.
-    ///   - amenities: The list of amenities selected by the user for filtering.
+    // Filters listings based on search text and selected amenities.
+    // - Parameters:
+    //   - searchTerm: The text input by the user for searching.
+    //   - amenities: The list of amenities selected by the user for filtering.
     private func filterListings(searchTerm: String, amenities: [String]) {
         if searchTerm.isEmpty && amenities.isEmpty {
             fetchListings()
@@ -113,86 +115,32 @@ class RentalListingsViewModel: ObservableObject {
             }
         }
     }
+    
+    // Toggle favorite status
+     func toggleFavorite(for listing: RentalListing) {
+         if favoriteListings.contains(listing.id) {
+             favoriteListings.remove(listing.id)
+         } else {
+             favoriteListings.insert(listing.id)
+         }
+     }
+
+     // Check if the listing is a favorite
+     func isFavorite(_ listing: RentalListing) -> Bool {
+         return favoriteListings.contains(listing.id)
+     }
+
+     // Add a rating or comment to a listing
+//     func addComment(to listing: RentalListing, comment: String) {
+//         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
+//             listings[index].comments.append(comment)
+//         }
+//     }
+
+//     func addRating(to listing: RentalListing, rating: Int) {
+//         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
+//             listings[index].ratings.append(rating)
+//         }
+//     }
 }
 
-
-//import Foundation
-//import Combine
-//import CoreLocation
-//
-//class RentalListingsViewModel: ObservableObject {
-//    @Published var listings: [RentalListing] = []
-//    @Published var searchText: String = ""
-//    @Published var selectedAmenities: [String] = []
-//
-//    private var cancellables = Set<AnyCancellable>()
-//    
-//    init() {
-//        // Fetch initial data from backend or local storage
-//        fetchListings()
-//        
-//        // Setup search functionality
-//        $searchText
-//            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-//            .removeDuplicates()
-//            .sink { [weak self] searchTerm in
-//                self?.filterListings(by: searchTerm)
-//            }
-//            .store(in: &cancellables)
-//    }
-//    
-//    func fetchListings() {
-//        // will replace with actual backend fetching logic later
-//        listings = [
-//            RentalListing(
-//                title: "Cozy Apartment",
-//                description: "A charming one-bedroom apartment in the heart of downtown.",
-//                price: "$1200/month",
-//                imageName: "apartment1",
-//                location: "Toronto, ON",
-//                isAvailable: true,
-//                datePosted: Date(),
-//                numberOfBedrooms: 1,
-//                numberOfBathrooms: 1,
-//                squareFootage: 600,
-//                amenities: ["WiFi", "Washer/Dryer", "Pet-friendly"],
-//                coordinates: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832)
-//            ),
-//            RentalListing(
-//                title: "Luxury Condo",
-//                description: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
-//                price: "$2500/month",
-//                imageName: "condo1",
-//                location: "Toronto, ON",
-//                isAvailable: false,
-//                datePosted: Date().addingTimeInterval(-3600),
-//                numberOfBedrooms: 2,
-//                numberOfBathrooms: 2,
-//                squareFootage: 1100,
-//                amenities: ["Gym", "Parking", "Swimming Pool"],
-//                coordinates: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832)
-//
-//            )
-//        ]
-//    }
-//    
-//    func addListing(_ listing: RentalListing) {
-//        listings.append(listing)
-//        // Add backend call to save the listing
-//    }
-//    
-//    func updateListing(_ listing: RentalListing) {
-//        if let index = listings.firstIndex(where: { $0.id == listing.id }) {
-//            listings[index] = listing
-//            // Add backend call to update the listing
-//        }
-//    }
-//    
-//    private func filterListings(by searchTerm: String) {
-//        if searchTerm.isEmpty {
-//            fetchListings()
-//        } else {
-//            listings = listings.filter { $0.title.lowercased().contains(searchTerm.lowercased()) || $0.description.lowercased().contains(searchTerm.lowercased()) }
-//        }
-//    }
-//}

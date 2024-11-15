@@ -25,5 +25,8 @@ struct RentalListing: Identifiable {
     var street: String
     var city: String
     var province: String
+    var comments: [String]?      
+    var ratings: [Double]?
+    
 }
 
