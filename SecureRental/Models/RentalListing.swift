@@ -28,6 +28,6 @@ struct RentalListing: Identifiable {
     var province: String
     var comments: [String]? = []
     var ratings: [Double]? = []
-    
+    var isFavourite: Bool = false
 }
 

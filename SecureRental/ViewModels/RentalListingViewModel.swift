@@ -20,7 +20,12 @@ class RentalListingsViewModel: ObservableObject {
     @Published var listings: [RentalListing] = []
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
-    @Published var favoriteListings: Set<UUID> = [] // A set of favorite listing IDs
+    @Published private(set) var favoriteListingIDs: Set<UUID> = []
+    
+        // Derived property for favorite listings
+    var favouriteListings: [RentalListing] {
+        listings.filter { favoriteListingIDs.contains($0.id) }
+    }
 
     
     private var cancellables = Set<AnyCancellable>()
@@ -118,19 +123,18 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
     
-    // Toggle favorite status
-     func toggleFavorite(for listing: RentalListing) {
-         if favoriteListings.contains(listing.id) {
-             favoriteListings.remove(listing.id)
-         } else {
-             favoriteListings.insert(listing.id)
-         }
-     }
-
-     // Check if the listing is a favorite
-     func isFavorite(_ listing: RentalListing) -> Bool {
-         return favoriteListings.contains(listing.id)
-     }
+    func toggleFavorite(for listing: RentalListing) {
+        if favoriteListingIDs.contains(listing.id) {
+            favoriteListingIDs.remove(listing.id)
+        } else {
+            favoriteListingIDs.insert(listing.id)
+        }
+    }
+    
+    func isFavorite(_ listing: RentalListing) -> Bool {
+        return favoriteListingIDs.contains(listing.id)
+    }
+}
 
      // Add a rating or comment to a listing
 //     func addComment(to listing: RentalListing, comment: String) {
@@ -144,5 +148,5 @@ class RentalListingsViewModel: ObservableObject {
 //             listings[index].ratings.append(rating)
 //         }
 //     }
-}
+
 

@@ -122,7 +122,7 @@ struct HomeView: View {
                         Label("Messages", systemImage: "message")
                     }   .tag(1)
                 
-                FavouriteListingsView()  // Show ProfileView when this tab is selected
+                FavouriteListingsView(viewModel: viewModel)  // Show ProfileView when this tab is selected
                     .tabItem {
                         Label("Favourites", systemImage: "star.fill")
                     }
