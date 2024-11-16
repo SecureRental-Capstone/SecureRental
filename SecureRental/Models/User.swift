@@ -25,7 +25,7 @@ class User: Identifiable, ObservableObject {
     @Published var phoneNumber: String?
     @Published var address: String?
     @Published var bio: String?
-    
+    @Published var rating: Double?
         // Initializer for the User class
     init(name: String, email: String, profilePicture: Image? = nil, phoneNumber: String? = nil, address: String? = nil, bio: String? = nil, username: String, password: String) {
         self.name = name

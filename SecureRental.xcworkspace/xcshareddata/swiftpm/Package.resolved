@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/aws-amplify/aws-sdk-swift",
       "state" : {
-        "revision" : "0c4b24e099af8c191733cc230cde85a01a5a7456",
-        "version" : "1.0.41"
+        "revision" : "3dc79b293a1475eeca420c59257756f540ec230d",
+        "version" : "1.0.42"
       }
     },
     {

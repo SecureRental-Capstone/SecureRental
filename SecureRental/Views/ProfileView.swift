@@ -1,116 +1,135 @@
-//
-//  ProfileView.swift
-//  SecureRental
-//
-//  Created by Shehnazdeep Kaur on 2024-11-06.
-//
-
 import SwiftUI
 
 struct ProfileView: View {
     @ObservedObject var user: User
     @Binding var rootView: RootView
-
+    
     var body: some View {
-        VStack {
-                // Profile Header with image and name
-            HStack {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(.blue)
-                    .padding(.leading, 20)
-                
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(user.name ?? "")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    Text(user.email ?? "")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+        NavigationView {
+            VStack(spacing: 20) {
+                    // Profile Header with photo and ratings
+                HStack {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.blue)
+                        .padding(.leading, 20)
+                    
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(user.name ?? "User Name")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        HStack {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                            Text(String(format: "%.1f", user.rating ?? 4.0))
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    
+                    Spacer()
                 }
-                .padding(.leading, 10)
-                Spacer()
+                .padding(.top, 40)
+                .padding(.bottom, 20)
+                .background(Color.gray.opacity(0.1))
+                
+                    // Profile Options
+                List {
+                        // Profile Details
+                    Section(header: Text("Profile").font(.headline)) {
+                        NavigationLink(destination: ProfileDetailsView(user: user)) {
+                            Label("Profile Details", systemImage: "person.fill")
+                        }
+                    }
+                    
+                        // Account Settings
+                    Section(header: Text("Account Settings").font(.headline)) {
+                        NavigationLink(destination: ManageAccountView()) {
+                            Label("Manage Account", systemImage: "gearshape.fill")
+                        }
+                        NavigationLink(destination: NotificationPreferencesView()) {
+                            Label("Notification Preferences", systemImage: "bell.fill")
+                        }
+                    }
+                    
+                        // General Information
+                    Section(header: Text("General Information").font(.headline)) {
+                        NavigationLink(destination: TermsOfUseView()) {
+                            Label("Terms of Use", systemImage: "doc.text")
+                        }
+                        NavigationLink(destination: PrivacyPolicyView()) {
+                            Label("Privacy Policy", systemImage: "lock.fill")
+                        }
+                        NavigationLink(destination: HelpView()) {
+                            Label("Help", systemImage: "questionmark.circle.fill")
+                        }
+                    }
+                    
+                        // Display Settings
+                    Section(header: Text("Display Settings").font(.headline)) {
+                        NavigationLink(destination: AppThemeSettingsView()) {
+                            Label("App Theme", systemImage: "paintpalette.fill")
+                        }
+                    }
+                    
+                        // Logout Button
+                    Section {
+                        Button(action: {
+                                // Log out and navigate to login screen
+                            self.rootView = .login
+                        }) {
+                            Text("Log Out")
+                                .font(.headline)
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    }
+                }
+                .listStyle(GroupedListStyle())
             }
-            .padding(.top, 40)
-            
-            Divider() // Add a line separator
-            
-                // Profile Information Section
-            VStack(alignment: .leading, spacing: 15) {
-                Text("About Me")
-                    .font(.headline)
-                    .padding(.top, 20)
-                
-                Text(user.bio!)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                
-                Divider() // Line separator
-                
-                    // Address
-                Text("Address")
-                    .font(.headline)
-                
-                Text(user.address!)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                
-                Divider()
-                
-                    // Phone Number
-                Text("Phone Number")
-                    .font(.headline)
-                
-                Text(user.phoneNumber!)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-                // Edit Profile Button
-            Button(action: {
-                    // Handle Edit Profile action
-            }) {
-                Text("Edit Profile")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 40)
-            
-                // Log Out Button
-            Button(action: {
-                    // Handle Log Out action
-                self.rootView = .login
-            }) {
-                Text("Log Out")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-            }
-            .padding(.horizontal, 20)
+            .navigationBarTitle("My Profile", displayMode: .inline)
+            .background(Color.white)
         }
-        .background(Color.white)
-        .edgesIgnoringSafeArea(.top) // Ignore top safe area to push content to the top
     }
 }
 
-//struct ProfileView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ProfileView(user: User.sampleUser)
-//            .previewDevice("iPhone 14")
-//    }
-//}
+    // Placeholder Views for Navigation Links
+struct ProfileDetailsView: View {
+    var user: User
+    var body: some View {
+        Text("Profile Details for \(user.name ?? "User")")
+    }
+}
+
+struct ManageAccountView: View {
+    var body: some View { Text("Manage Account") }
+}
+
+struct NotificationPreferencesView: View {
+    var body: some View { Text("Notification Preferences") }
+}
+
+struct TermsOfUseView: View {
+    var body: some View { Text("Terms of Use") }
+}
+
+struct PrivacyPolicyView: View {
+    var body: some View { Text("Privacy Policy") }
+}
+
+struct HelpView: View {
+    var body: some View { Text("Help") }
+}
+
+struct AppThemeSettingsView: View {
+    var body: some View { Text("App Theme Settings") }
+}
