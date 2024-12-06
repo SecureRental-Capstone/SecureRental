@@ -141,8 +141,9 @@ struct HomeView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        showMessageView = true
-                        print("Chatbot tapped")
+//                        showMessageView = true
+//                        print("Chatbot tapped")
+                        rootView = .chatbot
                     }) {
                         Image(systemName: "bubble.right.fill")
                             .resizable()

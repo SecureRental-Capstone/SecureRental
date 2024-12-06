@@ -19,8 +19,7 @@ struct SecureRentalApp: App {
     
     var body: some Scene {
         WindowGroup {
-            //LaunchView()
-            ChatbotView()
+            LaunchView()
         }
     }
     

@@ -61,6 +61,8 @@ struct LaunchView: View {
                 HomeView(rootView: self.$rootView)
             case .authentication:
                 Authentication(rootView: self.$rootView)
+            case .chatbot:
+                ChatbotView(rootView: self.$rootView)
             }
         }
     }

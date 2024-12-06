@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatbotView: View {
     @StateObject private var viewModel = ChatbotViewModel()  // ViewModel to handle the logic
+    @Binding var rootView: RootView
 
     var body: some View {
         VStack {
@@ -22,6 +23,7 @@ struct ChatbotView: View {
                 
                 Button(action: {
                     // Close the chatbot and return to homepage
+                    rootView = .main
                 }) {
                     Image(systemName: "xmark")
                         .resizable()
