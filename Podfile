@@ -8,6 +8,9 @@ target 'SecureRental' do
   # Pods for SecureRental
   pod 'AWSCore'
   pod 'AWSDynamoDB'
+  pod 'AWSCognito'
+  pod 'AWSS3'
+  pod 'AWSLex'
 
   target 'SecureRentalTests' do
     inherit! :search_paths

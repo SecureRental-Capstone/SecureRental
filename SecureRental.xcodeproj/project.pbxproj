@@ -10,6 +10,10 @@
 		0B4DFD4E2CE724800097B397 /* AWSDynamoDB in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD4D2CE724800097B397 /* AWSDynamoDB */; };
 		0B4DFD502CE724A70097B397 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD4F2CE724A70097B397 /* AWSS3 */; };
 		0B4DFD522CE724AC0097B397 /* AWSLambda in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD512CE724AC0097B397 /* AWSLambda */; };
+		0B79D42C2D02DD6100191B27 /* AWSLexModelBuildingService in Frameworks */ = {isa = PBXBuildFile; productRef = 0B79D42B2D02DD6100191B27 /* AWSLexModelBuildingService */; };
+		0B79D42E2D02DD6100191B27 /* AWSLexModelsV2 in Frameworks */ = {isa = PBXBuildFile; productRef = 0B79D42D2D02DD6100191B27 /* AWSLexModelsV2 */; };
+		0B79D4302D02DD6100191B27 /* AWSLexRuntimeService in Frameworks */ = {isa = PBXBuildFile; productRef = 0B79D42F2D02DD6100191B27 /* AWSLexRuntimeService */; };
+		0B79D4322D02DD6100191B27 /* AWSLexRuntimeV2 in Frameworks */ = {isa = PBXBuildFile; productRef = 0B79D4312D02DD6100191B27 /* AWSLexRuntimeV2 */; };
 		3DC74231025E63264987AD94 /* Pods_SecureRental_SecureRentalUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF521C0B2F7A604D8A5DB547 /* Pods_SecureRental_SecureRentalUITests.framework */; };
 		A2FA6E7760F1C32380C67D29 /* Pods_SecureRental.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A843D400C1132B1A6687D08 /* Pods_SecureRental.framework */; };
 		B0887FE00CD0A017D7679588 /* Pods_SecureRentalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEC2A2E14F6412EED7A09283 /* Pods_SecureRentalTests.framework */; };
@@ -74,6 +78,10 @@
 				0B4DFD502CE724A70097B397 /* AWSS3 in Frameworks */,
 				0B4DFD4E2CE724800097B397 /* AWSDynamoDB in Frameworks */,
 				A2FA6E7760F1C32380C67D29 /* Pods_SecureRental.framework in Frameworks */,
+				0B79D42E2D02DD6100191B27 /* AWSLexModelsV2 in Frameworks */,
+				0B79D42C2D02DD6100191B27 /* AWSLexModelBuildingService in Frameworks */,
+				0B79D4302D02DD6100191B27 /* AWSLexRuntimeService in Frameworks */,
+				0B79D4322D02DD6100191B27 /* AWSLexRuntimeV2 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +174,10 @@
 				0B4DFD4D2CE724800097B397 /* AWSDynamoDB */,
 				0B4DFD4F2CE724A70097B397 /* AWSS3 */,
 				0B4DFD512CE724AC0097B397 /* AWSLambda */,
+				0B79D42B2D02DD6100191B27 /* AWSLexModelBuildingService */,
+				0B79D42D2D02DD6100191B27 /* AWSLexModelsV2 */,
+				0B79D42F2D02DD6100191B27 /* AWSLexRuntimeService */,
+				0B79D4312D02DD6100191B27 /* AWSLexRuntimeV2 */,
 			);
 			productName = SecureRental;
 			productReference = 0B3ED3B82CC41BD800136A00 /* SecureRental.app */;
@@ -480,7 +492,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -537,7 +549,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -564,6 +576,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -594,6 +607,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -616,7 +630,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = VHM74NZAQ3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = akhtahan.SecureRentalTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -636,7 +650,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = VHM74NZAQ3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = akhtahan.SecureRentalTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -655,6 +669,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = VHM74NZAQ3;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = akhtahan.SecureRentalUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -673,6 +688,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = VHM74NZAQ3;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = akhtahan.SecureRentalUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -750,6 +766,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
 			productName = AWSLambda;
+		};
+		0B79D42B2D02DD6100191B27 /* AWSLexModelBuildingService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSLexModelBuildingService;
+		};
+		0B79D42D2D02DD6100191B27 /* AWSLexModelsV2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSLexModelsV2;
+		};
+		0B79D42F2D02DD6100191B27 /* AWSLexRuntimeService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSLexRuntimeService;
+		};
+		0B79D4312D02DD6100191B27 /* AWSLexRuntimeV2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSLexRuntimeV2;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

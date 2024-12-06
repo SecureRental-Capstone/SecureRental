@@ -1360,11 +1360,6 @@ NSString *const AWSJSONParserErrorDomain = @"com.amazonaws.AWSJSONParserErrorDom
     return NO;
 }
 
-+ (BOOL)checkIfLocationService:(NSDictionary *)serviceDefinitionRule {
-    NSString *serviceId = serviceDefinitionRule[@"metadata"][@"serviceId"];
-    return [serviceId isEqualToString:@"Location"];
-}
-
 + (NSDictionary *)dictionaryForJsonData:(NSData *)data
                                response:(NSHTTPURLResponse *)response
                              actionName:(NSString *)actionName
@@ -1373,8 +1368,6 @@ NSString *const AWSJSONParserErrorDomain = @"com.amazonaws.AWSJSONParserErrorDom
     if (!data) {
         return [NSMutableDictionary new];
     }
-
-    BOOL isLocationService = [self checkIfLocationService:serviceDefinitionRule];
 
     // Amazon Lambda may return non-array/non-dictionary top level objects.
     // They are valid JSON texts according to RFC 7159 and ECMA 404.
@@ -1421,8 +1414,7 @@ NSString *const AWSJSONParserErrorDomain = @"com.amazonaws.AWSJSONParserErrorDom
         if ((rules[@"members"][isPayloadData][@"streaming"]) ||
                 ([shapeName isEqual:@"JsonDocument"]) ||
                 ([shapeName isEqual:@"BlobStream"]) ||
-                ([shapeName isEqual:@"BodyBlob"]) ||
-                ([shapeName isEqual:@"Blob"] && isLocationService)) {
+                ([shapeName isEqual:@"BodyBlob"])) {
             parsedData[isPayloadData] = data;
             if (error) *error = nil;
             return parsedData;
