@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+//Add a comment
     // Define the User class
 class User: Identifiable, ObservableObject {
         // Unique ID for the user (can be used for fetching from databases, etc.)
