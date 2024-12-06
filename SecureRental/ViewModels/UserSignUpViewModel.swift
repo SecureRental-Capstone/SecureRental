@@ -12,12 +12,12 @@ class UserSignUpViewModel: ObservableObject {
     @Published var showAlert = false
     @Published var alertMessage = ""
     
-    private var dynamoDBService: DynamoDBService
+   // private var dynamoDBService: DynamoDBService
     
     //init with DynamoDBService
-    init(dynamoDBService: DynamoDBService) {
-        self.dynamoDBService = dynamoDBService
-    }
+//    init(dynamoDBService: DynamoDBService) {
+//        self.dynamoDBService = dynamoDBService
+//    }
     
     //method to create the user account
     func createAccount(email: String, password: String) async {
@@ -33,7 +33,7 @@ class UserSignUpViewModel: ObservableObject {
         
         do {
             //call the DynamoDBService to add the user
-            try await dynamoDBService.addUser(user: newUser)
+            //try await dynamoDBService.addUser(user: newUser)
             //if successful, navigate to the login screen or show a success message
             alertMessage = "Account created successfully!"
             showAlert = true

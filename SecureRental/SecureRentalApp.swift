@@ -5,23 +5,56 @@
 //  Created by Haniya Akhtar on 2024-10-19.
 //
 
+//import SwiftUI
+//import Amplify
+//
+//@main
+//struct SecureRentalApp: App {
+//    
+//    init() {
+//        do {
+//           try Amplify.configure()
+//            print("Initialized Amplify");
+//        } catch {
+//            print("Could not initialize Amplify: \(error)")
+//        }
+//    }
+//    
+//    var body: some Scene {
+//        WindowGroup {
+//            LaunchView()
+//        }
+//    }
+//}
+  
 import SwiftUI
-import AWSCore
+import Amplify
+import AWSCognitoAuthPlugin
 
 @main
 struct SecureRentalApp: App {
     
     init() {
-        // Set up AWS configuration (use your actual AWS credentials for real app)
-        let credentialsProvider = AWSStaticCredentialsProvider(accessKey: "YOUR_ACCESS_KEY", secretKey: "YOUR_SECRET_KEY")
-        let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialsProvider)
-        
-        AWSServiceManager.default().defaultServiceConfiguration = configuration
+        configureAmplify()
+    }
+    
+    func configureAmplify() {
+        do {
+                
+            try Amplify.add(plugin: AWSCognitoAuthPlugin())
+            
+            try Amplify.configure()
+            print("Initialized Amplify successfully.")
+        } catch {
+            print("Could not initialize Amplify: \(error)")
+        }
     }
     
     var body: some Scene {
         WindowGroup {
-            LaunchView()
+            LandingView()
+                .environmentObject(AuthenticationService())
         }
     }
 }
+

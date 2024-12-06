@@ -3,11 +3,12 @@ import SwiftUI
 struct ProfileView: View {
     @ObservedObject var user: User
     @Binding var rootView: RootView
+    @EnvironmentObject private var authenticationService: AuthenticationService
     
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                    // Profile Header with photo and ratings
+            
                 HStack {
                     Image(systemName: "person.circle.fill")
                         .resizable()
@@ -42,7 +43,7 @@ struct ProfileView: View {
                 .padding(.bottom, 20)
                 .background(Color.gray.opacity(0.1))
                 
-                    // Profile Options
+       
                 List {
                         // Profile Details
                     Section(header: Text("Profile").font(.headline)) {
@@ -81,11 +82,14 @@ struct ProfileView: View {
                         }
                     }
                     
-                        // Logout Button
                     Section {
                         Button(action: {
-                                // Log out and navigate to login screen
-                            self.rootView = .login
+                                // Perform the sign out asynchronously
+                            Task {
+                                await authenticationService.signOut()
+                                    // After sign out, navigate to the login screen
+                                self.rootView = .login
+                            }
                         }) {
                             Text("Log Out")
                                 .font(.headline)
@@ -93,6 +97,7 @@ struct ProfileView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
+
                 }
                 .listStyle(GroupedListStyle())
             }
