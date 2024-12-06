@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0B4DFD4E2CE724800097B397 /* AWSDynamoDB in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD4D2CE724800097B397 /* AWSDynamoDB */; };
-		0B4DFD502CE724A70097B397 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD4F2CE724A70097B397 /* AWSS3 */; };
-		0B4DFD522CE724AC0097B397 /* AWSLambda in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4DFD512CE724AC0097B397 /* AWSLambda */; };
 		3DC74231025E63264987AD94 /* Pods_SecureRental_SecureRentalUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF521C0B2F7A604D8A5DB547 /* Pods_SecureRental_SecureRentalUITests.framework */; };
 		A2FA6E7760F1C32380C67D29 /* Pods_SecureRental.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A843D400C1132B1A6687D08 /* Pods_SecureRental.framework */; };
 		B0887FE00CD0A017D7679588 /* Pods_SecureRentalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEC2A2E14F6412EED7A09283 /* Pods_SecureRentalTests.framework */; };
@@ -70,9 +67,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B4DFD522CE724AC0097B397 /* AWSLambda in Frameworks */,
-				0B4DFD502CE724A70097B397 /* AWSS3 in Frameworks */,
-				0B4DFD4E2CE724800097B397 /* AWSDynamoDB in Frameworks */,
 				A2FA6E7760F1C32380C67D29 /* Pods_SecureRental.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -163,9 +157,6 @@
 			);
 			name = SecureRental;
 			packageProductDependencies = (
-				0B4DFD4D2CE724800097B397 /* AWSDynamoDB */,
-				0B4DFD4F2CE724A70097B397 /* AWSS3 */,
-				0B4DFD512CE724AC0097B397 /* AWSLambda */,
 			);
 			productName = SecureRental;
 			productReference = 0B3ED3B82CC41BD800136A00 /* SecureRental.app */;
@@ -249,7 +240,6 @@
 			mainGroup = 0B3ED3AF2CC41BD800136A00;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B3ED3B92CC41BD800136A00 /* Products */;
@@ -723,35 +713,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/aws-amplify/aws-sdk-swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.41;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		0B4DFD4D2CE724800097B397 /* AWSDynamoDB */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
-			productName = AWSDynamoDB;
-		};
-		0B4DFD4F2CE724A70097B397 /* AWSS3 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
-			productName = AWSS3;
-		};
-		0B4DFD512CE724AC0097B397 /* AWSLambda */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0B4DFD482CE720C50097B397 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
-			productName = AWSLambda;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B3ED3B02CC41BD800136A00 /* Project object */;
 }
