@@ -15,6 +15,9 @@
       "auth": {
         "SecureRentalAuth": {},
         "securerental9889c715": {}
+      },
+      "api": {
+        "securerental": {}
       }
     }
   }

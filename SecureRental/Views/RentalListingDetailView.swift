@@ -1,17 +1,19 @@
+////
+////  RentalListingDetailView.swift
+////  SecureRental
+////
+////  Created by Anchal  Sharma  on 2024-11-07.
+////
 //
-//  RentalListingDetailView.swift
-//  SecureRental
-//
-//  Created by Anchal  Sharma  on 2024-11-07.
-//
-
-// RentalListingDetailView.swift
+//// RentalListingDetailView.swift
 import SwiftUI
 import MapKit
 import CoreLocation
 
+
+
 struct RentalListingDetailView: View {
-    var listing: RentalListing
+    var listing: Listing
     @State private var region: MKCoordinateRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832), // Default to Toronto
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)

@@ -4,6 +4,8 @@
 //
 //  Created by Haniya Akhtar on 2024-10-19.
 //
+//
+//
 
 import SwiftUI
 
@@ -11,48 +13,26 @@ struct HomeView: View {
     @Binding var rootView: RootView
     @State private var selectedTab = 0
     @State private var showMessageView = false
-    @State private var showProfileView = false
     @State private var showCreateListingView = false
     @State private var showEditListingView = false
-//    @State private var selectedListing: RentalListing?
-    @State private var showCommentView = false // For comment/ratings view
-    @State private var selectedListing: RentalListing?
-    @State private var selectedListingForComment: RentalListing?
+    @State private var showCommentView = false
+    @State private var selectedListing: Listing?
+    @State private var selectedListingForComment: Listing?
     @StateObject var user = User.sampleUser
-
     @StateObject var viewModel = RentalListingsViewModel()
     
     var body: some View {
         ZStack {
-            // Main TabView Content
+                // Main TabView Content
             TabView(selection: $selectedTab) {
                 NavigationView {
                     VStack {
-
                         NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
-                                            .padding()
-//                        List(viewModel.listings) { listing in
-//                                            NavigationLink(destination: EditRentalListingView(viewModel: viewModel, listing: listing)) {
-//                                                Text(listing.title)
-//                                            }
-//                                        }
+                            .padding()
                         
-
                         List(viewModel.listings) { listing in
                             NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                 HStack {
-//                                    Image(listing.images)
-//                                        .resizable()
-//                                        .scaledToFit()
-//                                        .frame(width: 100, height: 100)
-//                                        .cornerRadius(8)
-//                                    ForEach(listing.images, id: \.self) { image in
-//                                        Image(uiImage: image)
-//                                            .resizable()
-//                                            .scaledToFit()
-//                                            .frame(width: 100, height: 100)
-//                                            .cornerRadius(8)
-//                                    }
                                     if let firstImage = listing.images.first {
                                         Image(uiImage: firstImage)
                                             .resizable()
@@ -68,17 +48,16 @@ struct HomeView: View {
                                     }
                                     Spacer()
                                     
-                                    // Favorite Button
+                                        // Favorite Button
                                     Button(action: {
                                         viewModel.toggleFavorite(for: listing)
                                     }) {
                                         Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
                                             .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
-
                                     }
                                     .buttonStyle(BorderlessButtonStyle())
-
-                                    // Comment (Rate) Button
+                                    
+                                        // Comment (Rate) Button
                                     Button(action: {
                                         selectedListingForComment = listing
                                         showCommentView = true
@@ -88,6 +67,7 @@ struct HomeView: View {
                                     }
                                     .buttonStyle(BorderlessButtonStyle())
                                     
+                                        // Edit Listing Button
                                     Button(action: {
                                         selectedListing = listing
                                         showEditListingView = true
@@ -116,26 +96,29 @@ struct HomeView: View {
                 }
                 .tag(0)
                 
-                // Message View for the Messages tab
+                    // Messages Tab
                 MessageView()
                     .tabItem {
                         Label("Messages", systemImage: "message")
-                    }   .tag(1)
+                    }
+                    .tag(1)
                 
-                FavouriteListingsView(viewModel: viewModel)  // Show ProfileView when this tab is selected
+                    // Favourites Tab
+                FavouriteListingsView(viewModel: viewModel)
                     .tabItem {
                         Label("Favourites", systemImage: "star.fill")
                     }
                     .tag(2)
                 
-                ProfileView(user: user, rootView: $rootView)  // Show ProfileView when this tab is selected
+                    // Profile Tab
+                ProfileView(user: user, rootView: $rootView)
                     .tabItem {
                         Label("Profile", systemImage: "person.circle")
                     }
                     .tag(3)
             }
             
-            // Chatbot icon
+                // Chatbot icon button
             VStack {
                 Spacer()
                 HStack {
@@ -165,12 +148,12 @@ struct HomeView: View {
         .sheet(isPresented: $showCreateListingView) {
             CreateRentalListingView(viewModel: viewModel)
         }
-        .sheet(item: $selectedListing) { listing in
-            EditRentalListingView(viewModel: viewModel, listing: listing)
-        }
-        .sheet(item: $selectedListingForComment) { listing in
-            CommentView(listing: listing, viewModel: viewModel)
-        }
+//        .sheet(item: $selectedListing) { listing in
+//            EditRentalListingView(viewModel: viewModel, listing: listing)
+//        }
+//        .sheet(item: $selectedListingForComment) { listing in
+//            CommentView(listing: listing, viewModel: viewModel)
+//        }
     }
 }
 
@@ -179,3 +162,4 @@ struct HomeView_Previews: PreviewProvider {
         HomeView(rootView: .constant(.main))
     }
 }
+

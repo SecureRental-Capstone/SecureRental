@@ -30,6 +30,7 @@
 import SwiftUI
 import Amplify
 import AWSCognitoAuthPlugin
+import AWSAPIPlugin
 
 @main
 struct SecureRentalApp: App {
@@ -42,7 +43,7 @@ struct SecureRentalApp: App {
         do {
                 
             try Amplify.add(plugin: AWSCognitoAuthPlugin())
-            
+            try Amplify.add(plugin: AWSAPIPlugin(modelRegistration: AmplifyModels()))
             try Amplify.configure()
             print("Initialized Amplify successfully.")
         } catch {

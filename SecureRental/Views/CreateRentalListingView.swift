@@ -1,10 +1,3 @@
-//
-//  CreateRentalListingView.swift
-//  SecureRental
-//
-//  Created by Anchal  Sharma  on 2024-11-07.
-//
-//
 
 //
 //  CreateRentalListingView.swift
@@ -12,6 +5,9 @@
 //
 //  Created by Anchal Sharma on 2024-11-07.
 //
+//
+//
+
 
 import SwiftUI
 
@@ -116,7 +112,7 @@ struct CreateRentalListingView: View {
     }
     
     private func saveListing() {
-        let newListing = RentalListing(
+        let newListing = Listing(
             title: title,
             description: description,
             price: price,
@@ -157,60 +153,80 @@ struct TextFieldWithRequiredIndicator: View {
 
 
 
-
-
 //import SwiftUI
-//import CoreLocation
+//import Amplify
 //
 //struct CreateRentalListingView: View {
 //    @Environment(\.presentationMode) var presentationMode
-//    @ObservedObject var viewModel: RentalListingsViewModel
-//    
+//    @ObservedObject var rentalListingService: RentalListingService
+//   // @ObservedObject var viewModel: RentalListingsViewModel
+//        // Rental listing state properties
 //    @State private var title: String = ""
 //    @State private var description: String = ""
 //    @State private var price: String = ""
-//    @State private var location: String = ""
-//    @State private var numberOfBedrooms: String = ""
-//    @State private var numberOfBathrooms: String = ""
+//    @State private var numberOfBedrooms: Int = 0
+//    @State private var numberOfBathrooms: Int = 0
 //    @State private var squareFootage: String = ""
-//    @State private var amenities: String = ""
-//    @State private var imageName: String = "defaultImage" // Placeholder
+//    
+//        // New location fields
+//    @State private var street: String = ""
+//    @State private var city: String = ""
+//    @State private var province: String = ""
+//    
+//        // Amenities and custom amenity
+//    @State private var selectedAmenities: [String] = []
+//    @State private var customAmenity: String = ""
+//    let defaultAmenities = ["WiFi", "Parking", "Pet Friendly", "Gym Access"]
+//    
+//        // Image upload state
+//    @State private var images: [UIImage] = []
 //    @State private var isAvailable: Bool = true
-//    @State private var latitude: String = "" // New latitude field
-//    @State private var longitude: String = "" // New longitude field
 //    
 //    var body: some View {
 //        NavigationView {
 //            Form {
+//                    // Property details section
 //                Section(header: Text("Property Details")) {
-//                    TextField("Title", text: $title)
-//                    TextField("Description", text: $description)
-//                    TextField("Price", text: $price)
-//                    TextField("Location", text: $location)
-//                    TextField("Bedrooms", text: $numberOfBedrooms)
-//                        .keyboardType(.numberPad)
-//                    TextField("Bathrooms", text: $numberOfBathrooms)
-//                        .keyboardType(.numberPad)
-//                    TextField("Square Footage", text: $squareFootage)
-//                        .keyboardType(.numberPad)
-//                    TextField("Amenities (comma separated)", text: $amenities)
-//                }
-//                
-//                Section(header: Text("Location Coordinates")) {
-//                    TextField("Latitude", text: $latitude)
+//                    TextFieldWithRequiredIndicator(placeholder: "Title", text: $title)
+//                    TextFieldWithRequiredIndicator(placeholder: "Description", text: $description)
+//                    TextFieldWithRequiredIndicator(placeholder: "Price per month", text: $price)
 //                        .keyboardType(.decimalPad)
-//                    TextField("Longitude", text: $longitude)
-//                        .keyboardType(.decimalPad)
+//                    TextFieldWithRequiredIndicator(placeholder: "Square Footage", text: $squareFootage)
+//                        .keyboardType(.numberPad)
 //                }
 //                
-//                Section(header: Text("Media")) {
-//                    Text("Media Upload Feature Coming Soon")
+//                Section(header: Text("Details")) {
+//                    Stepper("Bedrooms: \(numberOfBedrooms)", value: $numberOfBedrooms, in: 0...100)
+//                    Stepper("Bathrooms: \(numberOfBathrooms)", value: $numberOfBathrooms, in: 0...100)
 //                }
 //                
-//                Section {
-//                    Toggle(isOn: $isAvailable) {
-//                        Text("Available")
+//                    // Location section
+//                Section(header: Text("Location Details")) {
+//                    TextFieldWithRequiredIndicator(placeholder: "Street", text: $street)
+//                    TextFieldWithRequiredIndicator(placeholder: "City", text: $city)
+//                    TextFieldWithRequiredIndicator(placeholder: "Province", text: $province)
+//                }
+//                
+//                    // Amenities section with checkboxes and custom input
+//                Section(header: Text("Amenities")) {
+//                    ForEach(defaultAmenities, id: \.self) { amenity in
+//                        Toggle(amenity, isOn: Binding(
+//                            get: { selectedAmenities.contains(amenity) },
+//                            set: { isSelected in
+//                                if isSelected {
+//                                    selectedAmenities.append(amenity)
+//                                } else {
+//                                    selectedAmenities.removeAll { $0 == amenity }
+//                                }
+//                            }
+//                        ))
 //                    }
+//                    TextField("Custom Amenity", text: $customAmenity)
+//                }
+//                
+//                    // Image upload section
+//                Section(header: Text("Upload Image").modifier(RequiredField())) {
+//                    ImagePicker(images: $images)
 //                }
 //            }
 //            .navigationBarTitle("Create Listing", displayMode: .inline)
@@ -218,15 +234,14 @@ struct TextFieldWithRequiredIndicator: View {
 //                presentationMode.wrappedValue.dismiss()
 //            }, trailing: Button("Save") {
 //                saveListing()
-//                presentationMode.wrappedValue.dismiss()
 //            }.disabled(!isFormValid()))
 //        }
 //    }
 //    
 //    private func isFormValid() -> Bool {
-//        return !title.isEmpty && !description.isEmpty && !price.isEmpty && !location.isEmpty &&
-//               Int(numberOfBedrooms) != nil && Int(numberOfBathrooms) != nil && Int(squareFootage) != nil &&
-//               Double(latitude) != nil && Double(longitude) != nil
+//        return !title.isEmpty && !description.isEmpty && !price.isEmpty &&
+//        !street.isEmpty && !city.isEmpty && !province.isEmpty &&
+//        !squareFootage.isEmpty && !images.isEmpty
 //    }
 //    
 //    private func saveListing() {
@@ -234,22 +249,41 @@ struct TextFieldWithRequiredIndicator: View {
 //            title: title,
 //            description: description,
 //            price: price,
-//            imageName: imageName,
-//            location: location,
-//            isAvailable: isAvailable,
-//            datePosted: Date(),
-//            numberOfBedrooms: Int(numberOfBedrooms) ?? 0,
-//            numberOfBathrooms: Int(numberOfBathrooms) ?? 0,
+//            images: images.map { $0.pngData()?.base64EncodedString() }, // Convert images to Base64
+//            location: "\(street), \(city), \(province)",
+//            isAvailable: true,
+//            datePosted: Temporal.DateTime.now(),
+//            numberOfBedrooms: numberOfBedrooms,
+//            numberOfBathrooms: numberOfBathrooms,
 //            squareFootage: Int(squareFootage) ?? 0,
-//            amenities: amenities.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) },
-//            coordinates: CLLocationCoordinate2D(latitude: Double(latitude) ?? 0, longitude: Double(longitude) ?? 0)
+//            amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity])
 //        )
-//        viewModel.addListing(newListing)
+//        
+//        Task {
+//            do {
+//                try await rentalListingService.save(newListing)
+//                presentationMode.wrappedValue.dismiss()
+//            } catch {
+//                print("Error saving rental listing: \(error)")
+//            }
+//        }
 //    }
 //}
 //
-//struct CreateRentalListingView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        CreateRentalListingView(viewModel: RentalListingsViewModel())
+//    // Custom modifier for required fields
+//struct RequiredField: ViewModifier {
+//    func body(content: Content) -> some View {
+//        content
+//            .overlay(Text("*").foregroundColor(.red).offset(x: 8, y: -8), alignment: .trailing)
+//    }
+//}
+//
+//struct TextFieldWithRequiredIndicator: View {
+//    let placeholder: String
+//    @Binding var text: String
+//    
+//    var body: some View {
+//        TextField(placeholder, text: $text)
+//            .modifier(RequiredField())
 //    }
 //}

@@ -1,0 +1,20 @@
+# This "input" configures a global authorization rule to enable public access to
+# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
+type RentalListing
+  @model
+  @auth(rules: [{ allow: owner, ownerField: "owner" }]) {
+  id: ID!
+  title: String!
+  description: String
+  price: String!
+  images: [String]
+  location: String!
+  isAvailable: Boolean!
+  datePosted: AWSDateTime!
+  numberOfBedrooms: Int!
+  numberOfBathrooms: Int!
+  squareFootage: Int!
+  amenities: [String]
+  owner: String
+}
+

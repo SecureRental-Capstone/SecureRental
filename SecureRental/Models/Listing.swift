@@ -1,16 +1,15 @@
 //
-//  RentalListing.swift
+//  Listing.swift
 //  SecureRental
 //
-//  Created by Anchal Sharma on 2024-11-06.
-//
+//  Created by Shehnazdeep Kaur on 2024-12-06.
 //
 
 import Foundation
 import CoreLocation
 import UIKit
 
-struct RentalListing: Identifiable {
+struct Listing: Identifiable {
     let id = UUID()
     var title: String
     var description: String
@@ -30,4 +29,3 @@ struct RentalListing: Identifiable {
     var ratings: [Double]? = []
     var isFavourite: Bool = false
 }
-
