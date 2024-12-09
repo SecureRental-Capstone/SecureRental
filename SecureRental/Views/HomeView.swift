@@ -148,12 +148,12 @@ struct HomeView: View {
         .sheet(isPresented: $showCreateListingView) {
             CreateRentalListingView(viewModel: viewModel)
         }
-//        .sheet(item: $selectedListing) { listing in
-//            EditRentalListingView(viewModel: viewModel, listing: listing)
-//        }
-//        .sheet(item: $selectedListingForComment) { listing in
-//            CommentView(listing: listing, viewModel: viewModel)
-//        }
+        .sheet(item: $selectedListing) { listing in
+            EditRentalListingView(viewModel: viewModel, listing: listing)
+        }
+        .sheet(item: $selectedListingForComment) { listing in
+            CommentView(listing: listing, viewModel: viewModel)
+        }
     }
 }
 
