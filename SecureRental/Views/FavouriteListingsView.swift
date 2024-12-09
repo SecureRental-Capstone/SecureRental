@@ -58,5 +58,4 @@ struct FavouriteListingsView: View {
     }
 }
 
-    // Preview structure for testing
 

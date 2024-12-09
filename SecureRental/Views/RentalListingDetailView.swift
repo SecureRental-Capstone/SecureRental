@@ -1,11 +1,11 @@
-////
-////  RentalListingDetailView.swift
-////  SecureRental
-////
-////  Created by Anchal  Sharma  on 2024-11-07.
-////
 //
-//// RentalListingDetailView.swift
+//  RentalListingDetailView.swift
+//  SecureRental
+//
+//  Created by Anchal  Sharma  on 2024-11-07.
+//
+
+// RentalListingDetailView.swift
 import SwiftUI
 import MapKit
 import CoreLocation
@@ -30,11 +30,6 @@ struct RentalListingDetailView: View {
                         .frame(width: 200, height: 200)
                         .cornerRadius(10)
                 }
-//                Image(listing.imageName)
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(height: 200)
-//                    .cornerRadius(10)
                 
                 Text(listing.title)
                     .font(.largeTitle)
