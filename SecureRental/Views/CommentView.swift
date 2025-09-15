@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CommentView: View {
-    var listing: RentalListing
+    var listing: Listing
     @State private var comment: String = ""
     @State private var rating: Double = 1.0 // Rating from 1 to 5
     var viewModel: RentalListingsViewModel

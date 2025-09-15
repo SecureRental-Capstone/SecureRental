@@ -17,13 +17,13 @@ import Combine
 import UIKit
 
 class RentalListingsViewModel: ObservableObject {
-    @Published var listings: [RentalListing] = []
+    @Published var listings: [Listing] = []
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
     @Published private(set) var favoriteListingIDs: Set<UUID> = []
     
         // Derived property for favorite listings
-    var favouriteListings: [RentalListing] {
+    var favouriteListings: [Listing] {
         listings.filter { favoriteListingIDs.contains($0.id) }
     }
 
@@ -51,7 +51,7 @@ class RentalListingsViewModel: ObservableObject {
         let sampleImage = UIImage(named: "sampleImage") ?? UIImage()  // Provide a default image if nil
         // Placeholder data; replace with actual backend fetching logic
         listings = [
-            RentalListing(
+            Listing(
                 title: "Cozy Apartment",
                 description: "A charming one-bedroom apartment in the heart of downtown.",
                 price: "1200",
@@ -67,7 +67,7 @@ class RentalListingsViewModel: ObservableObject {
                 city: "Toronto",
                 province: "ON"
             ),
-            RentalListing(
+            Listing(
                 title: "Luxury Condo",
                 description: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
                 price: "2500",
@@ -88,14 +88,14 @@ class RentalListingsViewModel: ObservableObject {
     
     // Adds a new rental listing.
     // - Parameter listing: The `RentalListing` to add.
-    func addListing(_ listing: RentalListing) {
+    func addListing(_ listing: Listing) {
         listings.append(listing)
         // TODO: Add backend call to save the listing
     }
     
     // Updates an existing rental listing.
     // - Parameter listing: The `RentalListing` with updated information.
-    func updateListing(_ listing: RentalListing) {
+    func updateListing(_ listing: Listing) {
         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
             listings[index] = listing
             // TODO: Add backend call to update the listing
@@ -123,7 +123,7 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
     
-    func toggleFavorite(for listing: RentalListing) {
+    func toggleFavorite(for listing: Listing) {
         if favoriteListingIDs.contains(listing.id) {
             favoriteListingIDs.remove(listing.id)
         } else {
@@ -131,7 +131,7 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
     
-    func isFavorite(_ listing: RentalListing) -> Bool {
+    func isFavorite(_ listing: Listing) -> Bool {
         return favoriteListingIDs.contains(listing.id)
     }
 }

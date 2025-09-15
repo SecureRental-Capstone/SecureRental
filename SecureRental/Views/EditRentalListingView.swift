@@ -10,7 +10,7 @@ import PhotosUI
 
 struct EditRentalListingView: View {
     @ObservedObject var viewModel: RentalListingsViewModel
-    var listing: RentalListing
+    var listing: Listing
     @State private var title: String
     @State private var description: String
     @State private var price: String
@@ -27,7 +27,7 @@ struct EditRentalListingView: View {
     @State private var isShowingImagePicker = false
     @State private var selectedImageData: UIImage?
 
-    init(viewModel: RentalListingsViewModel, listing: RentalListing) {
+    init(viewModel: RentalListingsViewModel, listing: Listing) {
         self.viewModel = viewModel
         self.listing = listing
         _title = State(initialValue: listing.title)
@@ -120,7 +120,7 @@ struct EditRentalListingView: View {
     }
 
     private func saveChanges() {
-        let updatedListing = RentalListing(
+        let updatedListing = Listing(
 //            id: listing.id,
             title: title,
             description: description,

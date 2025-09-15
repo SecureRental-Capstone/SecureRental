@@ -4,34 +4,115 @@
 //
 //  Created by Haniya Akhtar on 2024-10-19.
 //
+//import SwiftUI
+//
+//struct SignUpView: View {
+//    
+//    @Binding var rootView: RootView
+//    
+//    @State private var email: String = ""
+//    @State private var password: String = ""
+//    
+//    @State private var showAlert = false
+//    @State private var alertMessage = ""
+//    
+//   // private var dynamoDBService: DynamoDBService
+//  //  @StateObject private var viewModel: UserSignUpViewModel
+//    
+//    //custom initializer to inject dependencies
+////    init(rootView: Binding<RootView>, dynamoDBService: DynamoDBService) {
+////        _rootView = rootView
+////        self.dynamoDBService = dynamoDBService
+////        _viewModel = StateObject(wrappedValue: UserSignUpViewModel(dynamoDBService: dynamoDBService))
+////    }
+//
+//    var body: some View {
+//        VStack {
+//            Spacer()
+//            
+//            Text("Secure Rental")
+//                .font(.title)
+//            
+//            TextField("Email", text: $email)
+//                .autocorrectionDisabled(true)
+//                .textInputAutocapitalization(.never)
+//                .padding()
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 10)
+//                        .stroke(Color.gray, lineWidth: 1)
+//                )
+//            
+//            SecureField("Password", text: $password)
+//                .autocorrectionDisabled(true)
+//                .textInputAutocapitalization(.never)
+//                .padding()
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 10)
+//                        .stroke(Color.gray, lineWidth: 1)
+//                )
+//            
+//            Button(action: {
+//                Task {
+//                    self.rootView = .main
+//                    //UNCOMMENT ONCE COMPLETE
+//                    //await viewModel.createAccount(email: email, password: password)
+//                }
+//            }) {
+//                Text("Create Account")
+//                    .padding(EdgeInsets(top: 6, leading: 5, bottom: 6, trailing: 5))
+//                    .frame(maxWidth: .infinity)
+//            }
+//            .buttonStyle(.borderedProminent)
+//            .background(Color.blue)
+//            .cornerRadius(10)
+//            .padding(.top, 24)
+//            
+//            // Alert for errors
+////            .alert(isPresented: $viewModel.showAlert) {
+////                Alert(
+////                    title: Text("Error"),
+////                    message: Text(viewModel.alertMessage),
+////                    dismissButton: .default(Text("OK")) {
+////                        viewModel.showAlert = false
+////                    }
+////                )
+////            }
+//            
+//            //Already have an account Button
+//            Button(action: {
+//                self.rootView = .login
+//            }) {
+//                Text("Already have an account? Log In")
+//                    .foregroundColor(.blue)
+//            }
+//            
+//            Spacer()
+//        }
+//        .padding()
+//    }
+//}
+//
+////#Preview {
+////    SignUpView()
+////}
+
 
 import SwiftUI
+import Amplify
 
 struct SignUpView: View {
-    
     @Binding var rootView: RootView
-    
     @State private var email: String = ""
     @State private var password: String = ""
+    @State private var confirmPassword: String = ""
+    @State private var errorMessage: String?
+    @State private var showAlert: Bool = false
     
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    
-    private var dynamoDBService: DynamoDBService
-    @StateObject private var viewModel: UserSignUpViewModel
-    
-    //custom initializer to inject dependencies
-    init(rootView: Binding<RootView>, dynamoDBService: DynamoDBService) {
-        _rootView = rootView
-        self.dynamoDBService = dynamoDBService
-        _viewModel = StateObject(wrappedValue: UserSignUpViewModel(dynamoDBService: dynamoDBService))
-    }
-
     var body: some View {
         VStack {
             Spacer()
             
-            Text("Secure Rental")
+            Text("Create an Account")
                 .font(.title)
             
             TextField("Email", text: $email)
@@ -52,14 +133,21 @@ struct SignUpView: View {
                         .stroke(Color.gray, lineWidth: 1)
                 )
             
+            SecureField("Confirm Password", text: $confirmPassword)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.gray, lineWidth: 1)
+                )
+            
             Button(action: {
                 Task {
-                    self.rootView = .main
-                    //UNCOMMENT ONCE COMPLETE
-                    //await viewModel.createAccount(email: email, password: password)
+                    await signUp()
                 }
             }) {
-                Text("Create Account")
+                Text("Sign Up")
                     .padding(EdgeInsets(top: 6, leading: 5, bottom: 6, trailing: 5))
                     .frame(maxWidth: .infinity)
             }
@@ -68,18 +156,6 @@ struct SignUpView: View {
             .cornerRadius(10)
             .padding(.top, 24)
             
-            // Alert for errors
-//            .alert(isPresented: $viewModel.showAlert) {
-//                Alert(
-//                    title: Text("Error"),
-//                    message: Text(viewModel.alertMessage),
-//                    dismissButton: .default(Text("OK")) {
-//                        viewModel.showAlert = false
-//                    }
-//                )
-//            }
-            
-            //Already have an account Button
             Button(action: {
                 self.rootView = .login
             }) {
@@ -90,9 +166,34 @@ struct SignUpView: View {
             Spacer()
         }
         .padding()
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Error"),
+                message: Text(errorMessage ?? "An unexpected error occurred."),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+    
+    func signUp() async {
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match."
+            showAlert = true
+            return
+        }
+        
+        do {
+            let result = try await Amplify.Auth.signUp(username: email, password: password)
+            if result.isSignUpComplete {
+                self.rootView = .login
+            }
+//            else {
+//                    // Navigate to a verification view if required
+//                self.rootView = .emailConfirmation
+//            }
+        } catch {
+            errorMessage = "Failed to sign up: \(error.localizedDescription)"
+            showAlert = true
+        }
     }
 }
-
-//#Preview {
-//    SignUpView()
-//}

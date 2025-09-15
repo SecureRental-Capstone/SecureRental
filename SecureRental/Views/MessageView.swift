@@ -1,9 +1,9 @@
-////
-////  MessageView.swift
-////  SecureRental
-////
-////  Created by Shehnazdeep Kaur on 2024-10-21.
-////
+//
+//  MessageView.swift
+//  SecureRental
+//
+//  Created by Shehnazdeep Kaur on 2024-10-21.
+//
 import SwiftUI
 
     // Models

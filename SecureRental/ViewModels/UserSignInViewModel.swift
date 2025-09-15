@@ -26,12 +26,12 @@ class UserSignInViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     //injected DynamoDBService instance
-    private let dynamoDBService: DynamoDBService
+    //private let dynamoDBService: DynamoDBService
     
     //initializer to inject dependencies
-    init(dynamoDBService: DynamoDBService) {
-        self.dynamoDBService = dynamoDBService
-    }
+//    init(dynamoDBService: DynamoDBService) {
+//        self.dynamoDBService = dynamoDBService
+//    }
 
     //function to handle user sign-in logic
     func signIn() {
@@ -44,20 +44,20 @@ class UserSignInViewModel: ObservableObject {
         signInState = .signingIn
         
         //call DynamoDBService to sign the user in
-        dynamoDBService.signInUser(email: email, password: password) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let isSuccess):
-                    if isSuccess {
-                        self?.signInState = .success
-                    } else {
-                        self?.signInState = .error("Invalid credentials")
-                    }
-                case .failure(let error):
-                    self?.signInState = .error("An error occurred: \(error.localizedDescription)")
-                }
-            }
-        }
+//        dynamoDBService.signInUser(email: email, password: password) { [weak self] result in
+//            DispatchQueue.main.async {
+//                switch result {
+//                case .success(let isSuccess):
+//                    if isSuccess {
+//                        self?.signInState = .success
+//                    } else {
+//                        self?.signInState = .error("Invalid credentials")
+//                    }
+//                case .failure(let error):
+//                    self?.signInState = .error("An error occurred: \(error.localizedDescription)")
+//                }
+//            }
+//        }
     }
     
     func reset() {

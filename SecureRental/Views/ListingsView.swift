@@ -31,11 +31,6 @@ struct ListingsView: View {
                                       .cornerRadius(8)
                                 
                             }
-//                            Image(listing.image)
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 100, height: 100)
-//                                .cornerRadius(8)
 
                             VStack(alignment: .leading) {
                                 Text(listing.title)
@@ -67,40 +62,3 @@ struct ListingsView_Previews: PreviewProvider {
         ListingsView(viewModel: RentalListingsViewModel())
     }
 }
-
-
-//import SwiftUI
-//
-//struct ListingsView: View {
-//    @ObservedObject var viewModel: RentalListingsViewModel
-//
-//    var body: some View {
-//        NavigationView {
-//            VStack {
-//                SearchBar(text: $viewModel.searchText)
-//                    .padding(.horizontal)
-//
-//                List($viewModel.listings) { listing in
-//                    NavigationLink(destination: RentalListingDetailView(listing: listing)) {
-//                        HStack {
-//                            Image(listing.imageName)
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 100, height: 100)
-//                                .cornerRadius(8)
-//                            
-//                            VStack(alignment: .leading) {
-//                                Text(listing.title)
-//                                    .font(.headline)
-//                                Text(listing.price)
-//                                    .font(.subheadline)
-//                            }
-//                            Spacer()
-//                        }
-//                    }
-//                }
-//                .navigationTitle("Rental Listings")
-//            }
-//        }
-//    }
-//}
