@@ -26,6 +26,7 @@ amplifytools.xcconfig
 ## User settings
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
+*.xcuserstate
 
 # Swift Package Manager (SPM)
 Package.resolved
