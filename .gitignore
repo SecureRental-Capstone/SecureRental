@@ -19,3 +19,15 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+#Xcode
+.DS_Store
+
+## User settings
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Swift Package Manager (SPM)
+Package.resolved
+.build/
+DerivedData/
