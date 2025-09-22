@@ -6,7 +6,7 @@ struct LandingView: View {
     @EnvironmentObject private var authenticationService: AuthenticationService
     @State private var isLoading = true
     @State private var showRoleSelection = false
-    @State private var currentUser: User? = nil
+    @State private var currentUser: User? = User.sampleUser
     @State private var navigateToHome = false
 
     var body: some View {

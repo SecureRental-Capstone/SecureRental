@@ -6,22 +6,23 @@
 //
 
 import SwiftUI
+
 struct RoleSelectionView: View {
-    @ObservedObject var user: User
-    var onComplete: () -> Void
+    @ObservedObject var user: User               // Pass the current User
+    var onComplete: () -> Void                   // Closure to call after selection
     @EnvironmentObject var authenticationService: AuthenticationService
-    
+
     var body: some View {
         VStack(spacing: 30) {
             Text("Select Your Role")
                 .font(.largeTitle)
                 .bold()
-            
+
             Button("Tenant") {
                 setRole(.tenant)
             }
             .buttonStyle(.borderedProminent)
-            
+
             Button("Landlord") {
                 setRole(.landlord)
             }
@@ -29,8 +30,9 @@ struct RoleSelectionView: View {
         }
         .padding()
     }
-    
-    func setRole(_ role: UserRole) {
+
+    // Set Role
+    private func setRole(_ role: UserRole) {
         Task {
             do {
                 try await authenticationService.updateRoleInCognito(role: role)

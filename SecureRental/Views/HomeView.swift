@@ -18,7 +18,7 @@ struct HomeView: View {
     @State private var showCommentView = false
     @State private var selectedListing: Listing?
     @State private var selectedListingForComment: Listing?
-    @StateObject var user = User.sampleUser
+    @ObservedObject var user: User           // Receive the logged-in user
     @StateObject var viewModel = RentalListingsViewModel()
     
     var body: some View {
@@ -67,25 +67,30 @@ struct HomeView: View {
                                     }
                                     .buttonStyle(BorderlessButtonStyle())
                                     
-                                        // Edit Listing Button
-                                    Button(action: {
-                                        selectedListing = listing
-                                        showEditListingView = true
-                                    }) {
-                                        Image(systemName: "pencil")
-                                            .foregroundColor(.blue)
+                                    
+                                    // Edit listing button only for landlords
+                                    if user.role == .landlord {
+                                        Button(action: {
+                                            selectedListing = listing
+                                            showEditListingView = true
+                                        }) {
+                                            Image(systemName: "pencil")
+                                                .foregroundColor(.blue)
+                                        }
+                                        .buttonStyle(BorderlessButtonStyle())
                                     }
-                                    .buttonStyle(BorderlessButtonStyle())
                                 }
                             }
                         }
                         .navigationTitle("Secure Rental")
                         .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showCreateListingView = true
-                                }) {
-                                    Image(systemName: "plus")
+                            if user.role == .landlord {
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button(action: {
+                                        showCreateListingView = true
+                                    }) {
+                                        Image(systemName: "plus")
+                                    }
                                 }
                             }
                         }
@@ -157,9 +162,9 @@ struct HomeView: View {
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView(rootView: .constant(.main))
-    }
-}
+//struct HomeView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        HomeView(rootView: .constant(.main))
+//    }
+//}
 
