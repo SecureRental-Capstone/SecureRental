@@ -65,7 +65,8 @@ class RentalListingsViewModel: ObservableObject {
                 amenities: ["WiFi", "Washer/Dryer", "Pet-friendly"],
                 street: "123 Main St",
                 city: "Toronto",
-                province: "ON"
+                province: "ON",
+                owner: "null"
             ),
             Listing(
                 title: "Luxury Condo",
@@ -82,6 +83,7 @@ class RentalListingsViewModel: ObservableObject {
                 street: "456 Elm St",
                 city: "Toronto",
                 province: "ON"
+                ,owner: "null"
             )
         ]
     }

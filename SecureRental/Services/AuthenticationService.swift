@@ -49,4 +49,32 @@ class AuthenticationService: ObservableObject {
         }
         print("Sign Out completed. isSignedIn = \(isSignedIn)")
     }
+    
+    func getCurrentUserId() async -> String? {
+        do {
+            let user = try await Amplify.Auth.getCurrentUser()
+            return user.userId
+        } catch {
+            print("Failed to get userId: \(error)")
+            return nil
+        }
+    }
+    
+    func updateRoleInCognito(role: UserRole) async throws {
+        let user = try await Amplify.Auth.getCurrentUser()
+            
+        let attributes = [AuthUserAttribute(.custom("role"), value: role.rawValue)]
+        try await Amplify.Auth.update(userAttributes: attributes)
+        
+        print("Role saved in Cognito: \(role.rawValue)")
+    }
+    
+    func fetchRole() async throws -> UserRole? {
+        let attributes = try await Amplify.Auth.fetchUserAttributes()
+        if let roleAttr = attributes.first(where: { $0.key.rawValue == "custom:role" }) {
+            return UserRole(rawValue: roleAttr.value)
+        }
+        return nil
+    }
+
 }

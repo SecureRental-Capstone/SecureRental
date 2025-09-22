@@ -136,7 +136,8 @@ struct EditRentalListingView: View {
             amenities: selectedAmenities,
             street: street,
             city: city,
-            province: province
+            province: province,
+            owner: ""
         )
         
         viewModel.updateListing(updatedListing)

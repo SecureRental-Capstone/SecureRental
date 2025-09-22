@@ -117,6 +117,7 @@ struct CreateRentalListingView: View {
             street: street, // Separate street parameter
             city: city,     // Separate city parameter
             province: province // Separate province parameter
+            ,owner: "null"
         )
         viewModel.addListing(newListing)
     }
