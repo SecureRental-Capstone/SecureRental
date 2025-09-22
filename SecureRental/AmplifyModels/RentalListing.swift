@@ -1,6 +1,7 @@
 // swiftlint:disable all
 import Amplify
 import Foundation
+import UIKit
 
 public struct RentalListing: Model {
   public let id: String
@@ -79,4 +80,22 @@ public struct RentalListing: Model {
       self.createdAt = createdAt
       self.updatedAt = updatedAt
   }
+}
+extension RentalListing {
+    func toListing(images: [UIImage]) -> Listing {
+        return Listing(
+            title: self.title,
+            description: self.description ?? "",
+            price: self.price,
+            images: images, // convert downloaded images
+            location: self.location,
+            isAvailable: self.isAvailable,
+            datePosted: self.datePosted.foundationDate,
+            numberOfBedrooms: self.numberOfBedrooms,
+            numberOfBathrooms: self.numberOfBathrooms,
+            squareFootage: self.squareFootage,
+            amenities: self.amenities?.compactMap { $0 } ?? [],
+            street: "", city: "", province: "", owner: ""
+        )
+    }
 }

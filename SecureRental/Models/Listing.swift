@@ -28,4 +28,24 @@ struct Listing: Identifiable {
     var comments: [String]? = []
     var ratings: [Double]? = []
     var isFavourite: Bool = false
+    var owner: String
+}
+
+extension Listing {
+    func toRentalListing(withImageKeys keys: [String], owner: String? = nil) -> RentalListing {
+        return RentalListing(
+            title: self.title,
+            description: self.description,
+            price: self.price,
+            images: keys, // use S3 keys instead of UIImage
+            location: self.location,
+            isAvailable: self.isAvailable,
+            datePosted: .now(),
+            numberOfBedrooms: self.numberOfBedrooms,
+            numberOfBathrooms: self.numberOfBathrooms,
+            squareFootage: self.squareFootage,
+            amenities: self.amenities,
+            owner: self.owner
+        )
+    }
 }

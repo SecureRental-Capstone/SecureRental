@@ -1,3 +1,16 @@
+#Xcode
+.DS_Store
+
+## User settings
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager (SPM)
+Package.resolved
+.build/
+DerivedData/
+
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
@@ -19,16 +32,3 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
-
-#Xcode
-.DS_Store
-
-## User settings
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
-*.xcuserstate
-
-# Swift Package Manager (SPM)
-Package.resolved
-.build/
-DerivedData/
