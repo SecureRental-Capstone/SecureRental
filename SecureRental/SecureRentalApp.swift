@@ -6,18 +6,25 @@
 //
 
 import SwiftUI
-import AWSCore
+import FirebaseCore
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
+}
 
 @main
 struct SecureRentalApp: App {
     
-    init() {
-        // Set up AWS configuration (use your actual AWS credentials for real app)
-        let credentialsProvider = AWSStaticCredentialsProvider(accessKey: "YOUR_ACCESS_KEY", secretKey: "YOUR_SECRET_KEY")
-        let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialsProvider)
-        
-        AWSServiceManager.default().defaultServiceConfiguration = configuration
-    }
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
+//    init() {
+// 
+//    }
     
     var body: some Scene {
         WindowGroup {
