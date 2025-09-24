@@ -22,10 +22,6 @@ struct SecureRentalApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-//    init() {
-// 
-//    }
-    
     var body: some Scene {
         WindowGroup {
             LaunchView()
