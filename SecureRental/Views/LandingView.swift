@@ -3,12 +3,13 @@ import AuthenticationServices
 import SwiftUI
 
 struct LandingView: View {
-    @EnvironmentObject private var authenticationService: AuthenticationService
+//    @EnvironmentObject private var authenticationService: AuthenticationService
     @State private var isLoading = true
+    @EnvironmentObject var dbHelper: FireDBHelper
     
     var body: some View {
         ZStack {
-                // Background color or any other views you want to add
+                // c color or any other views you want to add
             Color.white.ignoresSafeArea()
             
             if isLoading {
@@ -16,7 +17,9 @@ struct LandingView: View {
             }
             
             Group {
-                if authenticationService.isSignedIn {
+                //TODO: FIX
+                if true {
+                //if authenticationService.isSignedIn {
                     LaunchView()
                 } else {
                     VStack {
@@ -24,7 +27,9 @@ struct LandingView: View {
                         
                         Button(action: {
                             Task {
-                                await authenticationService.signIn(presentationAnchor: window)
+                                //TODO: FIX
+                                //await authenticationService.signIn(presentationAnchor: window)
+                                //await dbHelper.signOut
                             }
                         }) {
                             HStack {
@@ -50,14 +55,15 @@ struct LandingView: View {
             .opacity(isLoading ? 0.5 : 1)
             .disabled(isLoading)
         }
-        .task {
-            isLoading = true
-            await authenticationService.fetchSession()
-            if !authenticationService.isSignedIn {
-                await authenticationService.signIn(presentationAnchor: window)
-            }
-            isLoading = false
-        }
+        //TODO: FIX 
+//        .task {
+//            isLoading = true
+//            await authenticationService.fetchSession()
+//            if !authenticationService.isSignedIn {
+//                await authenticationService.signIn(presentationAnchor: window)
+//            }
+//            isLoading = false
+//        }
     }
     
     private var window: ASPresentationAnchor {

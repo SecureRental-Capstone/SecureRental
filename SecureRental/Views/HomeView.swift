@@ -19,7 +19,7 @@ struct HomeView: View {
     @State private var showCommentView = false
     @State private var selectedListing: Listing?
     @State private var selectedListingForComment: Listing?
-    @StateObject var user = User.sampleUser
+    @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
     
     var body: some View {
@@ -31,11 +31,11 @@ struct HomeView: View {
                         NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
                             .padding()
                         
-                        List(viewModel.listings) { listing in
+                        List($viewModel.listings) { $listing in
                             NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                 HStack {
-                                    if let firstImage = listing.images.first {
-                                        Image(uiImage: firstImage)
+                                    if let firstImage = listing.imageURLs.first {
+                                        Image(firstImage)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 100, height: 100)

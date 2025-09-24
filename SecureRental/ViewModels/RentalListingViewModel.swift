@@ -20,7 +20,7 @@ class RentalListingsViewModel: ObservableObject {
     @Published var listings: [Listing] = []
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
-    @Published private(set) var favoriteListingIDs: Set<UUID> = []
+    @Published private(set) var favoriteListingIDs: Set<String> = []
     
         // Derived property for favorite listings
     var favouriteListings: [Listing] {
@@ -55,10 +55,9 @@ class RentalListingsViewModel: ObservableObject {
                 id: "Cozy Apartment",
                 title: "A charming one-bedroom apartment in the heart of downtown.",
                 description: "1200",
-                price: ["1"],
-                imageURLs: "Toronto",
-                location: true,
-                datePosted: Date(),
+                price: "1",
+                imageURLs: ["Toronto"],
+                location: "Toronto",
                 isAvailable: true,
                 numberOfBedrooms: 1,
                 numberOfBathrooms: 1,
@@ -68,16 +67,16 @@ class RentalListingsViewModel: ObservableObject {
                 city: "Toronto",
                 province: "ON",
                 comments: ["123"],
+                datePosted: Date(),
                 landlordId: "1"
             ),
             Listing(
                 id: "Luxury Condo",
                 title: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
                 description: "2500",
-                price: ["1"],
-                imageURLs: "Toronto",
-                location: false,
-                datePosted: Date(),
+                price: "1",
+                imageURLs: ["Toronto"],
+                location: "Toronto",
                 isAvailable: false,
                 numberOfBedrooms: 2,
                 numberOfBathrooms: 2,
@@ -87,6 +86,7 @@ class RentalListingsViewModel: ObservableObject {
                 city: "Toronto",
                 province: "ON",
                 comments: ["123"],
+                datePosted: Date(),
                 landlordId: "2"
             )
         ]

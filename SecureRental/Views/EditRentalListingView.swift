@@ -120,23 +120,26 @@ struct EditRentalListingView: View {
     }
 
     private func saveChanges() {
-        let updatedListing = Listing(
-//            id: listing.id,
+        
+        let updatedListing =
+        Listing(
+            id: listing.id,
             title: title,
             description: description,
             price: price,
-//            images: selectedImageData != nil ? "uploadedImage" : listing.images,
-            images: [selectedImageData ?? UIImage()],
-            location: "\(street), \(city), \(province)",
+            imageURLs: listing.imageURLs,
+            location: listing.location,
             isAvailable: listing.isAvailable,
-            datePosted: listing.datePosted,
-            numberOfBedrooms: numberOfBedrooms,
-            numberOfBathrooms: numberOfBathrooms,
+            numberOfBedrooms: listing.numberOfBedrooms,
+            numberOfBathrooms: listing.numberOfBathrooms,
             squareFootage: listing.squareFootage,
-            amenities: selectedAmenities,
-            street: street,
-            city: city,
-            province: province
+            amenities: listing.amenities,
+            street: listing.street,
+            city: listing.city,
+            province: listing.province,
+            comments: listing.comments,
+            datePosted: listing.datePosted,
+            landlordId: listing.landlordId
         )
         
         viewModel.updateListing(updatedListing)

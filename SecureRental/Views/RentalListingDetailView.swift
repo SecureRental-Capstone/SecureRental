@@ -23,8 +23,8 @@ struct RentalListingDetailView: View {
         ScrollView{
             VStack(spacing: 20) {
                 // Image and Title
-                ForEach(listing.images, id: \.self) { image in
-                    Image(uiImage: image)
+                ForEach(listing.imageURLs, id: \.self) { image in
+                    Image(image)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200, height: 200)

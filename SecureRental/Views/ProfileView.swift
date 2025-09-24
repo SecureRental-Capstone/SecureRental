@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @ObservedObject var user: User
+    @ObservedObject var user: AppUser
     @Binding var rootView: RootView
-    @EnvironmentObject private var authenticationService: AuthenticationService
+//    @EnvironmentObject private var authenticationService: AuthenticationService
     
     var body: some View {
         NavigationView {
@@ -86,7 +86,8 @@ struct ProfileView: View {
                         Button(action: {
                                 // Perform the sign out asynchronously
                             Task {
-                                await authenticationService.signOut()
+                                //TODO: FIX
+//                                await authenticationService.signOut()
                                     // After sign out, navigate to the login screen
                                 self.rootView = .login
                             }
@@ -109,7 +110,7 @@ struct ProfileView: View {
 
     // Placeholder Views for Navigation Links
 struct ProfileDetailsView: View {
-    var user: User
+    var user: AppUser
     var body: some View {
         Text("Profile Details for \(user.name ?? "User")")
     }

@@ -106,17 +106,18 @@ struct CreateRentalListingView: View {
             title: title,
             description: description,
             price: price,
-            images: images, // Placeholder for the uploaded image name or path
-            location: "\(street), \(city), \(province)",
+            imageURLs: ["imageURLs"],
+            location: "location",
             isAvailable: true,
+            numberOfBedrooms: 2,
+            numberOfBathrooms: 2,
+            squareFootage: 400,
+            amenities: [""],
+            street: street,
+            city: city,
+            province: province,
             datePosted: Date(),
-            numberOfBedrooms: Int(numberOfBedrooms),
-            numberOfBathrooms: Int(numberOfBathrooms),
-            squareFootage: Int(squareFootage) ?? 0,
-            amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity]),
-            street: street, // Separate street parameter
-            city: city,     // Separate city parameter
-            province: province // Separate province parameter
+            landlordId: "0"
         )
         viewModel.addListing(newListing)
     }

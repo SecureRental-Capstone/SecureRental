@@ -23,8 +23,8 @@ struct ListingsView: View {
                     NavigationLink(destination: RentalListingDetailView(listing: listing)) {
 
                         HStack {
-                            ForEach(listing.images, id: \.self) { image in
-                                Image(uiImage: image)
+                            ForEach(listing.imageURLs, id: \.self) { image in
+                                Image(image)
                                       .resizable()
                                       .scaledToFit()
                                       .frame(width: 100, height: 100)

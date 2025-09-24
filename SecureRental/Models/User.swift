@@ -1,6 +1,6 @@
 import Foundation
 
-struct AppUser: Identifiable, Codable {
+class AppUser: ObservableObject, Identifiable, Codable {
     var id: String                // Firebase UID
     var username: String
     var email: String
@@ -27,4 +27,18 @@ struct AppUser: Identifiable, Codable {
         self.rating = rating
         self.reviews = reviews
     }
+    
+    static let sampleUser = AppUser(
+        id: "sample-uid-123",
+        username: "janedoe123",
+        email: "janedoe@example.com",
+        name: "Jane Doe",
+        profilePictureURL: "https://example.com/avatar.jpg",
+        rating: 4,
+        reviews: [
+            "Great landlord!",
+            "Very responsive and helpful.",
+            "Would rent again."
+        ]
+    )
 }

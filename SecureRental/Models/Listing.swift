@@ -28,3 +28,4 @@ struct Listing: Identifiable, Codable {
     
     var landlordId: String       // creator (Auth.uid)
 }
+
