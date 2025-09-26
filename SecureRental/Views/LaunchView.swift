@@ -17,7 +17,7 @@ struct LaunchView: View {
         NavigationStack{
             switch self.rootView{
             case .signUp:
-                SignInView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+                SignUpView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
             case .login:
                 SignInView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
             case .main:

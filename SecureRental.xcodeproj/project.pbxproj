@@ -13,6 +13,7 @@
 		0BBD089D2E822E06002175ED /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD089C2E822E06002175ED /* FirebaseInAppMessaging-Beta */; };
 		0BBD089F2E822E06002175ED /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD089E2E822E06002175ED /* FirebaseMessaging */; };
 		0BBD08A12E822E06002175ED /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD08A02E822E06002175ED /* FirebaseStorage */; };
+		3E8AFB702E86327F00657384 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 3E8AFB6F2E86327F00657384 /* FirebaseInAppMessaging-Beta */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0BBD08992E822E06002175ED /* FirebaseDatabase in Frameworks */,
+				3E8AFB702E86327F00657384 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				0BBD08972E822E06002175ED /* FirebaseAuth in Frameworks */,
 				0BBD089F2E822E06002175ED /* FirebaseMessaging in Frameworks */,
 				0BBD089B2E822E06002175ED /* FirebaseFirestore in Frameworks */,
@@ -408,7 +410,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = VHM74NZAQ3;
+				DEVELOPMENT_TEAM = Z36V6GABX3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -437,7 +439,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = VHM74NZAQ3;
+				DEVELOPMENT_TEAM = Z36V6GABX3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -612,6 +614,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		3E8AFB6F2E86327F00657384 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

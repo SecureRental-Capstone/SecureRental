@@ -19,7 +19,7 @@ struct SignInView: View {
         VStack {
             Spacer()
 
-            Image("rental_logo") // Replace with your app logo
+            Image("Logo") // Replace with your app logo
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 120)
