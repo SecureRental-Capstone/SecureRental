@@ -28,6 +28,34 @@ class FireDBHelper: ObservableObject {
         return shared!
     }
     
+        // MARK: - Sign Up (Auth + Firestore)
+    func signUp(email: String, password: String, name: String) async throws {
+        let result = try await Auth.auth().createUser(withEmail: email, password: password)
+        let uid = result.user.uid
+        let newUser = AppUser(id: uid, username: email, email: email, name: name)
+        try await db.collection(COLLECTION_USERS).document(uid).setData([
+            "id": uid,
+            "username": email,
+            "email": email,
+            "name": name,
+            "profilePictureURL": "",
+            "rating": 0,
+            "reviews": []
+        ])
+        self.currentUser = newUser
+    }
+    
+        // MARK: - Sign In (Auth)
+    func signIn(email: String, password: String) async throws {
+        let result = try await Auth.auth().signIn(withEmail: email, password: password)
+        let uid = result.user.uid
+            // Fetch user profile from Firestore
+        if let user = try await getUser(byUID: uid) {
+            self.currentUser = user
+        }
+    }
+    
+    
     // MARK: - Insert User
     func insertUser(user: AppUser) async {
         do {

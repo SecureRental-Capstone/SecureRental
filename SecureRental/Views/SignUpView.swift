@@ -105,6 +105,7 @@ struct SignUpView: View {
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
     @State private var errorMessage: String?
+    @State private var name: String = ""
     @State private var showAlert: Bool = false
     @EnvironmentObject var dbHelper : FireDBHelper
 
@@ -115,7 +116,12 @@ struct SignUpView: View {
             
             Text("Create an Account")
                 .font(.title)
-            
+            TextField("Name", text: $name)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.words)
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
             TextField("Email", text: $email)
                 .autocorrectionDisabled(true)
                 .textInputAutocapitalization(.never)
@@ -176,14 +182,34 @@ struct SignUpView: View {
         }
     }
     
+//    private func signUp() async {
+//        // Insert user
+//        let newUser = AppUser(username: email, email: email, name: "NA")
+//        await dbHelper.insertUser(user: newUser)
+//        
+//        // Fetch user by UID
+//        if let user = await dbHelper.getUser(byUID: newUser.id) {
+//            print(user.name)
+//        }
+//    }
+    
     private func signUp() async {
-        // Insert user
-        let newUser = AppUser(username: email, email: email, name: "John Doe")
-        await dbHelper.insertUser(user: newUser)
-        
-        // Fetch user by UID
-        if let user = await dbHelper.getUser(byUID: newUser.id) {
-            print(user.name)
+        guard !email.isEmpty, !password.isEmpty, !name.isEmpty else {
+            errorMessage = "Please fill in all fields."
+            showAlert = true
+            return
+        }
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match."
+            showAlert = true
+            return
+        }
+        do {
+            try await dbHelper.signUp(email: email, password: password, name: name)
+            rootView = .main
+        } catch {
+            errorMessage = error.localizedDescription
+            showAlert = true
         }
     }
 }

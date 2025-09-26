@@ -14,11 +14,13 @@ struct SignInView: View {
     @EnvironmentObject var dbHelper : FireDBHelper
     @State private var email : String = ""
     @State private var password : String = ""
+    @State private var errorMessage: String?
+    @State private var showAlert: Bool = false
     
     var body: some View {
         VStack {
             Spacer()
-
+            
             Image("Logo") // Replace with your app logo
                 .resizable()
                 .scaledToFill()
@@ -50,7 +52,7 @@ struct SignInView: View {
                 Task {
                     await login()
                 }
-//                login()
+                    //                login()
             }) {
                 Text("Login")
                     .padding(EdgeInsets(top: 6, leading: 5, bottom: 6, trailing: 5))
@@ -74,41 +76,28 @@ struct SignInView: View {
         
     }
     
+        //    private func login() async {
+        //        // Insert user
+        ////        let newUser = AppUser(username: "john123", email: "john@example.com", name: "John Doe")
+        //
+        //        // Fetch user by UID
+        //        if let user = await dbHelper.getUser(byEmail: email) {
+        //            print(user.email)
+        //        }
+        //    }
     private func login() async {
-        // Insert user
-//        let newUser = AppUser(username: "john123", email: "john@example.com", name: "John Doe")
-        
-        // Fetch user by UID
-        if let user = await dbHelper.getUser(byEmail: email) {
-            print(user.email)
+        guard !email.isEmpty, !password.isEmpty else {
+            //errorMessage = "Please enter email and password."
+            showAlert = true
+            return
+        }
+        do {
+            try await dbHelper.signIn(email: email, password: password)
+            rootView = .main
+        } catch {
+            //errorMessage = error.localizedDescription
+            showAlert = true
         }
     }
-    
-//    private func login() {
-//        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-//            if let error = error {
-//                print("Login failed: \(error.localizedDescription)")
-//                return
-//            }
-//            
-//            guard let user = authResult?.user else { return }
-//            print("Login successful for: \(user.email ?? "")")
-//            
-//            // Save to UserDefaults if needed
-//            UserDefaults.standard.set(user.email, forKey: "KEY_EMAIL")
-//            UserDefaults.standard.set(user.uid, forKey: "KEY_USER_ID")
-//            
-////            // Fetch profile from Firestore
-////            dbHelper.getUser(byUID: user.uid){ appUser in
-////                if let appUser = appUser {
-////                    dbHelper.currentUser = appUser
-////                    print("Loaded AppUser: \(appUser.username)")
-////                } else {
-////                    print("No profile found in Firestore for uid: \(user.uid)")
-////                }
-////                
-////                // Navigate to main view
-////                self.rootView = .main
-////            }
-//        }
+
     }
