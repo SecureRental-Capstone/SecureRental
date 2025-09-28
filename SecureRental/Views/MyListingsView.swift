@@ -49,7 +49,9 @@ struct MyListingsView: View {
             }
             .navigationTitle("My Listings")
             .onAppear {
+                viewModel.shouldAutoFilter = false
                 viewModel.fetchMyListings()
+//                viewModel.filterListings(searchTerm: "", amenities: [], showOnlyAvailable: false)
             }
             .sheet(item: $selectedListing) { listing in
                 EditRentalListingView(viewModel: viewModel, listing: listing)

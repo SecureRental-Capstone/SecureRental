@@ -21,12 +21,9 @@ import FirebaseAuth
 @MainActor
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [Listing] = []
-    let dbHelper = FireDBHelper.getInstance()
-//    private lazy var dbHelper: FireDBHelper = {
-//            FireDBHelper.getInstance()
-//        }()
-//    @EnvironmentObject var dbHelper : FireDBHelper
+    @Published var shouldAutoFilter = true
 
+    let dbHelper = FireDBHelper.getInstance()
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
     @Published private(set) var favoriteListingIDs: Set<String> = []
@@ -41,19 +38,16 @@ class RentalListingsViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        // Fetch initial data from backend or local storage
-//        fetchListings()
-        
-        // Setup search functionality combining search text and selected amenities
         Publishers.CombineLatest($searchText, $selectedAmenities)
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates { (prev, current) in
-                prev.0 == current.0 && prev.1 == current.1
-            }
-            .sink { [weak self] (searchTerm, amenities) in
-                self?.filterListings(searchTerm: searchTerm, amenities: amenities)
-            }
-            .store(in: &cancellables)
+                .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+                .removeDuplicates { (prev, current) in
+                    prev.0 == current.0 && prev.1 == current.1
+                }
+                .sink { [weak self] (searchTerm, amenities) in
+                    guard let self = self, self.shouldAutoFilter else { return }
+                    self.filterListings(searchTerm: searchTerm, amenities: amenities)
+                }
+                .store(in: &cancellables)
     }
     
     func fetchListings() {
@@ -127,12 +121,6 @@ class RentalListingsViewModel: ObservableObject {
 //        ]
 //    }
     
-//    // Adds a new rental listing.
-//    // - Parameter listing: The `RentalListing` to add.
-//    func addListing(_ listing: Listing) {
-//        listings.append(listing)
-//        // TODO: Add backend call to save the listing
-//    }
     
     func addListing(_ listing: Listing, images: [UIImage]) {
         Task {
@@ -159,38 +147,49 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
 
+    func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
+        var current = listings
 
-//    // Updates an existing rental listing.
-//    // - Parameter listing: The `RentalListing` with updated information.
-//    func updateListing(_ listing: Listing) {
-//        if let index = listings.firstIndex(where: { $0.id == listing.id }) {
-//            listings[index] = listing
-//            // TODO: Add backend call to update the listing
+//        if showOnlyAvailable {
+//            current = current.filter { $0.isAvailable }
 //        }
-//    }
-    
-    
-    // Filters listings based on search text and selected amenities.
-    // - Parameters:
-    //   - searchTerm: The text input by the user for searching.
-    //   - amenities: The list of amenities selected by the user for filtering.
-    private func filterListings(searchTerm: String, amenities: [String]) {
         if searchTerm.isEmpty && amenities.isEmpty {
-            fetchListings()
+//            if showOnlyAvailable==true {
+                fetchListings()
+//            }
         } else {
             listings = listings.filter { listing in
-                let matchesSearch = searchTerm.isEmpty ||
-                    listing.title.lowercased().contains(searchTerm.lowercased()) ||
-                    listing.description.lowercased().contains(searchTerm.lowercased())
-                
-                let matchesAmenities = amenities.isEmpty ||
-                    amenities.allSatisfy { listing.amenities.contains($0) }
-                
-                return matchesSearch && matchesAmenities
-            }
+                    let matchesSearch = searchTerm.isEmpty ||
+                        listing.title.lowercased().contains(searchTerm.lowercased()) ||
+                        listing.description.lowercased().contains(searchTerm.lowercased())
+                    
+                    let matchesAmenities = amenities.isEmpty ||
+                        amenities.allSatisfy { listing.amenities.contains($0) }
+                    
+                    return matchesSearch && matchesAmenities
+                }
         }
     }
-    
+
+//    func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
+//        var current = listings
+//
+//        if showOnlyAvailable {
+//            current = current.filter { $0.isAvailable }
+//        }
+//
+//        listings = current.filter { listing in
+//            let matchesSearch = searchTerm.isEmpty ||
+//                listing.title.lowercased().contains(searchTerm.lowercased()) ||
+//                listing.description.lowercased().contains(searchTerm.lowercased())
+//
+//            let matchesAmenities = amenities.isEmpty ||
+//                amenities.allSatisfy { listing.amenities.contains($0) }
+//
+//            return matchesSearch && matchesAmenities
+//        }
+//    }
+
     func toggleFavorite(for listing: Listing) {
         if favoriteListingIDs.contains(listing.id) {
             favoriteListingIDs.remove(listing.id)

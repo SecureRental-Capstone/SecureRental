@@ -158,20 +158,7 @@ class FireDBHelper: ObservableObject {
         }
     }
     
-//    // Upload one image to Firebase Storage and return URL
-//   func uploadImage(_ image: UIImage, listingId: String) async throws -> String {
-//       guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-//           throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image"])
-//       }
-//       
-//       let storageRef = Storage.storage().reference()
-//           .child("listingImages/\(listingId)/\(UUID().uuidString).jpg")
-//       
-//       _ = try await storageRef.putDataAsync(imageData)
-//       let downloadURL = try await storageRef.downloadURL()
-//       return downloadURL.absoluteString
-//   }
-//
+
     func uploadImage(_ image: UIImage, listingId: String) async throws -> String {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             print("❌ Image data is nil for listing \(listingId)")
