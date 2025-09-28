@@ -225,4 +225,59 @@ class FireDBHelper: ObservableObject {
         print("✅ Listing updated in Firestore")
     }
     
+    // Start or fetch a conversation
+    func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
+        // Check if conversation exists
+        let query = try await db.collection("conversations")
+            .whereField("participants", arrayContains: tenantId)
+            .getDocuments()
+
+        if let existing = query.documents.first(where: { ($0.data()["participants"] as? [String])?.contains(landlordId) == true }) {
+            return existing.documentID
+        }
+
+        // Create new conversation
+        let conversationRef = db.collection("conversations").document()
+        try await conversationRef.setData([
+            "participants": [tenantId, landlordId],
+            "listingId": listingId,
+            "createdAt": FieldValue.serverTimestamp()
+        ])
+
+        // Auto message
+        try await conversationRef.collection("messages").addDocument(data: [
+            "senderId": tenantId,
+            "text": "Hi, is this listing still available?",
+            "timestamp": FieldValue.serverTimestamp()
+        ])
+
+        return conversationRef.documentID
+    }
+
+    // Send message
+    func sendMessage(conversationId: String, senderId: String, text: String) async throws {
+        try await db.collection("conversations")
+            .document(conversationId)
+            .collection("messages")
+            .addDocument(data: [
+                "senderId": senderId,
+                "text": text,
+                "timestamp": FieldValue.serverTimestamp()
+            ])
+    }
+
+    // Listen for messages
+    func listenForMessages(conversationId: String, completion: @escaping ([ChatMessage]) -> Void) -> ListenerRegistration {
+        return db.collection("conversations")
+            .document(conversationId)
+            .collection("messages")
+            .order(by: "timestamp", descending: false)
+            .addSnapshotListener { snapshot, error in
+                guard let documents = snapshot?.documents else { return }
+                let messages = documents.compactMap { doc -> ChatMessage? in
+                    try? doc.data(as: ChatMessage.self)
+                }
+                completion(messages)
+            }
+    }
 }

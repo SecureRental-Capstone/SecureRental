@@ -144,6 +144,33 @@ struct RentalListingDetailView: View {
                 }
                 .padding(.horizontal)
                 
+//                Button(action: {
+//                    startConversation()
+//                }) {
+//                    HStack {
+//                        Image(systemName: "message.fill")
+//                        Text("Message Landlord")
+//                    }
+//                    .foregroundColor(.white)
+//                    .padding()
+//                    .frame(maxWidth: .infinity)
+//                    .background(Color.blue)
+//                    .cornerRadius(10)
+//                }
+//                .padding(.horizontal)
+                NavigationLink(destination: ChatView(listing: listing)) {
+                    HStack {
+                        Image(systemName: "message.fill")
+                        Text("Message Landlord")
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+                }
+                .padding(.horizontal)
+                
                 Spacer()
             }
             .padding()

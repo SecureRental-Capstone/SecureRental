@@ -101,7 +101,7 @@ struct HomeView: View {
                 .tag(0)
                 
                     // Messages Tab
-                MessageView()
+                MyChatsView()
                     .tabItem {
                         Label("Messages", systemImage: "message")
                     }
@@ -147,7 +147,9 @@ struct HomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showMessageView) {
-            MessageView()
+//            NavigationLink("My Chats", destination: MyChatsView())
+//                   .padding()
+            MyChatsView()
         }
         .sheet(isPresented: $showCreateListingView) {
             CreateRentalListingView(viewModel: viewModel)
