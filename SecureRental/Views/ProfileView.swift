@@ -85,6 +85,12 @@ struct ProfileView: View {
                             }
                         }
                         
+                        Section(header: Text("My Listings").font(.headline)) {
+                            NavigationLink(destination: MyListingsView()) {
+                                Label("My Listings", systemImage: "house.fill")
+                            }
+                        }
+                        
                         Section {
                             Button(action: {
                                 // Perform the sign out asynchronously

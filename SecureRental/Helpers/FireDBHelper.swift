@@ -8,6 +8,8 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
+import FirebaseStorage
+import UIKit
 
 @MainActor
 class FireDBHelper: ObservableObject {
@@ -16,10 +18,15 @@ class FireDBHelper: ObservableObject {
     
     private var db = Firestore.firestore()
     private static var shared: FireDBHelper?
+    public static var listeners: [ListenerRegistration] = []
+
     
     private let COLLECTION_USERS = "Users"
+    private var COLLECTION_LISTINGS: String { "Listings" }
     
+    static let instance = FireDBHelper()
     private init() {}
+
     
     static func getInstance() -> FireDBHelper {
         if shared == nil {
@@ -150,4 +157,121 @@ class FireDBHelper: ObservableObject {
             print("❌ Failed to update user: \(error.localizedDescription)")
         }
     }
+    
+//    // Upload one image to Firebase Storage and return URL
+//   func uploadImage(_ image: UIImage, listingId: String) async throws -> String {
+//       guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+//           throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image"])
+//       }
+//       
+//       let storageRef = Storage.storage().reference()
+//           .child("listingImages/\(listingId)/\(UUID().uuidString).jpg")
+//       
+//       _ = try await storageRef.putDataAsync(imageData)
+//       let downloadURL = try await storageRef.downloadURL()
+//       return downloadURL.absoluteString
+//   }
+//
+    func uploadImage(_ image: UIImage, listingId: String) async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("❌ Image data is nil for listing \(listingId)")
+            throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image"])
+        }
+        
+        let fileName = "\(UUID().uuidString).jpg"
+        let storageRef = Storage.storage().reference().child("listingImages/\(listingId)/\(fileName)")
+        print("📤 Uploading to: listingImages/\(listingId)/\(fileName), size: \(imageData.count) bytes")
+        
+        _ = try await storageRef.putDataAsync(imageData)
+        let downloadURL = try await storageRef.downloadURL()
+        print("✅ Uploaded, URL: \(downloadURL.absoluteString)")
+        return downloadURL.absoluteString
+    }
+
+   // Add a listing with image uploads
+   func addListing(_ listing: Listing, images: [UIImage]) async throws {
+       var mutableListing = listing
+       var uploadedURLs: [String] = []
+       
+//       for img in images {
+//           let url = try await uploadImage(img, listingId: listing.id)
+//           uploadedURLs.append(url)
+//       }
+       // Only upload if there are images
+//       if !images.isEmpty {
+//           for img in images {
+//               let url = try await uploadImage(img, listingId: listing.id)
+//               uploadedURLs.append(url)
+//           }
+//       }
+
+       mutableListing.imageURLs = uploadedURLs
+       
+       let data = try Firestore.Encoder().encode(mutableListing)
+       try await db.collection(COLLECTION_LISTINGS).document(mutableListing.id).setData(data)
+   }
+   
+   // Fetch all listings
+   func fetchListings() async throws -> [Listing] {
+       let snapshot = try await db.collection(COLLECTION_LISTINGS).getDocuments()
+       let listings = snapshot.documents.compactMap { doc in
+           try? doc.data(as: Listing.self)
+       }
+       return listings
+   }
+    
+    // Fetch listings only for the current landlord
+    func fetchListingsForCurrentUser() async throws -> [Listing] {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user logged in"])
+        }
+        
+        let snapshot = try await db.collection("Listings")
+            .whereField("landlordId", isEqualTo: uid)
+            .getDocuments()
+        
+        let listings = snapshot.documents.compactMap { doc in
+            try? doc.data(as: Listing.self)
+        }
+        return listings
+    }
+    
+    // Listen for ALL listings
+       func listenToAllListings(completion: @escaping ([Listing]) -> Void) {
+           let listener = db.collection("Listings")
+               .order(by: "datePosted", descending: true)
+               .addSnapshotListener { snapshot, error in
+                   guard let docs = snapshot?.documents else {
+                       print("❌ Failed to listen: \(error?.localizedDescription ?? "Unknown error")")
+                       return
+                   }
+                   let listings = docs.compactMap { try? $0.data(as: Listing.self) }
+                   completion(listings)
+               }
+           FireDBHelper.listeners.append(listener)
+       }
+       
+       // Listen for listings of current user
+       func listenToMyListings(completion: @escaping ([Listing]) -> Void) {
+           guard let uid = Auth.auth().currentUser?.uid else { return }
+           
+           let listener = db.collection("Listings")
+               .whereField("landlordId", isEqualTo: uid)
+               .order(by: "datePosted", descending: true)
+               .addSnapshotListener { snapshot, error in
+                   guard let docs = snapshot?.documents else {
+                       print("❌ Failed to listen my listings: \(error?.localizedDescription ?? "Unknown error")")
+                       return
+                   }
+                   let listings = docs.compactMap { try? $0.data(as: Listing.self) }
+                   completion(listings)
+               }
+           FireDBHelper.listeners.append(listener)
+       }
+       
+       // Stop all listeners (call on logout for cleanup)
+       func detachListeners() {
+           FireDBHelper.listeners.forEach { $0.remove() }
+           FireDBHelper.listeners.removeAll()
+       }
 }

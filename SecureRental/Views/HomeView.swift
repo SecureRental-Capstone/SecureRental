@@ -88,6 +88,8 @@ struct HomeView: View {
                             }
                         }
                         .navigationTitle("Secure Rental")
+//                        .onAppear { $viewModel.startListeningAllListings }
+//                        .onDisappear { viewModel.stopListening() }
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button(action: {
