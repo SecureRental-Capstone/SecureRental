@@ -12,6 +12,8 @@ import FirebaseAuth
 
 struct HomeView: View {
     @Binding var rootView: RootView
+    @EnvironmentObject var dbHelper: FireDBHelper
+
     @State private var selectedTab = 0
     @State private var showMessageView = false
     @State private var showCreateListingView = false
@@ -28,6 +30,11 @@ struct HomeView: View {
             TabView(selection: $selectedTab) {
                 NavigationView {
                     VStack {
+                        if let user = dbHelper.currentUser {
+                                                    Text("Welcome, \(user.name)")
+                                                        .font(.headline)
+                                                        .padding()
+                                                }
                         NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
                             .padding()
                         
@@ -112,7 +119,7 @@ struct HomeView: View {
                     .tag(2)
                 
                     // Profile Tab
-                ProfileView(user: user, rootView: $rootView)
+                ProfileView(rootView: $rootView)
                     .tabItem {
                         Label("Profile", systemImage: "person.circle")
                     }
