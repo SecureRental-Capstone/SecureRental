@@ -149,7 +149,7 @@ struct HomeView: View {
         .fullScreenCover(isPresented: $showMessageView) {
 //            NavigationLink("My Chats", destination: MyChatsView())
 //                   .padding()
-            MyChatsView()
+            ChatbotView()
         }
         .sheet(isPresented: $showCreateListingView) {
             CreateRentalListingView(viewModel: viewModel)
