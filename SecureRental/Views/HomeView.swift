@@ -75,19 +75,13 @@ struct HomeView: View {
                                     }
                                     .buttonStyle(BorderlessButtonStyle())
                                     
-                                        // Edit Listing Button
-                                    Button(action: {
-                                        selectedListing = listing
-                                        showEditListingView = true
-                                    }) {
-                                        Image(systemName: "pencil")
-                                            .foregroundColor(.blue)
-                                    }
-                                    .buttonStyle(BorderlessButtonStyle())
                                 }
                             }
                         }
                         .navigationTitle("Secure Rental")
+                        .onAppear {
+                            viewModel.fetchListings()
+                        }
 //                        .onAppear { $viewModel.startListeningAllListings }
 //                        .onDisappear { viewModel.stopListening() }
                         .toolbar {
@@ -158,9 +152,9 @@ struct HomeView: View {
         .sheet(isPresented: $showCreateListingView) {
             CreateRentalListingView(viewModel: viewModel)
         }
-        .sheet(item: $selectedListing) { listing in
-            EditRentalListingView(viewModel: viewModel, listing: listing)
-        }
+//        .sheet(item: $selectedListing) { listing in
+//            EditRentalListingView(viewModel: viewModel, listing: listing)
+//        }
         .sheet(item: $selectedListingForComment) { listing in
             CommentView(listing: listing, viewModel: viewModel)
         }

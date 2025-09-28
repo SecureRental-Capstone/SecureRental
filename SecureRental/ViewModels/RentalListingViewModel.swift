@@ -21,7 +21,7 @@ import FirebaseAuth
 @MainActor
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [Listing] = []
-    private let dbHelper = FireDBHelper.getInstance()
+    let dbHelper = FireDBHelper.getInstance()
 //    private lazy var dbHelper: FireDBHelper = {
 //            FireDBHelper.getInstance()
 //        }()
@@ -42,7 +42,7 @@ class RentalListingsViewModel: ObservableObject {
     
     init() {
         // Fetch initial data from backend or local storage
-        fetchListings()
+//        fetchListings()
         
         // Setup search functionality combining search text and selected amenities
         Publishers.CombineLatest($searchText, $selectedAmenities)
@@ -61,7 +61,7 @@ class RentalListingsViewModel: ObservableObject {
             do {
                 let fetched = try await dbHelper.fetchListings()
                 await MainActor.run {
-                    self.listings = fetched
+                    self.listings = fetched.filter { $0.isAvailable }
                 }
             } catch {
                 print("❌ Failed to fetch listings: \(error.localizedDescription)")
@@ -144,52 +144,31 @@ class RentalListingsViewModel: ObservableObject {
             }
         }
     }
-// Listen for ALL listings
-//   func listenToAllListings(completion: @escaping ([Listing]) -> Void) {
-//       let listener = db.collection("Listings")
-//           .order(by: "datePosted", descending: true)
-//           .addSnapshotListener { snapshot, error in
-//               guard let docs = snapshot?.documents else {
-//                   print("❌ Failed to listen: \(error?.localizedDescription ?? "Unknown error")")
-//                   return
-//               }
-//               let listings = docs.compactMap { try? $0.data(as: Listing.self) }
-//               completion(listings)
-//           }
-//       FireDBHelper.listeners.append(listener)
-//   }
-   
-//   // Listen for listings of current user
-//   func listenToMyListings(completion: @escaping ([Listing]) -> Void) {
-//       guard let uid = Auth.auth().currentUser?.uid else { return }
-//       
-//       let listener = db.collection("Listings")
-//           .whereField("landlordId", isEqualTo: uid)
-//           .order(by: "datePosted", descending: true)
-//           .addSnapshotListener { snapshot, error in
-//               guard let docs = snapshot?.documents else {
-//                   print("❌ Failed to listen my listings: \(error?.localizedDescription ?? "Unknown error")")
-//                   return
-//               }
-//               let listings = docs.compactMap { try? $0.data(as: Listing.self) }
-//               completion(listings)
-//           }
-//       FireDBHelper.listeners.append(listener)
-//   }
-//   
-//   // Stop all listeners (call on logout for cleanup)
-//   func detachListeners() {
-//       FireDBHelper.listeners.forEach { $0.remove() }
-//       FireDBHelper.listeners.removeAll()
-//   }
-    // Updates an existing rental listing.
-    // - Parameter listing: The `RentalListing` with updated information.
+    
     func updateListing(_ listing: Listing) {
         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
             listings[index] = listing
-            // TODO: Add backend call to update the listing
+        }
+        
+        Task {
+            do {
+                try await dbHelper.updateListing(listing)
+            } catch {
+                print("❌ Failed to update listing in Firestore: \(error.localizedDescription)")
+            }
         }
     }
+
+
+//    // Updates an existing rental listing.
+//    // - Parameter listing: The `RentalListing` with updated information.
+//    func updateListing(_ listing: Listing) {
+//        if let index = listings.firstIndex(where: { $0.id == listing.id }) {
+//            listings[index] = listing
+//            // TODO: Add backend call to update the listing
+//        }
+//    }
+    
     
     // Filters listings based on search text and selected amenities.
     // - Parameters:

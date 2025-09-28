@@ -193,10 +193,6 @@ class FireDBHelper: ObservableObject {
        var mutableListing = listing
        var uploadedURLs: [String] = []
        
-//       for img in images {
-//           let url = try await uploadImage(img, listingId: listing.id)
-//           uploadedURLs.append(url)
-//       }
        // Only upload if there are images
 //       if !images.isEmpty {
 //           for img in images {
@@ -236,42 +232,10 @@ class FireDBHelper: ObservableObject {
         return listings
     }
     
-    // Listen for ALL listings
-       func listenToAllListings(completion: @escaping ([Listing]) -> Void) {
-           let listener = db.collection("Listings")
-               .order(by: "datePosted", descending: true)
-               .addSnapshotListener { snapshot, error in
-                   guard let docs = snapshot?.documents else {
-                       print("❌ Failed to listen: \(error?.localizedDescription ?? "Unknown error")")
-                       return
-                   }
-                   let listings = docs.compactMap { try? $0.data(as: Listing.self) }
-                   completion(listings)
-               }
-           FireDBHelper.listeners.append(listener)
-       }
-       
-       // Listen for listings of current user
-       func listenToMyListings(completion: @escaping ([Listing]) -> Void) {
-           guard let uid = Auth.auth().currentUser?.uid else { return }
-           
-           let listener = db.collection("Listings")
-               .whereField("landlordId", isEqualTo: uid)
-               .order(by: "datePosted", descending: true)
-               .addSnapshotListener { snapshot, error in
-                   guard let docs = snapshot?.documents else {
-                       print("❌ Failed to listen my listings: \(error?.localizedDescription ?? "Unknown error")")
-                       return
-                   }
-                   let listings = docs.compactMap { try? $0.data(as: Listing.self) }
-                   completion(listings)
-               }
-           FireDBHelper.listeners.append(listener)
-       }
-       
-       // Stop all listeners (call on logout for cleanup)
-       func detachListeners() {
-           FireDBHelper.listeners.forEach { $0.remove() }
-           FireDBHelper.listeners.removeAll()
-       }
+    func updateListing(_ listing: Listing) async throws {
+        let data = try Firestore.Encoder().encode(listing)
+        try await db.collection("Listings").document(listing.id).setData(data)
+        print("✅ Listing updated in Firestore")
+    }
+    
 }

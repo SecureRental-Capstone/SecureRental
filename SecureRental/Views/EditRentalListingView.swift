@@ -120,23 +120,21 @@ struct EditRentalListingView: View {
     }
 
     private func saveChanges() {
-        
-        let updatedListing =
-        Listing(
+        let updatedListing = Listing(
             id: listing.id,
             title: title,
             description: description,
             price: price,
             imageURLs: listing.imageURLs,
-            location: listing.location,
-            isAvailable: listing.isAvailable,
-            numberOfBedrooms: listing.numberOfBedrooms,
-            numberOfBathrooms: listing.numberOfBathrooms,
+            location: "\(street), \(city), \(province)",
+            isAvailable: isAvailable,
+            numberOfBedrooms: numberOfBedrooms,
+            numberOfBathrooms: numberOfBathrooms,
             squareFootage: listing.squareFootage,
-            amenities: listing.amenities,
-            street: listing.street,
-            city: listing.city,
-            province: listing.province,
+            amenities: selectedAmenities,
+            street: street,
+            city: city,
+            province: province,
             comments: listing.comments,
             datePosted: listing.datePosted,
             landlordId: listing.landlordId
@@ -144,5 +142,7 @@ struct EditRentalListingView: View {
         
         viewModel.updateListing(updatedListing)
     }
+
+
 }
 
