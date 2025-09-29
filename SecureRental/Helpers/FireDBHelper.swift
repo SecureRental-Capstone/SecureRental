@@ -87,7 +87,7 @@ class FireDBHelper: ObservableObject {
         }
     }
     
-    // MARK: - Retrieve User by UID
+    // Retreive User by Id
     func getUser(byUID uid: String) async -> AppUser? {
         do {
             let doc = try await db.collection(COLLECTION_USERS).document(uid).getDocument()
@@ -110,7 +110,7 @@ class FireDBHelper: ObservableObject {
         return nil
     }
     
-    // MARK: - Retrieve User by Email
+    // Retrieve User by email
     func getUser(byEmail email: String) async -> AppUser? {
         do {
             let query = try await db.collection(COLLECTION_USERS)
@@ -137,7 +137,7 @@ class FireDBHelper: ObservableObject {
         return nil
     }
     
-    // MARK: - Update User
+    // Update user
     func updateUser(user: AppUser) async {
         do {
             let data: [String: Any] = [

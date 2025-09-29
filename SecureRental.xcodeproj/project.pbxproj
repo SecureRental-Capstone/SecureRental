@@ -39,36 +39,19 @@
 		0B3ED3D22CC41BD900136A00 /* SecureRentalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureRentalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		922B7ADE2E899A87005C922E /* Exceptions for "SecureRental" folder in "SecureRental" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Views/Untitled.swift,
-			);
-			target = 0B3ED3B72CC41BD800136A00 /* SecureRental */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B3ED3BA2CC41BD800136A00 /* SecureRental */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				922B7ADE2E899A87005C922E /* Exceptions for "SecureRental" folder in "SecureRental" target */,
-			);
 			path = SecureRental;
 			sourceTree = "<group>";
 		};
 		0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = SecureRentalTests;
 			sourceTree = "<group>";
 		};
 		0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = SecureRentalUITests;
 			sourceTree = "<group>";
 		};

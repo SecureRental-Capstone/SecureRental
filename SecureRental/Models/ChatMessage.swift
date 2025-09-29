@@ -1,20 +1,24 @@
 //
-//  ChatMessage.swift
+//  Message.swift
 //  SecureRental
 //
-//  Created by Anchal  Sharma  on 2025-09-21.
+//  Created by Anchal  Sharma  on 2025-09-28.
 //
 
-//import Foundation
-//
-//struct ChatMessage: Identifiable, Codable {
-//    let id: String
-//    let conversationId: String
-//    let listingId: String
-//    let senderId: String
-//    let receiverId: String
-//    let text: String
-//    let timestamp: Date
-//    var isRead: Bool
-//}
-//
+import Foundation
+import FirebaseFirestore
+
+struct ChatMessage: Identifiable, Codable {
+    @DocumentID var id: String?
+    var senderId: String
+    var text: String
+    var timestamp: Date?
+}
+
+struct Conversation: Identifiable, Codable {
+    @DocumentID var id: String?
+    var participants: [String]
+    var listingId: String
+    var createdAt: Date?
+}
+
