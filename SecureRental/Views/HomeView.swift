@@ -13,7 +13,7 @@ import FirebaseAuth
 struct HomeView: View {
     @Binding var rootView: RootView
     @EnvironmentObject var dbHelper: FireDBHelper
-
+    
     @State private var selectedTab = 0
     @State private var showMessageView = false
     @State private var showCreateListingView = false
@@ -31,157 +31,196 @@ struct HomeView: View {
                 NavigationView {
                     VStack {
                         if let user = dbHelper.currentUser {
-                                                    Text("Welcome, \(user.name)")
-                                                        .font(.headline)
-                                                        .padding()
-                                                }
-                        NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
-                            .padding()
-                        
-                        List($viewModel.listings) { $listing in
-                            NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                            HStack {
+                                    // Left side: Welcome text
+                                Text("Welcome, \(user.name)")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer() // pushes the button to the right
+                                
+                                    // Right side: My Listings button
+                                NavigationLink(destination: MyListingsView()) {
+                                    Label("My Listings", systemImage: "house.fill")
+                                        .font(.subheadline)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue.opacity(0.1))
+                                        .foregroundColor(.blue)
+                                        .cornerRadius(8)
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                            
+                                //
+                                //                        NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
+                                //                            .padding()
+                            NavigationLink(destination: RentalSearchView(viewModel: viewModel)) {
                                 HStack {
-//                                    if let firstImage = listing.imageURLs.first {
-//                                        Image(firstImage)
-//                                            .resizable()
-//                                            .scaledToFit()
-//                                            .frame(width: 100, height: 100)
-//                                            .cornerRadius(8)
-//                                    }
-                                    if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
-                                        AsyncImage(url: url) { phase in
-                                            switch phase {
-                                            case .empty:
-                                                ProgressView()
-                                            case .success(let image):
-                                                image.resizable()
-                                                     .scaledToFit()
-                                                     .frame(width: 100, height: 100)
-                                                     .cornerRadius(8)
-                                            case .failure:
-                                                Image(systemName: "photo")
-                                                     .resizable()
-                                                     .scaledToFit()
-                                                     .frame(width: 100, height: 100)
-                                                     .foregroundColor(.gray)
-                                            @unknown default:
-                                                EmptyView()
+                                    Image(systemName: "magnifyingglass") // search icon
+                                        .foregroundColor(.gray)
+                                    
+                                    Text("Search rental listing") // placeholder text
+                                        .foregroundColor(.gray)
+                                        .font(.body)
+                                    
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color(.systemGray6)) // light background
+                                .cornerRadius(10)
+                            }
+                            .padding(.horizontal)
+                            
+                            List($viewModel.listings) { $listing in
+                                NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                                    HStack {
+                                            //                                    if let firstImage = listing.imageURLs.first {
+                                            //                                        Image(firstImage)
+                                            //                                            .resizable()
+                                            //                                            .scaledToFit()
+                                            //                                            .frame(width: 100, height: 100)
+                                            //                                            .cornerRadius(8)
+                                            //                                    }
+                                        if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                            AsyncImage(url: url) { phase in
+                                                switch phase {
+                                                case .empty:
+                                                    ProgressView()
+                                                case .success(let image):
+                                                    image.resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 100, height: 100)
+                                                        .cornerRadius(8)
+                                                case .failure:
+                                                    Image(systemName: "photo")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 100, height: 100)
+                                                        .foregroundColor(.gray)
+                                                @unknown default:
+                                                    EmptyView()
+                                                }
                                             }
                                         }
+                                        
+                                        VStack(alignment: .leading) {
+                                            Text(listing.title)
+                                                .font(.headline)
+                                            Text("$\(listing.price)/month")
+                                                .font(.subheadline)
+                                        }
+                                        Spacer()
+                                        
+                                            // Favorite Button
+                                        Button(action: {
+                                            viewModel.toggleFavorite(for: listing)
+                                        }) {
+                                            Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
+                                                .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
+                                        }
+                                        .buttonStyle(BorderlessButtonStyle())
+                                        
+                                            // Comment (Rate) Button
+                                        Button(action: {
+                                            selectedListingForComment = listing
+                                            showCommentView = true
+                                        }) {
+                                            Image(systemName: "star.circle.fill")
+                                                .foregroundColor(.blue)
+                                        }
+                                        .buttonStyle(BorderlessButtonStyle())
+                                        
                                     }
-
-                                    VStack(alignment: .leading) {
-                                        Text(listing.title)
-                                            .font(.headline)
-                                        Text("$\(listing.price)/month")
-                                            .font(.subheadline)
-                                    }
-                                    Spacer()
-                                    
-                                        // Favorite Button
+                                }
+                            }
+                            .navigationTitle("Secure Rental")
+                            .onAppear {
+                                viewModel.fetchListings()
+                            }
+                                //                        .onAppear { $viewModel.startListeningAllListings }
+                                //                        .onDisappear { viewModel.stopListening() }
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarTrailing) {
                                     Button(action: {
-                                        viewModel.toggleFavorite(for: listing)
+                                        showCreateListingView = true
                                     }) {
-                                        Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
-                                            .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
+                                        Image(systemName: "plus")
                                     }
-                                    .buttonStyle(BorderlessButtonStyle())
-                                    
-                                        // Comment (Rate) Button
-                                    Button(action: {
-                                        selectedListingForComment = listing
-                                        showCommentView = true
-                                    }) {
-                                        Image(systemName: "star.circle.fill")
-                                            .foregroundColor(.blue)
-                                    }
-                                    .buttonStyle(BorderlessButtonStyle())
-                                    
+                                    .help("Create a new listing")            // ✅ macOS hover tooltip
+                                    .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
                                 }
                             }
                         }
-                        .navigationTitle("Secure Rental")
-                        .onAppear {
-                            viewModel.fetchListings()
+                    }
+                    }
+                    .tabItem {
+                        Label("Home", systemImage: "house")
+                    }
+                    .tag(0)
+                    
+                        // Messages Tab
+                    MyChatsView()
+                        .tabItem {
+                            Label("Messages", systemImage: "message")
                         }
-//                        .onAppear { $viewModel.startListeningAllListings }
-//                        .onDisappear { viewModel.stopListening() }
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showCreateListingView = true
-                                }) {
-                                    Image(systemName: "plus")
-                                }
-                            }
+                        .tag(1)
+                    
+                        // Favourites Tab
+                    FavouriteListingsView(viewModel: viewModel)
+                        .tabItem {
+                            Label("Favourites", systemImage: "star.fill")
                         }
-                    }
+                        .tag(2)
+                    
+                        // Profile Tab
+                    ProfileView(rootView: $rootView)
+                        .tabItem {
+                            Label("Profile", systemImage: "person.circle")
+                        }
+                        .tag(3)
                 }
-                .tabItem {
-                    Label("Home", systemImage: "house")
-                }
-                .tag(0)
                 
-                    // Messages Tab
-                MyChatsView()
-                    .tabItem {
-                        Label("Messages", systemImage: "message")
-                    }
-                    .tag(1)
-                
-                    // Favourites Tab
-                FavouriteListingsView(viewModel: viewModel)
-                    .tabItem {
-                        Label("Favourites", systemImage: "star.fill")
-                    }
-                    .tag(2)
-                
-                    // Profile Tab
-                ProfileView(rootView: $rootView)
-                    .tabItem {
-                        Label("Profile", systemImage: "person.circle")
-                    }
-                    .tag(3)
-            }
-            
-                // Chatbot icon button
-            VStack {
-                Spacer()
-                HStack {
+                    // Chatbot icon button
+                VStack {
                     Spacer()
-                    Button(action: {
-                        showMessageView = true
-                        print("Chatbot tapped")
-                    }) {
-                        Image(systemName: "bubble.right.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 30, height: 30)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                            .shadow(radius: 10)
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showMessageView = true
+                            print("Chatbot tapped")
+                        }) {
+                            Image(systemName: "bubble.right.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 30, height: 30)
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.blue)
+                                .clipShape(Circle())
+                                .shadow(radius: 10)
+                        }
+                        .padding(.bottom, 50)
+                        .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 50)
-                    .padding(.trailing, 20)
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showMessageView) {
-//            NavigationLink("My Chats", destination: MyChatsView())
-//                   .padding()
-            ChatbotView()
-        }
-        .sheet(isPresented: $showCreateListingView) {
-            CreateRentalListingView(viewModel: viewModel)
-        }
-//        .sheet(item: $selectedListing) { listing in
-//            EditRentalListingView(viewModel: viewModel, listing: listing)
-//        }
-        .sheet(item: $selectedListingForComment) { listing in
-            CommentView(listing: listing, viewModel: viewModel)
+            .fullScreenCover(isPresented: $showMessageView) {
+                    //            NavigationLink("My Chats", destination: MyChatsView())
+                    //                   .padding()
+                ChatbotView()
+            }
+            .sheet(isPresented: $showCreateListingView) {
+                CreateRentalListingView(viewModel: viewModel)
+            }
+                //        .sheet(item: $selectedListing) { listing in
+                //            EditRentalListingView(viewModel: viewModel, listing: listing)
+                //        }
+            .sheet(item: $selectedListingForComment) { listing in
+                CommentView(listing: listing, viewModel: viewModel)
+            }
         }
     }
-}
 

@@ -63,29 +63,29 @@ class FireDBHelper: ObservableObject {
     }
     
     
-    // MARK: - Insert User
-    func insertUser(user: AppUser) async {
-        do {
-            let data: [String: Any] = [
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "name": user.name,
-                "profilePictureURL": user.profilePictureURL ?? "",
-                "rating": user.rating,
-                "reviews": user.reviews
-            ]
-            
-            try await db.collection(COLLECTION_USERS).document(user.id).setData(data)
-            print("✅ User inserted successfully")
-            
-            // Update current user
-            self.currentUser = user
-            
-        } catch {
-            print("❌ Failed to insert user: \(error.localizedDescription)")
-        }
-    }
+//    // MARK: - Insert User
+//    func insertUser(user: AppUser) async {
+//        do {
+//            let data: [String: Any] = [
+//                "id": user.id,
+//                "username": user.username,
+//                "email": user.email,
+//                "name": user.name,
+//                "profilePictureURL": user.profilePictureURL ?? "",
+//                "rating": user.rating,
+//                "reviews": user.reviews
+//            ]
+//            
+//            try await db.collection(COLLECTION_USERS).document(user.id).setData(data)
+//            print("✅ User inserted successfully")
+//            
+//            // Update current user
+//            self.currentUser = user
+//            
+//        } catch {
+//            print("❌ Failed to insert user: \(error.localizedDescription)")
+//        }
+//    }
     
     // Retreive User by Id
     func getUser(byUID uid: String) async -> AppUser? {
