@@ -60,11 +60,15 @@
 		};
 		0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SecureRentalTests;
 			sourceTree = "<group>";
 		};
 		0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SecureRentalUITests;
 			sourceTree = "<group>";
 		};
