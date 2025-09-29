@@ -41,13 +41,35 @@ struct HomeView: View {
                         List($viewModel.listings) { $listing in
                             NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                 HStack {
-                                    if let firstImage = listing.imageURLs.first {
-                                        Image(firstImage)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 100, height: 100)
-                                            .cornerRadius(8)
+//                                    if let firstImage = listing.imageURLs.first {
+//                                        Image(firstImage)
+//                                            .resizable()
+//                                            .scaledToFit()
+//                                            .frame(width: 100, height: 100)
+//                                            .cornerRadius(8)
+//                                    }
+                                    if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                        AsyncImage(url: url) { phase in
+                                            switch phase {
+                                            case .empty:
+                                                ProgressView()
+                                            case .success(let image):
+                                                image.resizable()
+                                                     .scaledToFit()
+                                                     .frame(width: 100, height: 100)
+                                                     .cornerRadius(8)
+                                            case .failure:
+                                                Image(systemName: "photo")
+                                                     .resizable()
+                                                     .scaledToFit()
+                                                     .frame(width: 100, height: 100)
+                                                     .foregroundColor(.gray)
+                                            @unknown default:
+                                                EmptyView()
+                                            }
+                                        }
                                     }
+
                                     VStack(alignment: .leading) {
                                         Text(listing.title)
                                             .font(.headline)

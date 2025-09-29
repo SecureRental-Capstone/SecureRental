@@ -37,6 +37,8 @@ struct CreateRentalListingView: View {
     // Image upload state
     @State private var images: [UIImage] = []
     @State private var isAvailable: Bool = true
+    @State private var isSaving: Bool = false // For disabling button while saving
+
     
     var body: some View {
         NavigationView {
@@ -87,12 +89,18 @@ struct CreateRentalListingView: View {
                 
             }
             .navigationBarTitle("Create Listing", displayMode: .inline)
-            .navigationBarItems(leading: Button("Cancel") {
-                presentationMode.wrappedValue.dismiss()
-            }, trailing: Button("Save") {
-                saveListing()
-                presentationMode.wrappedValue.dismiss()
-            }.disabled(!isFormValid()))
+            .navigationBarItems(
+                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+                trailing: Button("Save") { Task { await saveListing() } }
+                    .disabled(!isFormValid() || isSaving)
+            )
+                                
+//            .navigationBarItems(leading: Button("Cancel") {
+//                presentationMode.wrappedValue.dismiss()
+//            }, trailing: Button("Save") {
+//                saveListing()
+//                presentationMode.wrappedValue.dismiss()
+//            }.disabled(!isFormValid()))
         }
     }
     
@@ -102,14 +110,40 @@ struct CreateRentalListingView: View {
                !squareFootage.isEmpty && !images.isEmpty
     }
     
-    private func saveListing() {
-        guard let landlordId = Auth.auth().currentUser?.uid else { return }
+//    private func saveListing() {
+//        guard let landlordId = Auth.auth().currentUser?.uid else { return }
+//
+//        let newListing = Listing(
+//                title: title,
+//                description: description,
+//                price: price,
+//                imageURLs: [], // will be filled after upload
+//                location: "\(street), \(city), \(province)",
+//                isAvailable: isAvailable,
+//                numberOfBedrooms: numberOfBedrooms,
+//                numberOfBathrooms: numberOfBathrooms,
+//                squareFootage: Int(squareFootage) ?? 0,
+//                amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity]),
+//                street: street,
+//                city: city,
+//                province: province,
+//                datePosted: Date(),
+//                landlordId: landlordId
+//            )
+//            
+//            viewModel.addListing(newListing, images: images)
+//    }
+    
+    private func saveListing() async {
+            guard let landlordId = Auth.auth().currentUser?.uid else { return }
 
-        let newListing = Listing(
+            isSaving = true
+
+            var newListing = Listing(
                 title: title,
                 description: description,
                 price: price,
-                imageURLs: [], // will be filled after upload
+                imageURLs: [], // Will be filled after Cloudinary upload
                 location: "\(street), \(city), \(province)",
                 isAvailable: isAvailable,
                 numberOfBedrooms: numberOfBedrooms,
@@ -122,9 +156,26 @@ struct CreateRentalListingView: View {
                 datePosted: Date(),
                 landlordId: landlordId
             )
-            
-            viewModel.addListing(newListing, images: images)
-    }
+
+            do {
+                var uploadedURLs: [String] = []
+
+                for image in images {
+                    let url = try await CloudinaryHelper.uploadImage(image)
+                    uploadedURLs.append(url)
+                }
+
+                newListing.imageURLs = uploadedURLs
+
+                try await viewModel.dbHelper.addListing(newListing, images: images) // Already uploads images internally, but you can skip if using Cloudinary separately
+                await viewModel.fetchListings() // Refresh listings
+                presentationMode.wrappedValue.dismiss()
+            } catch {
+                print("❌ Failed to save listing: \(error.localizedDescription)")
+            }
+
+            isSaving = false
+        }
 
 }
 

@@ -175,24 +175,38 @@ class FireDBHelper: ObservableObject {
         return downloadURL.absoluteString
     }
 
-   // Add a listing with image uploads
-   func addListing(_ listing: Listing, images: [UIImage]) async throws {
-       var mutableListing = listing
-       var uploadedURLs: [String] = []
-       
-       // Only upload if there are images
-//       if !images.isEmpty {
-//           for img in images {
-//               let url = try await uploadImage(img, listingId: listing.id)
-//               uploadedURLs.append(url)
-//           }
-//       }
+//   // Add a listing with image uploads
+//   func addListing(_ listing: Listing, images: [UIImage]) async throws {
+//       var mutableListing = listing
+//       var uploadedURLs: [String] = []
+//       
+//       // Only upload if there are images
+////       if !images.isEmpty {
+////           for img in images {
+////               let url = try await uploadImage(img, listingId: listing.id)
+////               uploadedURLs.append(url)
+////           }
+////       }
+//
+//       mutableListing.imageURLs = uploadedURLs
+//       let data = try Firestore.Encoder().encode(mutableListing)
+//       try await db.collection(COLLECTION_LISTINGS).document(mutableListing.id).setData(data)
+//   }
+//    
+    func addListing(_ listing: Listing, images: [UIImage]) async throws {
+        var mutableListing = listing
+        var uploadedURLs: [String] = []
 
-       mutableListing.imageURLs = uploadedURLs
-       
-       let data = try Firestore.Encoder().encode(mutableListing)
-       try await db.collection(COLLECTION_LISTINGS).document(mutableListing.id).setData(data)
-   }
+        for image in images {
+            let url = try await CloudinaryHelper.uploadImage(image)
+            uploadedURLs.append(url)
+        }
+
+        mutableListing.imageURLs = uploadedURLs
+        let data = try Firestore.Encoder().encode(mutableListing)
+        try await db.collection(COLLECTION_LISTINGS).document(mutableListing.id).setData(data)
+    }
+
    
    // Fetch all listings
    func fetchListings() async throws -> [Listing] {

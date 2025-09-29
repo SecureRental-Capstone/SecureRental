@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LaunchView: View {
     
-    @State private var rootView : RootView = .login
+    @State private var rootView : RootView = .main
     
     let fireDBHelper : FireDBHelper = FireDBHelper.getInstance()
     

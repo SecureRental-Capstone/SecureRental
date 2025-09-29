@@ -22,13 +22,10 @@ struct RentalListingDetailView: View {
     var body: some View {
         ScrollView{
             VStack(spacing: 20) {
-                // Image and Title
-                ForEach(listing.imageURLs, id: \.self) { image in
-                    Image(image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200, height: 200)
-                        .cornerRadius(10)
+                // Swipeable Carousel View for Image
+                if !listing.imageURLs.isEmpty {
+                    CarouselView(imageURLs: listing.imageURLs)
+                        .frame(height: 300)
                 }
                 
                 Text(listing.title)
