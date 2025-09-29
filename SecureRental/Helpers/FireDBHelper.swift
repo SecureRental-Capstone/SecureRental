@@ -279,6 +279,12 @@ class FireDBHelper: ObservableObject {
 
         return conversationRef.documentID
     }
+    
+    func fetchListing(byId id: String) async throws -> Listing? {
+        let doc = try await db.collection("Listings").document(id).getDocument()
+        return try doc.data(as: Listing.self)
+    }
+
 
 
     // Send message
