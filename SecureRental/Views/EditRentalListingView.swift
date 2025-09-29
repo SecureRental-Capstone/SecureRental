@@ -9,6 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct EditRentalListingView: View {
+    @Environment(\.dismiss) private var dismiss  // Add this
     @ObservedObject var viewModel: RentalListingsViewModel
     var listing: Listing
     @State private var title: String
@@ -21,6 +22,7 @@ struct EditRentalListingView: View {
     @State private var numberOfBathrooms: Int
     @State private var selectedAmenities: [String]
     @State private var isAvailable: Bool
+    @State private var showDeleteAlert = false
 //    @State private var selectedImage: [UIImage] // Image selection
     
     // Photos picker
@@ -102,16 +104,43 @@ struct EditRentalListingView: View {
 //                    isShowingImagePicker = true
 //                }
 //            }
-
-            Button(action: {
-                saveChanges()
-            }) {
-                Text("Save Changes")
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(10)
+            HStack(spacing: 20) { // Adjust spacing as needed
+                Button(action: {
+                    saveChanges()
+                }) {
+                    Text("Save Changes")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    showDeleteAlert = true
+                }) {
+                    Text("Delete Listing")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
             }
+            .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
+                Button("Delete", role: .destructive) {
+                    Task {
+                        do {
+                            try await viewModel.deleteListing(listing)
+                            dismiss()  // go back to MyListingsView
+                        } catch {
+                            print("Failed to delete listing: \(error.localizedDescription)")
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
+            }
+
         }
         .navigationTitle("Edit Listing")
 //        .sheet(isPresented: $isShowingImagePicker) {
@@ -142,7 +171,15 @@ struct EditRentalListingView: View {
         
         viewModel.updateListing(updatedListing)
     }
-
+    private func deleteListing(){
+        
+        viewModel.deleteListing(listing)
+    }
+    func confirmDeletion(for listing: Listing) {
+            // Optional: show an alert to confirm deletion
+            // For now, directly delete
+        RentalListingsViewModel().deleteListing(listing)
+    }
 
 }
 

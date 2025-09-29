@@ -175,6 +175,28 @@ class RentalListingsViewModel: ObservableObject {
     func isFavorite(_ listing: Listing) -> Bool {
         return favoriteListingIDs.contains(listing.id)
     }
+    
+    
+    func deleteListing(_ listing: Listing) {
+            // Remove locally first
+        if let index = listings.firstIndex(where: { $0.id == listing.id }) {
+            listings.remove(at: index)
+        }
+        
+            // Remove from Firestore
+        Task {
+            do {
+                try await dbHelper.deleteListing(listing)
+            } catch {
+                print("❌ Failed to delete listing from Firestore: \(error.localizedDescription)")
+                    // Optionally, add it back locally if deletion fails
+                await MainActor.run {
+                    self.listings.append(listing)
+                }
+            }
+        }
+    }
+
 }
 
      // Add a rating or comment to a listing

@@ -317,4 +317,15 @@ class FireDBHelper: ObservableObject {
                 completion(messages)
             }
     }
+    
+    
+        // Delete a listing from Firestore and its associated images
+    func deleteListing(_ listing: Listing) async throws {
+            
+        try await db.collection(COLLECTION_LISTINGS).document(listing.id).delete()
+        print("✅ Listing \(listing.id) deleted from Firestore")
+        
+        
+    }
+
 }
