@@ -148,15 +148,8 @@ class RentalListingsViewModel: ObservableObject {
     }
 
     func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
-        var current = listings
-
-//        if showOnlyAvailable {
-//            current = current.filter { $0.isAvailable }
-//        }
         if searchTerm.isEmpty && amenities.isEmpty {
-//            if showOnlyAvailable==true {
                 fetchListings()
-//            }
         } else {
             listings = listings.filter { listing in
                     let matchesSearch = searchTerm.isEmpty ||
@@ -170,25 +163,6 @@ class RentalListingsViewModel: ObservableObject {
                 }
         }
     }
-
-//    func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
-//        var current = listings
-//
-//        if showOnlyAvailable {
-//            current = current.filter { $0.isAvailable }
-//        }
-//
-//        listings = current.filter { listing in
-//            let matchesSearch = searchTerm.isEmpty ||
-//                listing.title.lowercased().contains(searchTerm.lowercased()) ||
-//                listing.description.lowercased().contains(searchTerm.lowercased())
-//
-//            let matchesAmenities = amenities.isEmpty ||
-//                amenities.allSatisfy { listing.amenities.contains($0) }
-//
-//            return matchesSearch && matchesAmenities
-//        }
-//    }
 
     func toggleFavorite(for listing: Listing) {
         if favoriteListingIDs.contains(listing.id) {
