@@ -81,16 +81,17 @@ struct ChatView: View {
                                 Spacer()
                                 Text(message.text)
                                     .padding(10)
-                                    .background(Color.blue.opacity(0.8))
-                                    .foregroundColor(.white)
+                                    .background(Color.blue.opacity(0.3))
+                                    .foregroundColor(.black)
                                     .cornerRadius(12)
                             } else {
                                 Text(message.text)
                                     .padding(10)
-                                    .background(Color.gray.opacity(0.3))
-                                    .foregroundColor(.black)
+                                    .background(Color.gray.opacity(0.5))
+//                                    .foregroundColor(.black)
                                     .cornerRadius(12)
                                 Spacer()
+                                
                             }
                         }
                     }
@@ -113,16 +114,7 @@ struct ChatView: View {
             .padding()
         }
         .navigationTitle("Chat")
-//        .onAppear {
-//            Task {
-//                await chatVM.startConversation(listingId: listing.id, landlordId: listing.landlordId ?? "")
-//            }
-//        }
         .onAppear {
-            // Only start conversation if current user is not the landlord
-            guard listing.landlordId != Auth.auth().currentUser?.uid else { return }
-//            chatVM.listenForMessages(conversationId: conversationId)
-
             Task {
                 await chatVM.startConversation(
                     listingId: listing.id,

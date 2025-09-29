@@ -253,11 +253,15 @@ class FireDBHelper: ObservableObject {
     
     func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
         // Check if conversation exists for THIS listing
+//        let query = try await db.collection("conversations")
+//            .whereField("participants", arrayContains: tenantId)
+//            .whereField("listingId", isEqualTo: listingId)
+//            .getDocuments()
+        let currentUserId = Auth.auth().currentUser?.uid ?? ""
         let query = try await db.collection("conversations")
-            .whereField("participants", arrayContains: tenantId)
+            .whereField("participants", arrayContains: currentUserId)
             .whereField("listingId", isEqualTo: listingId)
             .getDocuments()
-
         if let existing = query.documents.first {
             return existing.documentID
         }
