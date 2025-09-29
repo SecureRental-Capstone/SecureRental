@@ -9,7 +9,7 @@
 import SwiftUI
 import MapKit
 import CoreLocation
-
+import FirebaseAuth
 
 
 struct RentalListingDetailView: View {
@@ -141,9 +141,7 @@ struct RentalListingDetailView: View {
                 }
                 .padding(.horizontal)
                 
-//                Button(action: {
-//                    startConversation()
-//                }) {
+//                NavigationLink(destination: ChatView(listing: listing)) {
 //                    HStack {
 //                        Image(systemName: "message.fill")
 //                        Text("Message Landlord")
@@ -155,18 +153,27 @@ struct RentalListingDetailView: View {
 //                    .cornerRadius(10)
 //                }
 //                .padding(.horizontal)
-                NavigationLink(destination: ChatView(listing: listing)) {
-                    HStack {
-                        Image(systemName: "message.fill")
-                        Text("Message Landlord")
+                
+                if listing.landlordId != Auth.auth().currentUser?.uid {
+                    NavigationLink(destination: ChatView(listing: listing)) {
+                        HStack {
+                            Image(systemName: "message.fill")
+                            Text("Message Landlord")
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
                     }
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .cornerRadius(10)
+                    .padding(.horizontal)
+                } else {
+                    Text("You are the landlord for this listing")
+                        .foregroundColor(.gray)
+                        .italic()
+                        .padding()
                 }
-                .padding(.horizontal)
+
                 
                 Spacer()
             }

@@ -66,6 +66,10 @@ import FirebaseAuth
 struct ChatView: View {
     @StateObject var chatVM = ChatViewModel()
     var listing: Listing
+//    var listingId: String
+//    var conversationId: String
+//    var otherUserId: String
+
 
     var body: some View {
         VStack {
@@ -109,13 +113,26 @@ struct ChatView: View {
             .padding()
         }
         .navigationTitle("Chat")
+//        .onAppear {
+//            Task {
+//                await chatVM.startConversation(listingId: listing.id, landlordId: listing.landlordId ?? "")
+//            }
+//        }
         .onAppear {
+            // Only start conversation if current user is not the landlord
+            guard listing.landlordId != Auth.auth().currentUser?.uid else { return }
+//            chatVM.listenForMessages(conversationId: conversationId)
+
             Task {
-                await chatVM.startConversation(listingId: listing.id, landlordId: listing.landlordId ?? "")
+                await chatVM.startConversation(
+                    listingId: listing.id,
+                    landlordId: listing.landlordId ?? ""
+                )
             }
         }
     }
 }
+
 //
 //struct ChatView: View {
 //    @ObservedObject var viewModel: ChatViewModel

@@ -175,24 +175,7 @@ class FireDBHelper: ObservableObject {
         return downloadURL.absoluteString
     }
 
-//   // Add a listing with image uploads
-//   func addListing(_ listing: Listing, images: [UIImage]) async throws {
-//       var mutableListing = listing
-//       var uploadedURLs: [String] = []
-//       
-//       // Only upload if there are images
-////       if !images.isEmpty {
-////           for img in images {
-////               let url = try await uploadImage(img, listingId: listing.id)
-////               uploadedURLs.append(url)
-////           }
-////       }
-//
-//       mutableListing.imageURLs = uploadedURLs
-//       let data = try Firestore.Encoder().encode(mutableListing)
-//       try await db.collection(COLLECTION_LISTINGS).document(mutableListing.id).setData(data)
-//   }
-//    
+  
     func addListing(_ listing: Listing, images: [UIImage]) async throws {
         var mutableListing = listing
         var uploadedURLs: [String] = []
@@ -239,14 +222,43 @@ class FireDBHelper: ObservableObject {
         print("✅ Listing updated in Firestore")
     }
     
-    // Start or fetch a conversation
+//    // Start or fetch a conversation
+//    func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
+//        // Check if conversation exists
+//        let query = try await db.collection("conversations")
+//            .whereField("participants", arrayContains: tenantId)
+//            .getDocuments()
+//
+//        if let existing = query.documents.first(where: { ($0.data()["participants"] as? [String])?.contains(landlordId) == true }) {
+//            return existing.documentID
+//        }
+//
+//        // Create new conversation
+//        let conversationRef = db.collection("conversations").document()
+//        try await conversationRef.setData([
+//            "participants": [tenantId, landlordId],
+//            "listingId": listingId,
+//            "createdAt": FieldValue.serverTimestamp()
+//        ])
+//
+//        // Auto message
+//        try await conversationRef.collection("messages").addDocument(data: [
+//            "senderId": tenantId,
+//            "text": "Hi, is this listing still available?",
+//            "timestamp": FieldValue.serverTimestamp()
+//        ])
+//
+//        return conversationRef.documentID
+//    }
+    
     func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
-        // Check if conversation exists
+        // Check if conversation exists for THIS listing
         let query = try await db.collection("conversations")
             .whereField("participants", arrayContains: tenantId)
+            .whereField("listingId", isEqualTo: listingId)
             .getDocuments()
 
-        if let existing = query.documents.first(where: { ($0.data()["participants"] as? [String])?.contains(landlordId) == true }) {
+        if let existing = query.documents.first {
             return existing.documentID
         }
 
@@ -267,6 +279,7 @@ class FireDBHelper: ObservableObject {
 
         return conversationRef.documentID
     }
+
 
     // Send message
     func sendMessage(conversationId: String, senderId: String, text: String) async throws {
