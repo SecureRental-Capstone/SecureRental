@@ -23,8 +23,8 @@ struct RentalListingDetailView: View {
         ScrollView{
             VStack(spacing: 20) {
                 // Image and Title
-                ForEach(listing.images, id: \.self) { image in
-                    Image(uiImage: image)
+                ForEach(listing.imageURLs, id: \.self) { image in
+                    Image(image)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200, height: 200)
@@ -141,6 +141,33 @@ struct RentalListingDetailView: View {
                                 .foregroundColor(.primary)
                         }
                     }
+                }
+                .padding(.horizontal)
+                
+//                Button(action: {
+//                    startConversation()
+//                }) {
+//                    HStack {
+//                        Image(systemName: "message.fill")
+//                        Text("Message Landlord")
+//                    }
+//                    .foregroundColor(.white)
+//                    .padding()
+//                    .frame(maxWidth: .infinity)
+//                    .background(Color.blue)
+//                    .cornerRadius(10)
+//                }
+//                .padding(.horizontal)
+                NavigationLink(destination: ChatView(listing: listing)) {
+                    HStack {
+                        Image(systemName: "message.fill")
+                        Text("Message Landlord")
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .cornerRadius(10)
                 }
                 .padding(.horizontal)
                 

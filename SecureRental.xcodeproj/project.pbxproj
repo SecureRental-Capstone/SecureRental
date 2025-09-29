@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3EA22F112D02E6A300380268 /* AWSAPIPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA22F102D02E6A300380268 /* AWSAPIPlugin */; };
-		3EA22F132D02E6A300380268 /* AWSCognitoAuthPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA22F122D02E6A300380268 /* AWSCognitoAuthPlugin */; };
-		3EA22F152D02E6A300380268 /* AWSDataStorePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA22F142D02E6A300380268 /* AWSDataStorePlugin */; };
-		3EA22F172D02E6A300380268 /* AWSS3StoragePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA22F162D02E6A300380268 /* AWSS3StoragePlugin */; };
-		3EA22F192D02E6A300380268 /* Amplify in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA22F182D02E6A300380268 /* Amplify */; };
+		0BBD08972E822E06002175ED /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD08962E822E06002175ED /* FirebaseAuth */; };
+		0BBD08992E822E06002175ED /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD08982E822E06002175ED /* FirebaseDatabase */; };
+		0BBD089B2E822E06002175ED /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD089A2E822E06002175ED /* FirebaseFirestore */; };
+		0BBD089D2E822E06002175ED /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD089C2E822E06002175ED /* FirebaseInAppMessaging-Beta */; };
+		0BBD089F2E822E06002175ED /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD089E2E822E06002175ED /* FirebaseMessaging */; };
+		0BBD08A12E822E06002175ED /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD08A02E822E06002175ED /* FirebaseStorage */; };
+		3E8AFB702E86327F00657384 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 3E8AFB6F2E86327F00657384 /* FirebaseInAppMessaging-Beta */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,10 +40,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3EA22F1B2D02EF5300380268 /* Exceptions for "SecureRental" folder in "SecureRental" target */ = {
+		922B7ADE2E899A87005C922E /* Exceptions for "SecureRental" folder in "SecureRental" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Views/Untitled.swift,
 			);
 			target = 0B3ED3B72CC41BD800136A00 /* SecureRental */;
 		};
@@ -51,7 +53,7 @@
 		0B3ED3BA2CC41BD800136A00 /* SecureRental */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3EA22F1B2D02EF5300380268 /* Exceptions for "SecureRental" folder in "SecureRental" target */,
+				922B7ADE2E899A87005C922E /* Exceptions for "SecureRental" folder in "SecureRental" target */,
 			);
 			path = SecureRental;
 			sourceTree = "<group>";
@@ -73,11 +75,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3EA22F152D02E6A300380268 /* AWSDataStorePlugin in Frameworks */,
-				3EA22F192D02E6A300380268 /* Amplify in Frameworks */,
-				3EA22F112D02E6A300380268 /* AWSAPIPlugin in Frameworks */,
-				3EA22F132D02E6A300380268 /* AWSCognitoAuthPlugin in Frameworks */,
-				3EA22F172D02E6A300380268 /* AWSS3StoragePlugin in Frameworks */,
+				0BBD08992E822E06002175ED /* FirebaseDatabase in Frameworks */,
+				3E8AFB702E86327F00657384 /* FirebaseInAppMessaging-Beta in Frameworks */,
+				0BBD08972E822E06002175ED /* FirebaseAuth in Frameworks */,
+				0BBD089F2E822E06002175ED /* FirebaseMessaging in Frameworks */,
+				0BBD089B2E822E06002175ED /* FirebaseFirestore in Frameworks */,
+				0BBD089D2E822E06002175ED /* FirebaseInAppMessaging-Beta in Frameworks */,
+				0BBD08A12E822E06002175ED /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,7 +109,6 @@
 				0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */,
 				0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */,
 				0B3ED3B92CC41BD800136A00 /* Products */,
-				84A2179AB5B557F311AD8494 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -117,13 +120,6 @@
 				0B3ED3D22CC41BD900136A00 /* SecureRentalUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		84A2179AB5B557F311AD8494 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -145,13 +141,6 @@
 				0B3ED3BA2CC41BD800136A00 /* SecureRental */,
 			);
 			name = SecureRental;
-			packageProductDependencies = (
-				3EA22F102D02E6A300380268 /* AWSAPIPlugin */,
-				3EA22F122D02E6A300380268 /* AWSCognitoAuthPlugin */,
-				3EA22F142D02E6A300380268 /* AWSDataStorePlugin */,
-				3EA22F162D02E6A300380268 /* AWSS3StoragePlugin */,
-				3EA22F182D02E6A300380268 /* Amplify */,
-			);
 			productName = SecureRental;
 			productReference = 0B3ED3B82CC41BD800136A00 /* SecureRental.app */;
 			productType = "com.apple.product-type.application";
@@ -231,7 +220,7 @@
 			mainGroup = 0B3ED3AF2CC41BD800136A00;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */,
+				0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B3ED3B92CC41BD800136A00 /* Products */;
@@ -434,10 +423,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = VHM74NZAQ3;
+				DEVELOPMENT_TEAM = Z36V6GABX3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SecureRental/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -464,10 +452,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = VHM74NZAQ3;
+				DEVELOPMENT_TEAM = Z36V6GABX3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SecureRental/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -600,41 +587,51 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */ = {
+		0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/aws-amplify/amplify-swift";
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.45.0;
+				minimumVersion = 12.3.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3EA22F102D02E6A300380268 /* AWSAPIPlugin */ = {
+		0BBD08962E822E06002175ED /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */;
-			productName = AWSAPIPlugin;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
-		3EA22F122D02E6A300380268 /* AWSCognitoAuthPlugin */ = {
+		0BBD08982E822E06002175ED /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */;
-			productName = AWSCognitoAuthPlugin;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
 		};
-		3EA22F142D02E6A300380268 /* AWSDataStorePlugin */ = {
+		0BBD089A2E822E06002175ED /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */;
-			productName = AWSDataStorePlugin;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
-		3EA22F162D02E6A300380268 /* AWSS3StoragePlugin */ = {
+		0BBD089C2E822E06002175ED /* FirebaseInAppMessaging-Beta */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */;
-			productName = AWSS3StoragePlugin;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
-		3EA22F182D02E6A300380268 /* Amplify */ = {
+		0BBD089E2E822E06002175ED /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3EA22F0F2D02E6A300380268 /* XCRemoteSwiftPackageReference "amplify-swift" */;
-			productName = Amplify;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		0BBD08A02E822E06002175ED /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		3E8AFB6F2E86327F00657384 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

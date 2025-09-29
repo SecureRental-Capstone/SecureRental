@@ -49,6 +49,11 @@ struct RentalSearchView: View {
             }
         }
         .navigationTitle("Search Rentals")
+        .onAppear{
+            viewModel.shouldAutoFilter = true
+
+//            viewModel.filterListings(searchTerm: viewModel.searchText, amenities: viewModel.selectedAmenities)
+        }
     }
 }
 

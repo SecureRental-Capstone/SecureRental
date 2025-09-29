@@ -10,6 +10,10 @@
 
 
 import SwiftUI
+<<<<<<< HEAD
+=======
+import FirebaseAuth
+>>>>>>> dev
 
 struct CreateRentalListingView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -102,6 +106,7 @@ struct CreateRentalListingView: View {
     }
     
     private func saveListing() {
+<<<<<<< HEAD
         let newListing = Listing(
             title: title,
             description: description,
@@ -119,6 +124,29 @@ struct CreateRentalListingView: View {
             province: province // Separate province parameter
         )
         viewModel.addListing(newListing)
+=======
+        guard let landlordId = Auth.auth().currentUser?.uid else { return }
+
+        let newListing = Listing(
+                title: title,
+                description: description,
+                price: price,
+                imageURLs: [], // will be filled after upload
+                location: "\(street), \(city), \(province)",
+                isAvailable: isAvailable,
+                numberOfBedrooms: numberOfBedrooms,
+                numberOfBathrooms: numberOfBathrooms,
+                squareFootage: Int(squareFootage) ?? 0,
+                amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity]),
+                street: street,
+                city: city,
+                province: province,
+                datePosted: Date(),
+                landlordId: landlordId
+            )
+            
+            viewModel.addListing(newListing, images: images)
+>>>>>>> dev
     }
 
 }

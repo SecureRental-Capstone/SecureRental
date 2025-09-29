@@ -2,11 +2,12 @@
 //  RootView.swift
 //  SecureRental
 //
-//  Created by Haniya Akhtar on 2024-10-19.
+//  Created by Anchal  Sharma  on 2025-09-23.
 //
+
 
 import Foundation
 
 enum RootView{
-    case login, main, signUp, authentication
+    case login, main, signUp
 }

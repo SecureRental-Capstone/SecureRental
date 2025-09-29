@@ -2,30 +2,30 @@
 //  Listing.swift
 //  SecureRental
 //
-//  Created by Shehnazdeep Kaur on 2024-12-06.
+//  Created by Anchal  Sharma  on 2025-09-23.
 //
 
 import Foundation
-import CoreLocation
-import UIKit
 
-struct Listing: Identifiable {
-    let id = UUID()
+struct Listing: Identifiable, Codable {
+    var id: String = UUID().uuidString
     var title: String
     var description: String
     var price: String
-    var images: [UIImage]  // Store the image data
+    var imageURLs: [String]
     var location: String
     var isAvailable: Bool
-    var datePosted: Date
     var numberOfBedrooms: Int
     var numberOfBathrooms: Int
     var squareFootage: Int
-    var amenities: [String]    // List of amenities including selected and custom
+    var amenities: [String]
     var street: String
     var city: String
     var province: String
     var comments: [String]? = []
     var ratings: [Double]? = []
-    var isFavourite: Bool = false
+    var datePosted: Date
+    
+    var landlordId: String       // creator (Auth.uid)
 }
+

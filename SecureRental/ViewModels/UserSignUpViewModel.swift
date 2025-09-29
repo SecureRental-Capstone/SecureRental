@@ -29,8 +29,7 @@ class UserSignUpViewModel: ObservableObject {
         }
         
         //create new user
-        let newUser = DbUser(userId: UUID().uuidString, email: email, name: "new_user", age: 30)
-        
+        let newUser = AppUser(username: "john123", email: "john@example.com", name: "John Doe")
         do {
             //call the DynamoDBService to add the user
             //try await dynamoDBService.addUser(user: newUser)
