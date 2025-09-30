@@ -146,6 +146,6 @@ struct HelpView: View {
     var body: some View { Text("Help") }
 }
 
-struct AppThemeSettingsView: View {
-    var body: some View { Text("App Theme Settings") }
-}
+//struct AppThemeSettingsView: View {
+//    var body: some View { Text("App Theme Settings") }
+//}
