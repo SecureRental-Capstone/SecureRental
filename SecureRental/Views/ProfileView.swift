@@ -50,8 +50,8 @@ struct ProfileView: View {
                     List {
                         // Profile Details
                         Section(header: Text("Profile").font(.headline)) {
-                            NavigationLink(destination: ProfileDetailsView(user: user)) {
-                                Label("Profile Details", systemImage: "person.fill")
+                            NavigationLink(destination: ProfileDetailsView(user: user).environmentObject(dbHelper)) {
+                                Label("Edit Profile Details", systemImage: "person.fill")
                             }
                         }
                         
@@ -119,12 +119,12 @@ struct ProfileView: View {
 }
 
     // Placeholder Views for Navigation Links
-struct ProfileDetailsView: View {
-    var user: AppUser
-    var body: some View {
-        Text("Profile Details for \(user.name ?? "User")")
-    }
-}
+//struct ProfileDetailsView: View {
+//    var user: AppUser
+//    var body: some View {
+//        Text("Profile Details for \(user.name ?? "User")")
+//    }
+//}
 
 struct ManageAccountView: View {
     var body: some View { Text("Manage Account") }

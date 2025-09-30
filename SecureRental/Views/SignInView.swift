@@ -73,31 +73,41 @@ struct SignInView: View {
             Spacer()
         }
         .padding()
+        .alert("Error", isPresented: $showAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage ?? "Something went wrong")
+        }
         
     }
     
-        //    private func login() async {
-        //        // Insert user
-        ////        let newUser = AppUser(username: "john123", email: "john@example.com", name: "John Doe")
-        //
-        //        // Fetch user by UID
-        //        if let user = await dbHelper.getUser(byEmail: email) {
-        //            print(user.email)
-        //        }
-        //    }
+  
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+    }
+    
     private func login() async {
         guard !email.isEmpty, !password.isEmpty else {
-            //errorMessage = "Please enter email and password."
+            errorMessage = "Please enter email and password."
             showAlert = true
             return
         }
+        
+        guard isValidEmail(email) else {
+            errorMessage = "Please enter a valid email address."
+            showAlert = true
+            return
+        }
+        
         do {
             try await dbHelper.signIn(email: email, password: password)
             rootView = .main
         } catch {
-            //errorMessage = error.localizedDescription
+            errorMessage = error.localizedDescription
             showAlert = true
         }
     }
+
 
     }
