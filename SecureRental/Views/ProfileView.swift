@@ -67,7 +67,7 @@ struct ProfileView: View {
                         
                         // General Information
                         Section(header: Text("General Information").font(.headline)) {
-                            NavigationLink(destination: TermsOfUseView()) {
+                            NavigationLink(destination: TermsofUseView()) {
                                 Label("Terms of Use", systemImage: "doc.text")
                             }
                             NavigationLink(destination: PrivacyPolicyView()) {
@@ -134,9 +134,9 @@ struct NotificationPreferencesView: View {
     var body: some View { Text("Notification Preferences") }
 }
 
-struct TermsOfUseView: View {
-    var body: some View { Text("Terms of Use") }
-}
+//struct TermsOfUseView: View {
+//    var body: some View { Text("Terms of Use") }
+//}
 
 struct PrivacyPolicyView: View {
     var body: some View { Text("Privacy Policy") }

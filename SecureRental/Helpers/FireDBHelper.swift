@@ -327,5 +327,47 @@ class FireDBHelper: ObservableObject {
         
         
     }
+    
+//    func addRating(to listingId: String, rating: Int, review: String?, completion: @escaping (Error?) -> Void) {
+//        guard let currentUser = currentUser else {
+//            completion(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"]))
+//            return
+//        }
+//        
+//        let ratingData: [String: Any] = [
+//            "userId": currentUser.id,
+//            "rating": rating,
+//            "review": review ?? "",
+//            "timestamp": Timestamp()
+//        ]
+//        
+//        let listingRef = db.collection("Listings").document(listingId)
+//        
+//            // Add new rating
+//        listingRef.updateData([
+//            "ratings": FieldValue.arrayUnion([ratingData])
+//        ]) { error in
+//            if let error = error {
+//                completion(error)
+//                return
+//            }
+//            
+//                // Update average rating
+//            listingRef.getDocument { snapshot, error in
+//                guard let snapshot = snapshot, let data = snapshot.data(), let ratings = data["ratings"] as? [[String: Any]] else {
+//                    completion(nil)
+//                    return
+//                }
+//                
+//                let total = ratings.reduce(0) { $0 + ( $1["rating"] as? Int ?? 0) }
+//                let average = Double(total) / Double(ratings.count)
+//                
+//                listingRef.updateData(["averageRating": average]) { error in
+//                    completion(error)
+//                }
+//            }
+//        }
+//    }
+
 
 }

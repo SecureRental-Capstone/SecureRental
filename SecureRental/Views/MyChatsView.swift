@@ -14,9 +14,9 @@ struct MyChatsView: View {
                             Text(listing.title)
                                 .font(.headline)
                             let otherUserId = conversation.participants.first { $0 != Auth.auth().currentUser?.uid }
-                            Text("Chat with \(otherUserId ?? "Landlord/Tenant")")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                           // Text("Chat with \(otherUserId ?? "Landlord/Tenant")")
+                              //  .font(.subheadline)
+                                //.foregroundColor(.gray)
                         }
                     }
                 } else {
