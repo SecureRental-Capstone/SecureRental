@@ -46,6 +46,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.authorizationStatus = manager.authorizationStatus
         if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
             manager.startUpdatingLocation()
+            if let location = currentLocation {
+                self.selectedLocation = location.coordinate
+            }
         } else {
             showPermissionAlert = true
         }
@@ -54,10 +57,20 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             self.currentLocation = location
+            // Only set selectedLocation if it's nil (first load)
+            if selectedLocation == nil {
+                self.selectedLocation = location.coordinate
+            }
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Failed to get user location:", error.localizedDescription)
+    }
+    
+    // User can manually update location/radius from UI
+    func updateLocation(_ coordinate: CLLocationCoordinate2D, radius: Double) {
+        self.selectedLocation = coordinate
+        self.radiusInKm = radius
     }
 }

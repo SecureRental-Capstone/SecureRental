@@ -28,6 +28,10 @@ class RentalListingsViewModel: ObservableObject {
     @Published var selectedAmenities: [String] = []
     @Published var shouldAutoFilter = true
     
+    @Published var selectedLocation: CLLocation? = nil
+    @Published var radiusInKm: Double = 5.0
+    @StateObject var locationManager = LocationManager()
+
     @Published var favoriteListingIDs: Set<String> = []
     
     // Derived property for favorite listings
@@ -66,32 +70,43 @@ class RentalListingsViewModel: ObservableObject {
 //        }
 //    }
     
-    func fetchListings(around location: CLLocation?, radiusInKm: Double = 5.0) {
-            Task {
-                do {
-                    let allListings = try await dbHelper.fetchListings()
-                    
-                    var filtered = allListings.filter { $0.isAvailable }
-                    
-                    if let location = location {
-                        filtered = filtered.filter { listing in
-                            let listingLocation = CLLocation(
-                                latitude: listing.latitude,
-                                longitude: listing.longitude
-                            )
-                            return listingLocation.distance(from: location) <= radiusInKm * 1000
-                        }
+//    func fetchListings() {
+//        fetchListings(around: selectedLocation, radiusInKm: radiusInKm)
+//    }
+    
+    func fetchListings() {
+        let locationToUse: CLLocation? = {
+            if let selected = locationManager.selectedLocation {
+                return CLLocation(latitude: selected.latitude, longitude: selected.longitude)
+            } else if let current = locationManager.currentLocation {
+                return current
+            } else {
+                // Default location (e.g., Toronto)
+                return CLLocation(latitude: 43.6532, longitude: -79.3832)
+            }
+        }()
+
+        Task {
+            do {
+                let allListings = try await dbHelper.fetchListings()
+                var filtered = allListings.filter { $0.isAvailable }
+                
+                if let location = locationToUse {
+                    filtered = filtered.filter { listing in
+                        let listingLocation = CLLocation(latitude: listing.latitude, longitude: listing.longitude)
+                        return listingLocation.distance(from: location) <= locationManager.radiusInKm * 1000
                     }
-                    
-                    await MainActor.run {
-                        self.listings = filtered
-                    }
-                    
-                } catch {
-                    print("❌ Failed to fetch listings:", error.localizedDescription)
                 }
+                
+                await MainActor.run {
+                    self.listings = filtered
+                }
+            } catch {
+                print("❌ Failed to fetch listings:", error.localizedDescription)
             }
         }
+    }
+
     
 
     
@@ -112,7 +127,7 @@ class RentalListingsViewModel: ObservableObject {
         Task {
             do {
                 try await dbHelper.addListing(listing, images: images)
-                await fetchListings(around: <#CLLocation?#>) // refresh after save
+                await fetchListings() // refresh after save
             } catch {
                 print("❌ Failed to add listing: \(error.localizedDescription)")
             }
@@ -135,7 +150,7 @@ class RentalListingsViewModel: ObservableObject {
 
     func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
         if searchTerm.isEmpty && amenities.isEmpty {
-            fetchListings(around: <#CLLocation?#>)
+            fetchListings()
         } else {
             listings = listings.filter { listing in
                     let matchesSearch = searchTerm.isEmpty ||

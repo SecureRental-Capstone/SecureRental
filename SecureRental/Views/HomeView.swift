@@ -9,6 +9,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import CoreLocation
 
 struct HomeView: View {
     @Binding var rootView: RootView
@@ -25,10 +26,12 @@ struct HomeView: View {
     @StateObject var viewModel = RentalListingsViewModel()
     @StateObject var locationManager = LocationManager()
     @StateObject var locationFilter = LocationFilter()
+    @State private var showLocationPicker = false
+    
     
     var body: some View {
         ZStack {
-                // Main TabView Content
+            // Main TabView Content
             TabView(selection: $selectedTab) {
                 NavigationView {
                     VStack {
@@ -41,7 +44,7 @@ struct HomeView: View {
                                 
                                 Spacer() // pushes the button to the right
                                 
-                                    // Right side: My Listings button
+                                // Right side: My Listings button
                                 NavigationLink(destination: MyListingsView()) {
                                     Label("My Listings", systemImage: "house.fill")
                                         .font(.subheadline)
@@ -72,6 +75,15 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
                             
+                            Button("Set Location / Radius") {
+                                showLocationPicker = true
+                            }
+                            //                            Button(action: {
+                            //                                showLocationPicker = true
+                            //                            }) {
+                            //                                Label("Set Location / Radius", systemImage: "mappin.circle")
+                            //                                    .foregroundColor(.blue)
+                            //                            }
                             List($viewModel.listings) { $listing in
                                 NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                     HStack {
@@ -109,53 +121,49 @@ struct HomeView: View {
                             }
                             .navigationTitle("Secure Rental")
                             .onAppear {
-//                                if let userLocation = LocationManager.shared.currentLocation {
-//                                            await viewModel.fetchListings(around: userLocation, radiusInKm: 5.0)
-//                                        }
-                                if let location = locationManager.currentLocation {
-                                    viewModel.fetchListings(around: location, radiusInKm: locationFilter.radiusInKm)
-                                }
-                                else {
-                                // fallback if location not available
-                                    let defaultLocation = CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832)
-                                    await viewModel.fetchListings(around: defaultLocation)
-                                }
-                                
-                            }
-                            .toolbar {
-                                ToolbarItem(placement: .navigationBarTrailing) {
-                                    Button(action: {
-                                        showCreateListingView = true
-                                    }) {
-                                        Image(systemName: "plus")
+                                    if let coordinate = locationManager.selectedLocation {
+                                        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                                        Task {
+                                            await viewModel.fetchListings
+                                        }
                                     }
-                                    .help("Create a new listing")            // ✅ macOS hover tooltip
-                                    .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
+    
+                                    
+                                }
+                                .toolbar {
+                                    ToolbarItem(placement: .navigationBarTrailing) {
+                                        Button(action: {
+                                            showCreateListingView = true
+                                        }) {
+                                            Image(systemName: "plus")
+                                        }
+                                        .help("Create a new listing")            // ✅ macOS hover tooltip
+                                        .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
+                                    }
                                 }
                             }
                         }
-                    }
                     }
                     .tabItem {
                         Label("Home", systemImage: "house")
                     }
                     .tag(0)
                     
-                        // Messages Tab
+                    // Messages Tab
                     MyChatsView()
                         .tabItem {
                             Label("Messages", systemImage: "message")
                         }
                         .tag(1)
                     
-                        // Favourites Tab
+                    // Favourites Tab
                     FavouriteListingsView(viewModel: viewModel)
                         .tabItem {
                             Label("Favourites", systemImage: "star.fill")
                         }
                         .tag(2)
                     
-                        // Profile Tab
+                    // Profile Tab
                     ProfileView(rootView: $rootView)
                         .tabItem {
                             Label("Profile", systemImage: "person.circle")
@@ -163,7 +171,7 @@ struct HomeView: View {
                         .tag(3)
                 }
                 
-                    // Chatbot icon button
+                // Chatbot icon button
                 VStack {
                     Spacer()
                     HStack {
@@ -186,18 +194,16 @@ struct HomeView: View {
                         .padding(.trailing, 20)
                     }
                 }
-            
-            VStack {
-                Slider(value: $locationFilter.radiusInKm, in: 1...50, step: 1) {
-                    Text("Radius")
-                }
-                Text("Showing listings within \(Int(locationFilter.radiusInKm)) km")
-                Button("Update Listings") {
-                    if let loc = locationManager.currentLocation {
-                        viewModel.fetchListings(around: loc, radiusInKm: locationFilter.radiusInKm)
-                    }
-                }
-            }
+                
+//                VStack {
+//                    Slider(value: $locationFilter.radiusInKm, in: 1...50, step: 1) {
+//                        Text("Radius")
+//                    }
+//                    Text("Showing listings within \(Int(locationFilter.radiusInKm)) km")
+//                    Button("Update Listings") {
+//                            viewModel.fetchListings()
+//                    }
+//                }
             }
             .sheet(isPresented: $showMessageView) {
                 ChatbotView()
@@ -212,7 +218,15 @@ struct HomeView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
+            .sheet(isPresented: $showLocationPicker) {
+                LocationPickerView(locationManager: locationManager)
+                    .onDisappear {
+                        Task { await viewModel.fetchListings() }
+                    }
 
+            }
+            
+            
         }
-    }
-
+    
+}

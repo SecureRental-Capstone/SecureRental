@@ -183,7 +183,7 @@ struct CreateRentalListingView: View {
             try await viewModel.dbHelper.addListing(newListing, images: images)
             
             // Refresh listings
-            await viewModel.fetchListings()
+//            await viewModel.fetchListings()
             presentationMode.wrappedValue.dismiss()
             
         } catch {
