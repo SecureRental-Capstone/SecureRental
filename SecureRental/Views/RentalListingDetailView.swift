@@ -19,6 +19,11 @@ struct RentalListingDetailView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     
+    @EnvironmentObject var dbHelper: FireDBHelper
+    @StateObject var viewModel = RentalListingsViewModel()
+    @State private var showCommentView = false
+
+    
     var body: some View {
         ScrollView{
             VStack(spacing: 20) {
@@ -141,19 +146,6 @@ struct RentalListingDetailView: View {
                 }
                 .padding(.horizontal)
                 
-//                NavigationLink(destination: ChatView(listing: listing)) {
-//                    HStack {
-//                        Image(systemName: "message.fill")
-//                        Text("Message Landlord")
-//                    }
-//                    .foregroundColor(.white)
-//                    .padding()
-//                    .frame(maxWidth: .infinity)
-//                    .background(Color.blue)
-//                    .cornerRadius(10)
-//                }
-//                .padding(.horizontal)
-                
                 if listing.landlordId != Auth.auth().currentUser?.uid {
                     NavigationLink(destination: ChatView(listing: listing)) {
                         HStack {
@@ -173,12 +165,45 @@ struct RentalListingDetailView: View {
                         .italic()
                         .padding()
                 }
+                
+                Divider()
+                Text("Actions")
+                    .font(.headline)
+                    .padding(.top, 10)
+
+                Button(action: {
+                    viewModel.toggleFavorite(for: listing)
+                }) {
+                    Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
+                        .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
+                        .font(.title2)
+                }
+
+
+                // Rate / Review Button
+                Button(action: {
+                    showCommentView = true
+                }) {
+                    Label("Rate / Review", systemImage: "star.circle.fill")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.orange)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal)
+                .padding(.top, 5)
+
 
                 
                 Spacer()
             }
             .padding()
             .navigationTitle(listing.title)
+            .sheet(isPresented: $showCommentView) {
+                CommentView(listing: listing, viewModel: viewModel)
+            }
+
         }
     }
     

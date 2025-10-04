@@ -32,7 +32,6 @@ struct HomeView: View {
                     VStack {
                         if let user = dbHelper.currentUser {
                             HStack {
-                                    // Left side: Welcome text
                                 Text("Welcome, \(user.name)")
                                     .font(.headline)
                                     .fontWeight(.semibold)
@@ -54,9 +53,6 @@ struct HomeView: View {
                             .padding(.horizontal)
                             .padding(.top, 8)
                             
-                                //
-                                //                        NavigationLink("Search Rental Listings", destination: RentalSearchView(viewModel: viewModel))
-                                //                            .padding()
                             NavigationLink(destination: RentalSearchView(viewModel: viewModel)) {
                                 HStack {
                                     Image(systemName: "magnifyingglass") // search icon
@@ -77,13 +73,6 @@ struct HomeView: View {
                             List($viewModel.listings) { $listing in
                                 NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                                     HStack {
-                                            //                                    if let firstImage = listing.imageURLs.first {
-                                            //                                        Image(firstImage)
-                                            //                                            .resizable()
-                                            //                                            .scaledToFit()
-                                            //                                            .frame(width: 100, height: 100)
-                                            //                                            .cornerRadius(8)
-                                            //                                    }
                                         if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
                                             AsyncImage(url: url) { phase in
                                                 switch phase {
@@ -113,26 +102,6 @@ struct HomeView: View {
                                                 .font(.subheadline)
                                         }
                                         Spacer()
-                                        
-                                            // Favorite Button
-                                        Button(action: {
-                                            viewModel.toggleFavorite(for: listing)
-                                        }) {
-                                            Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
-                                                .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
-                                        }
-                                        .buttonStyle(BorderlessButtonStyle())
-                                        
-                                            // Comment (Rate) Button
-                                        Button(action: {
-                                            selectedListingForComment = listing
-                                            showCommentView = true
-                                        }) {
-                                            Image(systemName: "star.circle.fill")
-                                                .foregroundColor(.blue)
-                                        }
-                                        .buttonStyle(BorderlessButtonStyle())
-                                        
                                     }
                                 }
                             }
@@ -140,8 +109,6 @@ struct HomeView: View {
                             .onAppear {
                                 viewModel.fetchListings()
                             }
-                                //                        .onAppear { $viewModel.startListeningAllListings }
-                                //                        .onDisappear { viewModel.stopListening() }
                             .toolbar {
                                 ToolbarItem(placement: .navigationBarTrailing) {
                                     Button(action: {
@@ -207,20 +174,13 @@ struct HomeView: View {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showMessageView) {
-                    //            NavigationLink("My Chats", destination: MyChatsView())
-                    //                   .padding()
+            .sheet(isPresented: $showMessageView) {
                 ChatbotView()
             }
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
             }
-                //        .sheet(item: $selectedListing) { listing in
-                //            EditRentalListingView(viewModel: viewModel, listing: listing)
-                //        }
-            .sheet(item: $selectedListingForComment) { listing in
-                CommentView(listing: listing, viewModel: viewModel)
-            }
+
         }
     }
 

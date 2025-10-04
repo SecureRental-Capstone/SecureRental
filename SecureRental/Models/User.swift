@@ -8,6 +8,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
     var profilePictureURL: String?
     var rating: Int               // 1 to 5
     var reviews: [String]         // Multiple reviews
+    var favoriteListingIDs: [String] = [] 
     
     // initialization
     init(
@@ -17,7 +18,8 @@ class AppUser: ObservableObject, Identifiable, Codable {
         name: String,
         profilePictureURL: String? = nil,
         rating: Int = 0,
-        reviews: [String] = []
+        reviews: [String] = [],
+        favoriteListingIDs: [String] = []
     ) {
         self.id = id
         self.username = username
@@ -26,6 +28,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
         self.profilePictureURL = profilePictureURL
         self.rating = rating
         self.reviews = reviews
+        self.favoriteListingIDs = favoriteListingIDs
     }
     
     static let sampleUser = AppUser(

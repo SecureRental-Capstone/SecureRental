@@ -26,15 +26,28 @@ struct FavouriteListingsView: View {
                 List(viewModel.favouriteListings) { listing in
                     NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                         HStack {
-                                // Placeholder for an image (or use actual listing images if available)
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: 60, height: 60)
-                                .cornerRadius(8)
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundColor(.gray)
-                                )
+
+                            if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        ProgressView()
+                                    case .success(let image):
+                                        image.resizable()
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
+                                            .cornerRadius(8)
+                                    case .failure:
+                                        Image(systemName: "photo")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
+                                            .foregroundColor(.gray)
+                                    @unknown default:
+                                        EmptyView()
+                                    }
+                                }
+                            }
                             
                             VStack(alignment: .leading) {
                                 Text(listing.title)
@@ -53,6 +66,9 @@ struct FavouriteListingsView: View {
                     }
                 }
                 .navigationTitle("Favorites")
+                .onAppear{
+                    viewModel.fetchFavoriteListings()
+                }
             }
         }
     }

@@ -21,15 +21,15 @@ import FirebaseAuth
 @MainActor
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [Listing] = []
-    @Published var shouldAutoFilter = true
-
     let dbHelper = FireDBHelper.getInstance()
+    
     @Published var searchText: String = ""
     @Published var selectedAmenities: [String] = []
-    @Published private(set) var favoriteListingIDs: Set<String> = []
-
+    @Published var shouldAutoFilter = true
     
-        // Derived property for favorite listings
+    @Published var favoriteListingIDs: Set<String> = []
+    
+    // Derived property for favorite listings
     var favouriteListings: [Listing] {
         listings.filter { favoriteListingIDs.contains($0.id) }
     }
@@ -57,11 +57,14 @@ class RentalListingsViewModel: ObservableObject {
                 await MainActor.run {
                     self.listings = fetched.filter { $0.isAvailable }
                 }
+                await fetchFavoriteListings() // sync favorites after fetching listings
+
             } catch {
                 print("❌ Failed to fetch listings: \(error.localizedDescription)")
             }
         }
     }
+
     
     func fetchMyListings() {
         Task {
@@ -75,52 +78,6 @@ class RentalListingsViewModel: ObservableObject {
             }
         }
     }
-//    // Fetches rental listings from the backend or local storage.
-//    func fetchListings() {
-//        let sampleImage = UIImage(named: "sampleImage") ?? UIImage()  // Provide a default image if nil
-//        // Placeholder data; replace with actual backend fetching logic
-//        listings = [
-//            Listing(
-//                id: "Cozy Apartment",
-//                title: "A charming one-bedroom apartment in the heart of downtown.",
-//                description: "1200",
-//                price: "1",
-//                imageURLs: ["Toronto"],
-//                location: "Toronto",
-//                isAvailable: true,
-//                numberOfBedrooms: 1,
-//                numberOfBathrooms: 1,
-//                squareFootage: 600,
-//                amenities: ["WiFi", "Washer/Dryer", "Pet-friendly"],
-//                street: "123 Main St",
-//                city: "Toronto",
-//                province: "ON",
-//                comments: ["123"],
-//                datePosted: Date(),
-//                landlordId: "1"
-//            ),
-//            Listing(
-//                id: "Luxury Condo",
-//                title: "Spacious 2-bedroom, 2-bathroom condo with amazing city views.",
-//                description: "2500",
-//                price: "1",
-//                imageURLs: ["Toronto"],
-//                location: "Toronto",
-//                isAvailable: false,
-//                numberOfBedrooms: 2,
-//                numberOfBathrooms: 2,
-//                squareFootage: 1100,
-//                amenities: ["Gym", "Parking", "Swimming Pool"],
-//                street: "456 Elm St",
-//                city: "Toronto",
-//                province: "ON",
-//                comments: ["123"],
-//                datePosted: Date(),
-//                landlordId: "2"
-//            )
-//        ]
-//    }
-    
     
     func addListing(_ listing: Listing, images: [UIImage]) {
         Task {
@@ -164,19 +121,6 @@ class RentalListingsViewModel: ObservableObject {
         }
     }
 
-    func toggleFavorite(for listing: Listing) {
-        if favoriteListingIDs.contains(listing.id) {
-            favoriteListingIDs.remove(listing.id)
-        } else {
-            favoriteListingIDs.insert(listing.id)
-        }
-    }
-    
-    func isFavorite(_ listing: Listing) -> Bool {
-        return favoriteListingIDs.contains(listing.id)
-    }
-    
-    
     func deleteListing(_ listing: Listing) {
             // Remove locally first
         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
@@ -196,20 +140,26 @@ class RentalListingsViewModel: ObservableObject {
             }
         }
     }
+    
+    func toggleFavorite(for listing: Listing) {
+        Task {
+            do {
+                try await dbHelper.toggleFavorite(listingId: listing.id)
+                self.favoriteListingIDs = Set(dbHelper.currentUser?.favoriteListingIDs ?? [])
+            } catch {
+                print("❌ Failed to toggle favorite: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func isFavorite(_ listing: Listing) -> Bool {
+        favoriteListingIDs.contains(listing.id)
+    }
+    
+    @MainActor
+    func fetchFavoriteListings() {
+        guard let currentUser = dbHelper.currentUser else { return }
+        self.favoriteListingIDs = Set(currentUser.favoriteListingIDs)
+    }
 
 }
-
-     // Add a rating or comment to a listing
-//     func addComment(to listing: RentalListing, comment: String) {
-//         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
-//             listings[index].comments.append(comment)
-//         }
-//     }
-//
-//     func addRating(to listing: RentalListing, rating: Int) {
-//         if let index = listings.firstIndex(where: { $0.id == listing.id }) {
-//             listings[index].ratings.append(rating)
-//         }
-//     }
-
-

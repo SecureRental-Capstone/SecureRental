@@ -99,7 +99,8 @@ class FireDBHelper: ObservableObject {
                     name: data["name"] as? String ?? "",
                     profilePictureURL: data["profilePictureURL"] as? String,
                     rating: data["rating"] as? Int ?? 0,
-                    reviews: data["reviews"] as? [String] ?? []
+                    reviews: data["reviews"] as? [String] ?? [],
+                    favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
 //                self.currentUser = user
                 return user
@@ -126,7 +127,8 @@ class FireDBHelper: ObservableObject {
                     name: data["name"] as? String ?? "",
                     profilePictureURL: data["profilePictureURL"] as? String,
                     rating: data["rating"] as? Int ?? 0,
-                    reviews: data["reviews"] as? [String] ?? []
+                    reviews: data["reviews"] as? [String] ?? [],
+                    favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? [] 
                 )
 //                self.currentUser = user
                 return user
@@ -223,11 +225,6 @@ class FireDBHelper: ObservableObject {
     }
     
     func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
-        // Check if conversation exists for THIS listing
-//        let query = try await db.collection("conversations")
-//            .whereField("participants", arrayContains: tenantId)
-//            .whereField("listingId", isEqualTo: listingId)
-//            .getDocuments()
         let currentUserId = Auth.auth().currentUser?.uid ?? ""
         let query = try await db.collection("conversations")
             .whereField("participants", arrayContains: currentUserId)
@@ -314,7 +311,38 @@ class FireDBHelper: ObservableObject {
             return nil
         }
     }
-    
 
+    
+    func toggleFavorite(listingId: String) async throws {
+        guard let user = currentUser else { return }
+        var updatedFavorites = user.favoriteListingIDs
+
+        if let index = updatedFavorites.firstIndex(of: listingId) {
+            updatedFavorites.remove(at: index) // remove
+        } else {
+            updatedFavorites.append(listingId) // add
+        }
+
+        // Update Firestore
+        try await db.collection(COLLECTION_USERS)
+            .document(user.id)
+            .updateData(["favoriteListingIDs": updatedFavorites])
+
+        // Update local user
+        currentUser?.favoriteListingIDs = updatedFavorites
+    }
+
+    
+//    // Fetch favorite listings for user
+//    func fetchFavoriteListings(for user: AppUser) async throws -> [Listing] {
+//        guard !user.favoriteListingIDs.isEmpty else { return [] }
+//        
+//        let snapshot = try await db.collection(COLLECTION_LISTINGS)
+//            .whereField("id", in: user.favoriteListingIDs)
+//            .getDocuments()
+//        
+//        let listings = snapshot.documents.compactMap { try? $0.data(as: Listing.self) }
+//        return listings
+//    }
 
 }
