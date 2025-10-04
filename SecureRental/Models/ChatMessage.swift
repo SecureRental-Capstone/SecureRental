@@ -14,11 +14,3 @@ struct ChatMessage: Identifiable, Codable {
     var text: String
     var timestamp: Date?
 }
-
-//struct Conversation: Identifiable, Codable {
-//    @DocumentID var id: String?
-//    var participants: [String]
-//    var listingId: String
-//    var createdAt: Date?
-//}
-

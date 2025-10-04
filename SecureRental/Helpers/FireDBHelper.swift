@@ -101,7 +101,7 @@ class FireDBHelper: ObservableObject {
                     rating: data["rating"] as? Int ?? 0,
                     reviews: data["reviews"] as? [String] ?? []
                 )
-                self.currentUser = user
+//                self.currentUser = user
                 return user
             }
         } catch {
@@ -128,7 +128,7 @@ class FireDBHelper: ObservableObject {
                     rating: data["rating"] as? Int ?? 0,
                     reviews: data["reviews"] as? [String] ?? []
                 )
-                self.currentUser = user
+//                self.currentUser = user
                 return user
             }
         } catch {
@@ -222,35 +222,6 @@ class FireDBHelper: ObservableObject {
         print("✅ Listing updated in Firestore")
     }
     
-//    // Start or fetch a conversation
-//    func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
-//        // Check if conversation exists
-//        let query = try await db.collection("conversations")
-//            .whereField("participants", arrayContains: tenantId)
-//            .getDocuments()
-//
-//        if let existing = query.documents.first(where: { ($0.data()["participants"] as? [String])?.contains(landlordId) == true }) {
-//            return existing.documentID
-//        }
-//
-//        // Create new conversation
-//        let conversationRef = db.collection("conversations").document()
-//        try await conversationRef.setData([
-//            "participants": [tenantId, landlordId],
-//            "listingId": listingId,
-//            "createdAt": FieldValue.serverTimestamp()
-//        ])
-//
-//        // Auto message
-//        try await conversationRef.collection("messages").addDocument(data: [
-//            "senderId": tenantId,
-//            "text": "Hi, is this listing still available?",
-//            "timestamp": FieldValue.serverTimestamp()
-//        ])
-//
-//        return conversationRef.documentID
-//    }
-    
     func startConversation(listingId: String, landlordId: String, tenantId: String) async throws -> String {
         // Check if conversation exists for THIS listing
 //        let query = try await db.collection("conversations")
@@ -328,46 +299,22 @@ class FireDBHelper: ObservableObject {
         
     }
     
-//    func addRating(to listingId: String, rating: Int, review: String?, completion: @escaping (Error?) -> Void) {
-//        guard let currentUser = currentUser else {
-//            completion(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "User not logged in"]))
-//            return
-//        }
-//        
-//        let ratingData: [String: Any] = [
-//            "userId": currentUser.id,
-//            "rating": rating,
-//            "review": review ?? "",
-//            "timestamp": Timestamp()
-//        ]
-//        
-//        let listingRef = db.collection("Listings").document(listingId)
-//        
-//            // Add new rating
-//        listingRef.updateData([
-//            "ratings": FieldValue.arrayUnion([ratingData])
-//        ]) { error in
-//            if let error = error {
-//                completion(error)
-//                return
-//            }
-//            
-//                // Update average rating
-//            listingRef.getDocument { snapshot, error in
-//                guard let snapshot = snapshot, let data = snapshot.data(), let ratings = data["ratings"] as? [[String: Any]] else {
-//                    completion(nil)
-//                    return
-//                }
-//                
-//                let total = ratings.reduce(0) { $0 + ( $1["rating"] as? Int ?? 0) }
-//                let average = Double(total) / Double(ratings.count)
-//                
-//                listingRef.updateData(["averageRating": average]) { error in
-//                    completion(error)
-//                }
-//            }
-//        }
-//    }
+    // MARK: - Fetch Last Message for Conversation
+    func fetchLastMessage(for conversationId: String) async throws -> ChatMessage? {
+        let snapshot = try await db.collection("conversations")
+            .document(conversationId)
+            .collection("messages")
+            .order(by: "timestamp", descending: true)
+            .limit(to: 1)
+            .getDocuments()
+
+        if let doc = snapshot.documents.first {
+            return try doc.data(as: ChatMessage.self)
+        } else {
+            return nil
+        }
+    }
+    
 
 
 }
