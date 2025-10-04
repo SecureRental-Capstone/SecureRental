@@ -23,6 +23,8 @@ struct HomeView: View {
     @State private var selectedListingForComment: Listing?
     @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
+    @StateObject var locationManager = LocationManager()
+    @StateObject var locationFilter = LocationFilter()
     
     var body: some View {
         ZStack {
@@ -107,7 +109,18 @@ struct HomeView: View {
                             }
                             .navigationTitle("Secure Rental")
                             .onAppear {
-                                viewModel.fetchListings()
+//                                if let userLocation = LocationManager.shared.currentLocation {
+//                                            await viewModel.fetchListings(around: userLocation, radiusInKm: 5.0)
+//                                        }
+                                if let location = locationManager.currentLocation {
+                                    viewModel.fetchListings(around: location, radiusInKm: locationFilter.radiusInKm)
+                                }
+                                else {
+                                // fallback if location not available
+                                    let defaultLocation = CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832)
+                                    await viewModel.fetchListings(around: defaultLocation)
+                                }
+                                
                             }
                             .toolbar {
                                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -173,12 +186,31 @@ struct HomeView: View {
                         .padding(.trailing, 20)
                     }
                 }
+            
+            VStack {
+                Slider(value: $locationFilter.radiusInKm, in: 1...50, step: 1) {
+                    Text("Radius")
+                }
+                Text("Showing listings within \(Int(locationFilter.radiusInKm)) km")
+                Button("Update Listings") {
+                    if let loc = locationManager.currentLocation {
+                        viewModel.fetchListings(around: loc, radiusInKm: locationFilter.radiusInKm)
+                    }
+                }
+            }
             }
             .sheet(isPresented: $showMessageView) {
                 ChatbotView()
             }
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
+            }
+            .alert(isPresented: $locationManager.showPermissionAlert) {
+                Alert(
+                    title: Text("Location Permission Needed"),
+                    message: Text("We need your location to show listings nearby. Please enable location access in settings."),
+                    dismissButton: .default(Text("OK"))
+                )
             }
 
         }

@@ -27,5 +27,7 @@ struct Listing: Identifiable, Codable {
     var datePosted: Date
     
     var landlordId: String       // creator (Auth.uid)
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
 }
 

@@ -11,6 +11,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import CoreLocation
 
 struct CreateRentalListingView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -135,10 +136,21 @@ struct CreateRentalListingView: View {
 //    }
     
     private func saveListing() async {
-            guard let landlordId = Auth.auth().currentUser?.uid else { return }
-
-            isSaving = true
-
+        guard let landlordId = Auth.auth().currentUser?.uid else { return }
+        isSaving = true
+        
+        let geocoder = CLGeocoder()
+        let address = "\(street), \(city), \(province)"
+        
+        do {
+            // Geocode the address
+            let placemarks = try await geocoder.geocodeAddressString(address)
+            guard let location = placemarks.first?.location else {
+                print("❌ Could not geocode address")
+                isSaving = false
+                return
+            }
+            
             var newListing = Listing(
                 title: title,
                 description: description,
@@ -154,28 +166,32 @@ struct CreateRentalListingView: View {
                 city: city,
                 province: province,
                 datePosted: Date(),
-                landlordId: landlordId
+                landlordId: landlordId,
+                latitude: location.coordinate.latitude,
+                longitude: location.coordinate.longitude
             )
-
-            do {
-                var uploadedURLs: [String] = []
-
-                for image in images {
-                    let url = try await CloudinaryHelper.uploadImage(image)
-                    uploadedURLs.append(url)
-                }
-
-                newListing.imageURLs = uploadedURLs
-
-                try await viewModel.dbHelper.addListing(newListing, images: images) // Already uploads images internally, but you can skip if using Cloudinary separately
-                await viewModel.fetchListings() // Refresh listings
-                presentationMode.wrappedValue.dismiss()
-            } catch {
-                print("❌ Failed to save listing: \(error.localizedDescription)")
+            
+            // Upload images to Cloudinary
+            var uploadedURLs: [String] = []
+            for image in images {
+                let url = try await CloudinaryHelper.uploadImage(image)
+                uploadedURLs.append(url)
             }
-
-            isSaving = false
+            newListing.imageURLs = uploadedURLs
+            
+            // Save listing to Firebase
+            try await viewModel.dbHelper.addListing(newListing, images: images)
+            
+            // Refresh listings
+            await viewModel.fetchListings()
+            presentationMode.wrappedValue.dismiss()
+            
+        } catch {
+            print("❌ Failed to save listing: \(error.localizedDescription)")
         }
+        
+        isSaving = false
+    }
 
 }
 

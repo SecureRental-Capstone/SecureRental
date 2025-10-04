@@ -17,6 +17,7 @@ import Combine
 import UIKit
 import SwiftUICore
 import FirebaseAuth
+import CoreLocation
 
 @MainActor
 class RentalListingsViewModel: ObservableObject {
@@ -50,20 +51,48 @@ class RentalListingsViewModel: ObservableObject {
                 .store(in: &cancellables)
     }
     
-    func fetchListings() {
-        Task {
-            do {
-                let fetched = try await dbHelper.fetchListings()
-                await MainActor.run {
-                    self.listings = fetched.filter { $0.isAvailable }
+//    func fetchListings() {
+//        Task {
+//            do {
+//                let fetched = try await dbHelper.fetchListings()
+//                await MainActor.run {
+//                    self.listings = fetched.filter { $0.isAvailable }
+//                }
+//                await fetchFavoriteListings() // sync favorites after fetching listings
+//
+//            } catch {
+//                print("❌ Failed to fetch listings: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+    
+    func fetchListings(around location: CLLocation?, radiusInKm: Double = 5.0) {
+            Task {
+                do {
+                    let allListings = try await dbHelper.fetchListings()
+                    
+                    var filtered = allListings.filter { $0.isAvailable }
+                    
+                    if let location = location {
+                        filtered = filtered.filter { listing in
+                            let listingLocation = CLLocation(
+                                latitude: listing.latitude,
+                                longitude: listing.longitude
+                            )
+                            return listingLocation.distance(from: location) <= radiusInKm * 1000
+                        }
+                    }
+                    
+                    await MainActor.run {
+                        self.listings = filtered
+                    }
+                    
+                } catch {
+                    print("❌ Failed to fetch listings:", error.localizedDescription)
                 }
-                await fetchFavoriteListings() // sync favorites after fetching listings
-
-            } catch {
-                print("❌ Failed to fetch listings: \(error.localizedDescription)")
             }
         }
-    }
+    
 
     
     func fetchMyListings() {
@@ -83,7 +112,7 @@ class RentalListingsViewModel: ObservableObject {
         Task {
             do {
                 try await dbHelper.addListing(listing, images: images)
-                await fetchListings() // refresh after save
+                await fetchListings(around: <#CLLocation?#>) // refresh after save
             } catch {
                 print("❌ Failed to add listing: \(error.localizedDescription)")
             }
@@ -106,7 +135,7 @@ class RentalListingsViewModel: ObservableObject {
 
     func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
         if searchTerm.isEmpty && amenities.isEmpty {
-                fetchListings()
+            fetchListings(around: <#CLLocation?#>)
         } else {
             listings = listings.filter { listing in
                     let matchesSearch = searchTerm.isEmpty ||
