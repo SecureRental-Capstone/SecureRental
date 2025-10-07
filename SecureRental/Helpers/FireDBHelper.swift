@@ -98,7 +98,7 @@ class FireDBHelper: ObservableObject {
                     email: data["email"] as? String ?? "",
                     name: data["name"] as? String ?? "",
                     profilePictureURL: data["profilePictureURL"] as? String,
-                    rating: data["rating"] as? Int ?? 0,
+                    rating: data["rating"] as? Double ?? 0.0,
                     reviews: data["reviews"] as? [String] ?? [],
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
@@ -126,7 +126,7 @@ class FireDBHelper: ObservableObject {
                     email: data["email"] as? String ?? "",
                     name: data["name"] as? String ?? "",
                     profilePictureURL: data["profilePictureURL"] as? String,
-                    rating: data["rating"] as? Int ?? 0,
+                    rating: data["rating"] as? Double ?? 0.0,
                     reviews: data["reviews"] as? [String] ?? [],
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? [] 
                 )
@@ -357,6 +357,46 @@ class FireDBHelper: ObservableObject {
         }
     }
     
+//    private func updateAverageRating(for listing: Listing, newRating: Double) {
+//        let listingRef = db.collection("Listings").document(listing.id)
+//        
+//        listingRef.getDocument { snapshot, error in
+//            guard let data = snapshot?.data(), error == nil else {
+//                print("❌ Failed to fetch listing for average rating")
+//                return
+//            }
+//            
+//            let currentAverage = data["averageRating"] as? Double ?? 0.0
+//            let ratingsCount = data["ratingsCount"] as? Int ?? 0
+//            
+//            var updatedAverage: Double
+//            var updatedCount: Int
+//            
+//            if ratingsCount == 0 {
+//                    // First rating
+//                updatedAverage = newRating
+//                updatedCount = 1
+//            } else {
+//                    // Compute new average
+//                updatedCount = ratingsCount + 1
+//                updatedAverage = (currentAverage * Double(ratingsCount) + newRating) / Double(updatedCount)
+//            }
+//            
+//             
+//            let roundedAverage = Double(round(100 * updatedAverage) / 100)
+//            
+//            listingRef.updateData([
+//                "averageRating": roundedAverage,
+//                "ratingsCount": updatedCount
+//            ]) { error in
+//                if let error = error {
+//                    print("❌ Failed to update average rating: \(error.localizedDescription)")
+//                } else {
+//                    print("✅ Average rating updated: \(updatedAverage)")
+//                }
+//            }
+//        }
+//    }
     private func updateAverageRating(for listing: Listing, newRating: Double) {
         let listingRef = db.collection("Listings").document(listing.id)
         
@@ -368,6 +408,7 @@ class FireDBHelper: ObservableObject {
             
             let currentAverage = data["averageRating"] as? Double ?? 0.0
             let ratingsCount = data["ratingsCount"] as? Int ?? 0
+            let ownerId = data["landlordId"] as? String ?? ""
             
             var updatedAverage: Double
             var updatedCount: Int
@@ -382,9 +423,10 @@ class FireDBHelper: ObservableObject {
                 updatedAverage = (currentAverage * Double(ratingsCount) + newRating) / Double(updatedCount)
             }
             
-             
+                // Round to 2 decimals
             let roundedAverage = Double(round(100 * updatedAverage) / 100)
             
+                // Update Listing
             listingRef.updateData([
                 "averageRating": roundedAverage,
                 "ratingsCount": updatedCount
@@ -392,76 +434,84 @@ class FireDBHelper: ObservableObject {
                 if let error = error {
                     print("❌ Failed to update average rating: \(error.localizedDescription)")
                 } else {
-                    print("✅ Average rating updated: \(updatedAverage)")
+                    print("✅ Average rating updated for listing: \(roundedAverage)")
+                    
+                        // ✅ Update the owner's rating
+                    self.updateUserRating(for: ownerId)
                 }
             }
         }
     }
-
-
-//    func addReview(to listing: Listing, rating: Double, comment: String, user: AppUser) {
-//        let reviewRef = db.collection("Listings")
-//            .document(listing.id)
-//            .collection("Reviews")
-//            .document() // Auto-generated ID
+    
+        // MARK: - Update the landlord's rating based on all their listings
+//    private func updateUserRating(for ownerId: String) {
+//        let listingsRef = db.collection("Listings").whereField("landlordId", isEqualTo: ownerId)
 //        
-//        let reviewData: [String: Any] = [
-//            "userId": user.id,
-//            "userName": user.name,
-//            "rating": rating,
-//            "comment": comment,
-//            "timestamp": FieldValue.serverTimestamp()
-//        ]
-//        
-//            // Add the review
-//        reviewRef.setData(reviewData) { error in
-//            if let error = error {
-//                print("❌ Failed to add review: \(error.localizedDescription)")
-//                return
-//            }
-//            print("✅ Review added successfully")
+//        listingsRef.getDocuments { snapshot, error in
+//            guard let docs = snapshot?.documents, error == nil, !docs.isEmpty else { return }
 //            
-//                // After adding, update average rating
-//            self.updateAverageRating(for: listing)
-//        }
-//    }
-//    
-//    private func updateAverageRating(for listing: Listing) {
-//        let reviewsRef = db.collection("Listings").document(listing.id).collection("reviews")
-//        
-//        reviewsRef.getDocuments { snapshot, error in
-//            guard let documents = snapshot?.documents, error == nil else {
-//                print("❌ Failed to fetch reviews for average rating")
-//                return
+//            let total = docs.reduce(0.0) { sum, doc in
+//                sum + (doc.data()["averageRating"] as? Double ?? 0.0)
 //            }
 //            
-//            let ratings = documents.compactMap { $0.data()["rating"] as? Double }
-//            let average = ratings.isEmpty ? 0.0 : ratings.reduce(0, +) / Double(ratings.count)
+//            let userAverage = total / Double(docs.count)
+//            let rounded = Double(round(100 * userAverage) / 100)
 //            
-//                // Update averageRating in Listing document
-//            self.db.collection("Listings").document(listing.id).updateData([
-//                "averageRating": average
+//            self.db.collection("Users").document(ownerId).updateData([
+//                "rating": rounded
 //            ]) { error in
 //                if let error = error {
-//                    print("❌ Failed to update average rating: \(error.localizedDescription)")
+//                    print("❌ Failed to update user rating: \(error.localizedDescription)")
 //                } else {
-//                    print("✅ Average rating updated: \(average)")
+//                    print("✅ User rating updated: \(rounded)")
 //                }
 //            }
 //        }
 //    }
 
 
-//    // Fetch favorite listings for user
-//    func fetchFavoriteListings(for user: AppUser) async throws -> [Listing] {
-//        guard !user.favoriteListingIDs.isEmpty else { return [] }
-//        
-//        let snapshot = try await db.collection(COLLECTION_LISTINGS)
-//            .whereField("id", in: user.favoriteListingIDs)
-//            .getDocuments()
-//        
-//        let listings = snapshot.documents.compactMap { try? $0.data(as: Listing.self) }
-//        return listings
-//    }
+
+    private func updateUserRating(for ownerId: String) {
+        guard Auth.auth().currentUser != nil else {
+            print("❌ No authenticated user. Can't update user rating.")
+            return
+        }
+        
+        let listingsRef = db.collection("Listings").whereField("landlordId", isEqualTo: ownerId)
+        
+        listingsRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("❌ Failed to fetch listings: \(error.localizedDescription)")
+                return
+            }
+            guard let docs = snapshot?.documents, !docs.isEmpty else {
+                print("❌ No listings found for this landlord")
+                return
+            }
+            
+            let total = docs.reduce(0.0) { sum, doc in
+                let rating = doc.data()["averageRating"] as? Double ?? 0.0
+                return sum + rating
+            }
+            
+            let userAverage = total / Double(docs.count)
+            let rounded = Double(round(100 * userAverage) / 100)
+            
+            DispatchQueue.main.async {
+                self.db.collection("Users").document(ownerId).updateData([
+                    "rating": rounded
+                ]) { error in
+                    if let error = error {
+                        print("❌ Failed to update user rating: \(error.localizedDescription)")
+                    } else {
+                        print("✅ User rating updated: \(rounded)")
+                    }
+                }
+            }
+        }
+    }
+
+
+
 
 }

@@ -1,11 +1,135 @@
+//import SwiftUI
+//
+//struct ProfileView: View {
+////    @ObservedObject var user: AppUser
+//    @Binding var rootView: RootView
+//    @EnvironmentObject var dbHelper: FireDBHelper
+//
+////    @EnvironmentObject private var authenticationService: AuthenticationService
+//    
+//    var body: some View {
+//        NavigationView {
+//            VStack(spacing: 20) {
+//                
+//                if let user = dbHelper.currentUser {
+//                    HStack {
+//                        Image(systemName: "person.circle.fill")
+//                            .resizable()
+//                            .scaledToFit()
+//                            .frame(width: 80, height: 80)
+//                            .foregroundColor(.blue)
+//                            .padding(.leading, 20)
+//                        
+//                        VStack(alignment: .leading, spacing: 5) {
+//                            Text(user.name ?? "User Name")
+//                                .font(.title2)
+//                                .fontWeight(.bold)
+//                            
+//                            HStack {
+//                                Image(systemName: "star.fill")
+//                                    .foregroundColor(.yellow)
+//                                Image(systemName: "star.fill")
+//                                    .foregroundColor(.yellow)
+//                                Image(systemName: "star.fill")
+//                                    .foregroundColor(.yellow)
+//                                Image(systemName: "star.fill")
+//                                    .foregroundColor(.yellow)
+//                                Text(String(format: "%.1f", user.rating ?? 4.0))
+//                                    .font(.subheadline)
+//                                    .foregroundColor(.gray)
+//                            }
+//                        }
+//                        
+//                        Spacer()
+//                    }
+//                    .padding(.top, 40)
+//                    .padding(.bottom, 20)
+//                    .background(Color.gray.opacity(0.1))
+//                    
+//                    
+//                    List {
+//                        // Profile Details
+//                        Section(header: Text("Profile").font(.headline)) {
+//                            NavigationLink(destination: ProfileDetailsView(user: user).environmentObject(dbHelper)) {
+//                                Label("Edit Profile Details", systemImage: "person.fill")
+//                            }
+//                        }
+//                        
+//                        // Account Settings
+//                        Section(header: Text("Account Settings").font(.headline)) {
+//                            NavigationLink(destination: ManageAccountView()) {
+//                                Label("Manage Account", systemImage: "gearshape.fill")
+//                            }
+//                            NavigationLink(destination: NotificationPreferencesView()) {
+//                                Label("Notification Preferences", systemImage: "bell.fill")
+//                            }
+//                        }
+//                        
+//                        // General Information
+//                        Section(header: Text("General Information").font(.headline)) {
+//                            NavigationLink(destination: TermsofUseView()) {
+//                                Label("Terms of Use", systemImage: "doc.text")
+//                            }
+//                            NavigationLink(destination: PrivacyPolicyView()) {
+//                                Label("Privacy Policy", systemImage: "lock.fill")
+//                            }
+//                            NavigationLink(destination: HelpView()) {
+//                                Label("Help", systemImage: "questionmark.circle.fill")
+//                            }
+//                        }
+//                        
+//                        // Display Settings
+//                        Section(header: Text("Display Settings").font(.headline)) {
+//                            NavigationLink(destination: AppThemeSettingsView()) {
+//                                Label("App Theme", systemImage: "paintpalette.fill")
+//                            }
+//                        }
+//                        
+//                        Section(header: Text("My Listings").font(.headline)) {
+//                            NavigationLink(destination: MyListingsView()) {
+//                                Label("My Listings", systemImage: "house.fill")
+//                            }
+//                        }
+//                        
+//                        Section {
+//                            Button(action: {
+//                                // Perform the sign out asynchronously
+//                                Task {
+//                                    //TODO: FIX
+//                                    //                                await authenticationService.signOut()
+//                                    // After sign out, navigate to the login screen
+//                                    self.rootView = .login
+//                                }
+//                            }) {
+//                                Text("Log Out")
+//                                    .font(.headline)
+//                                    .foregroundColor(.red)
+//                                    .frame(maxWidth: .infinity, alignment: .center)
+//                            }
+//                        }
+//                        
+//                    }
+//                    .listStyle(GroupedListStyle())
+//                }
+//            }
+//            .navigationBarTitle("My Profile", displayMode: .inline)
+//            .background(Color.white)
+//        }
+//    }
+//}
+
+    // Placeholder Views for Navigation Links
+//struct ProfileDetailsView: View {
+//    var user: AppUser
+//    var body: some View {
+//        Text("Profile Details for \(user.name ?? "User")")
+//    }
+//}
 import SwiftUI
 
 struct ProfileView: View {
-//    @ObservedObject var user: AppUser
     @Binding var rootView: RootView
     @EnvironmentObject var dbHelper: FireDBHelper
-
-//    @EnvironmentObject private var authenticationService: AuthenticationService
     
     var body: some View {
         NavigationView {
@@ -25,19 +149,46 @@ struct ProfileView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
-                            HStack {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Text(String(format: "%.1f", user.rating ?? 4.0))
+//                                // Dynamic stars based on rating
+//                            HStack(spacing: 2) {
+//                                let rating = user.rating ?? 4.0
+//                                ForEach(0..<5) { index in
+//                                    Image(systemName: index < Int(rating.rounded()) ? "star.fill" : "star")
+//                                        .foregroundColor(.yellow)
+//                                }
+//                                Text(String(format: "%.1f", rating))
+//                                    .font(.subheadline)
+//                                    .foregroundColor(.gray)
+//                            }
+                            HStack(spacing: 2) {
+                                let rating = user.rating ?? 4.0
+                                let fullStars = Int(rating)
+                                let hasHalfStar = (rating - Double(fullStars)) >= 0.25 && (rating - Double(fullStars)) < 0.75
+                                let emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
+                                
+                                    // Full stars
+                                ForEach(0..<fullStars, id: \.self) { _ in
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.yellow)
+                                }
+                                
+                                    // Half star
+                                if hasHalfStar {
+                                    Image(systemName: "star.leadinghalf.fill")
+                                        .foregroundColor(.yellow)
+                                }
+                                
+                                    // Empty stars
+                                ForEach(0..<emptyStars, id: \.self) { _ in
+                                    Image(systemName: "star")
+                                        .foregroundColor(.yellow)
+                                }
+                                
+                                Text(String(format: "%.1f", rating))
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                             }
+
                         }
                         
                         Spacer()
@@ -46,16 +197,15 @@ struct ProfileView: View {
                     .padding(.bottom, 20)
                     .background(Color.gray.opacity(0.1))
                     
-                    
                     List {
-                        // Profile Details
+                            // Profile Details
                         Section(header: Text("Profile").font(.headline)) {
                             NavigationLink(destination: ProfileDetailsView(user: user).environmentObject(dbHelper)) {
                                 Label("Edit Profile Details", systemImage: "person.fill")
                             }
                         }
                         
-                        // Account Settings
+                            // Account Settings
                         Section(header: Text("Account Settings").font(.headline)) {
                             NavigationLink(destination: ManageAccountView()) {
                                 Label("Manage Account", systemImage: "gearshape.fill")
@@ -65,7 +215,7 @@ struct ProfileView: View {
                             }
                         }
                         
-                        // General Information
+                            // General Information
                         Section(header: Text("General Information").font(.headline)) {
                             NavigationLink(destination: TermsofUseView()) {
                                 Label("Terms of Use", systemImage: "doc.text")
@@ -78,26 +228,25 @@ struct ProfileView: View {
                             }
                         }
                         
-                        // Display Settings
+                            // Display Settings
                         Section(header: Text("Display Settings").font(.headline)) {
                             NavigationLink(destination: AppThemeSettingsView()) {
                                 Label("App Theme", systemImage: "paintpalette.fill")
                             }
                         }
                         
+                            // My Listings
                         Section(header: Text("My Listings").font(.headline)) {
                             NavigationLink(destination: MyListingsView()) {
                                 Label("My Listings", systemImage: "house.fill")
                             }
                         }
                         
+                            // Log Out
                         Section {
                             Button(action: {
-                                // Perform the sign out asynchronously
                                 Task {
-                                    //TODO: FIX
-                                    //                                await authenticationService.signOut()
-                                    // After sign out, navigate to the login screen
+                                        // After sign out, navigate to login screen
                                     self.rootView = .login
                                 }
                             }) {
@@ -117,15 +266,6 @@ struct ProfileView: View {
         }
     }
 }
-
-    // Placeholder Views for Navigation Links
-//struct ProfileDetailsView: View {
-//    var user: AppUser
-//    var body: some View {
-//        Text("Profile Details for \(user.name ?? "User")")
-//    }
-//}
-
 struct ManageAccountView: View {
     var body: some View { Text("Manage Account") }
 }
