@@ -331,8 +331,124 @@ class FireDBHelper: ObservableObject {
         // Update local user
         currentUser?.favoriteListingIDs = updatedFavorites
     }
-
     
+    func addReview(to listing: Listing, rating: Double, comment: String, user: AppUser) {
+        let reviewsRef = db.collection("Listings").document(listing.id).collection("reviews")
+        let reviewRef = reviewsRef.document() // Auto-generated ID
+        
+        let reviewData: [String: Any] = [
+            "userId": user.id,
+            "userName": user.name,
+            "rating": rating,
+            "comment": comment,
+            "timestamp": FieldValue.serverTimestamp()
+        ]
+        
+            // Add the review
+        reviewRef.setData(reviewData) { error in
+            if let error = error {
+                print("❌ Failed to add review: \(error.localizedDescription)")
+                return
+            }
+            print("✅ Review added successfully")
+            
+                // Update average
+            self.updateAverageRating(for: listing, newRating: rating)
+        }
+    }
+    
+    private func updateAverageRating(for listing: Listing, newRating: Double) {
+        let listingRef = db.collection("Listings").document(listing.id)
+        
+        listingRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else {
+                print("❌ Failed to fetch listing for average rating")
+                return
+            }
+            
+            let currentAverage = data["averageRating"] as? Double ?? 0.0
+            let ratingsCount = data["ratingsCount"] as? Int ?? 0
+            
+            var updatedAverage: Double
+            var updatedCount: Int
+            
+            if ratingsCount == 0 {
+                    // First rating
+                updatedAverage = newRating
+                updatedCount = 1
+            } else {
+                    // Compute new average
+                updatedCount = ratingsCount + 1
+                updatedAverage = (currentAverage * Double(ratingsCount) + newRating) / Double(updatedCount)
+            }
+            
+            listingRef.updateData([
+                "averageRating": updatedAverage,
+                "ratingsCount": updatedCount
+            ]) { error in
+                if let error = error {
+                    print("❌ Failed to update average rating: \(error.localizedDescription)")
+                } else {
+                    print("✅ Average rating updated: \(updatedAverage)")
+                }
+            }
+        }
+    }
+
+
+//    func addReview(to listing: Listing, rating: Double, comment: String, user: AppUser) {
+//        let reviewRef = db.collection("Listings")
+//            .document(listing.id)
+//            .collection("Reviews")
+//            .document() // Auto-generated ID
+//        
+//        let reviewData: [String: Any] = [
+//            "userId": user.id,
+//            "userName": user.name,
+//            "rating": rating,
+//            "comment": comment,
+//            "timestamp": FieldValue.serverTimestamp()
+//        ]
+//        
+//            // Add the review
+//        reviewRef.setData(reviewData) { error in
+//            if let error = error {
+//                print("❌ Failed to add review: \(error.localizedDescription)")
+//                return
+//            }
+//            print("✅ Review added successfully")
+//            
+//                // After adding, update average rating
+//            self.updateAverageRating(for: listing)
+//        }
+//    }
+//    
+//    private func updateAverageRating(for listing: Listing) {
+//        let reviewsRef = db.collection("Listings").document(listing.id).collection("reviews")
+//        
+//        reviewsRef.getDocuments { snapshot, error in
+//            guard let documents = snapshot?.documents, error == nil else {
+//                print("❌ Failed to fetch reviews for average rating")
+//                return
+//            }
+//            
+//            let ratings = documents.compactMap { $0.data()["rating"] as? Double }
+//            let average = ratings.isEmpty ? 0.0 : ratings.reduce(0, +) / Double(ratings.count)
+//            
+//                // Update averageRating in Listing document
+//            self.db.collection("Listings").document(listing.id).updateData([
+//                "averageRating": average
+//            ]) { error in
+//                if let error = error {
+//                    print("❌ Failed to update average rating: \(error.localizedDescription)")
+//                } else {
+//                    print("✅ Average rating updated: \(average)")
+//                }
+//            }
+//        }
+//    }
+
+
 //    // Fetch favorite listings for user
 //    func fetchFavoriteListings(for user: AppUser) async throws -> [Listing] {
 //        guard !user.favoriteListingIDs.isEmpty else { return [] }

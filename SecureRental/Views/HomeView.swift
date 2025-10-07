@@ -71,7 +71,8 @@ struct HomeView: View {
                             .padding(.horizontal)
                             
                             List($viewModel.listings) { $listing in
-                                NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                                NavigationLink(destination: RentalListingDetailView(listing: listing)
+                                    .environmentObject(dbHelper)) {
                                     HStack {
                                         if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
                                             AsyncImage(url: url) { phase in

@@ -22,10 +22,12 @@ struct Listing: Identifiable, Codable {
     var street: String
     var city: String
     var province: String
-    var comments: [String]? = []
-    var ratings: [Double]? = []
+  //  var comments: [String]? = []
+   // var ratings: [Double]? = []
     var datePosted: Date
     
-    var landlordId: String       // creator (Auth.uid)
+    var landlordId: String
+        
+    var averageRating: Double? = nil
 }
 

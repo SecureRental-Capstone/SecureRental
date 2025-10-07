@@ -201,7 +201,8 @@ struct RentalListingDetailView: View {
             .padding()
             .navigationTitle(listing.title)
             .sheet(isPresented: $showCommentView) {
-                CommentView(listing: listing, viewModel: viewModel)
+                CommentView(listing: listing)
+                    .environmentObject(dbHelper)
             }
 
         }

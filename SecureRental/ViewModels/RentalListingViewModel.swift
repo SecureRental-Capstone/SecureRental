@@ -161,5 +161,9 @@ class RentalListingsViewModel: ObservableObject {
         guard let currentUser = dbHelper.currentUser else { return }
         self.favoriteListingIDs = Set(currentUser.favoriteListingIDs)
     }
+    
+    
+    
+   
 
 }
