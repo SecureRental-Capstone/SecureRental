@@ -1,65 +1,3 @@
-////
-////  CommentView.swift
-////  SecureRental
-////
-////  Created by Anchal  Sharma  on 2024-11-14.
-////
-//
-//import SwiftUI
-//
-//struct CommentView: View {
-//    var listing: Listing
-//    @State private var comment: String = ""
-//    @State private var rating: Double = 1.0 // Rating from 1 to 5
-//    var viewModel: RentalListingsViewModel
-//
-//    var body: some View {
-//        NavigationView {
-//            VStack {
-//                Text("Rate or Comment on \(listing.title)")
-//                    .font(.headline)
-//                    .padding()
-//
-//                // Rating slider
-//                Slider(value: $rating, in: 1...5, step: 1.0) // Change step to 1.0
-//                                    .padding()
-//                Text("Rating: \(Int(rating))")
-//
-//                // Comment text field
-//                TextField("Enter your comment", text: $comment)
-//                    .textFieldStyle(RoundedBorderTextFieldStyle())
-//                    .padding()
-//
-//                // Save button
-//                Button("Submit") {
-////                    viewModel.addComment(to: listing, comment: comment)
-////                    viewModel.addRating(to: listing, rating: rating)
-//                    // Dismiss the view
-//                }
-//                .padding()
-//                .background(Color.blue)
-//                .foregroundColor(.white)
-//                .cornerRadius(8)
-//
-//                Spacer()
-//            }
-//            .navigationTitle("Comment & Rate")
-//            .padding()
-//        }
-//    }
-//}
-    //
-    //  CommentView.swift
-    //  SecureRental
-    //
-    //  Created by Anchal Sharma on 2024-11-14.
-    //
-    //
-    //  CommentView.swift
-    //  SecureRental
-    //
-    //  Created by Anchal Sharma on 2024-11-14.
-    //
 
 import SwiftUI
 
@@ -69,7 +7,7 @@ struct CommentView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var comment: String = ""
-    @State private var ratingText: String = ""
+    @State private var rating: Double = 0.0
     @State private var showAlert = false
     @State private var alertMessage = ""
     
@@ -85,28 +23,37 @@ struct CommentView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
-                    // Rating input field
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Your Rating (1 - 5)")
+                    // ⭐ Star Rating View
+                VStack(spacing: 8) {
+                    Text("Your Rating")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                    TextField("Enter rating (e.g., 3.5)", text: $ratingText)
-                        .keyboardType(.decimalPad)
+                    
+                    HStack(spacing: 10) {
+                        ForEach(1...5, id: \.self) { index in
+                            starView(for: index)
+                                .font(.system(size: 35))
+                                .foregroundColor(starColor(for: index))
+                                .onTapGesture { handleStarTap(index: index) }
+                        }
+                    }
+                    
+                    Text(String(format: "%.1f", rating))
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                }
+                
+                    // 📝 Comment input
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Please tell us about your experience")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    TextField("", text: $comment)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 .padding(.horizontal)
                 
-                    // Comment input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Your Comment")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    TextField("Write your comment here...", text: $comment)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                .padding(.horizontal)
-                
-                    // Submit button
+                    // ✅ Submit button
                 Button(action: submitComment) {
                     Text("Submit")
                         .frame(maxWidth: .infinity)
@@ -128,10 +75,43 @@ struct CommentView: View {
         }
     }
     
-        // MARK: - Submit logic
+        // MARK: - Star View Logic
+    private func starView(for index: Int) -> Image {
+        let threshold = Double(index)
+        if rating >= threshold {
+            return Image(systemName: "star.fill") // Full star
+        } else if rating + 0.5 >= threshold {
+            return Image(systemName: "star.leadinghalf.filled") // Half star
+        } else {
+            return Image(systemName: "star") // Empty star
+        }
+    }
+    
+    private func starColor(for index: Int) -> Color {
+        let threshold = Double(index)
+        if rating >= threshold || rating + 0.5 >= threshold {
+            return .yellow
+        } else {
+            return .gray
+        }
+    }
+    
+    private func handleStarTap(index: Int) {
+        let starValue = Double(index)
+            // Detect half or full star taps by alternating between them
+        if rating == starValue {
+            rating = starValue - 0.5
+        } else if rating == starValue - 0.5 {
+            rating = starValue
+        } else {
+            rating = starValue
+        }
+    }
+    
+        // MARK: - Submit Logic
     private func submitComment() {
-        guard let rating = Double(ratingText), rating >= 1, rating <= 5 else {
-            alertMessage = "Please enter a valid rating between 1 and 5."
+        guard rating >= 1 else {
+            alertMessage = "Please select a rating between 1 and 5."
             showAlert = true
             return
         }
@@ -147,5 +127,4 @@ struct CommentView: View {
         dbHelper.addReview(to: listing, rating: rating, comment: comment, user: user)
         dismiss()
     }
-
 }

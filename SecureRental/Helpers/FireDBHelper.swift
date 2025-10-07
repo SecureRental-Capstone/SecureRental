@@ -382,8 +382,11 @@ class FireDBHelper: ObservableObject {
                 updatedAverage = (currentAverage * Double(ratingsCount) + newRating) / Double(updatedCount)
             }
             
+             
+            let roundedAverage = Double(round(100 * updatedAverage) / 100)
+            
             listingRef.updateData([
-                "averageRating": updatedAverage,
+                "averageRating": roundedAverage,
                 "ratingsCount": updatedCount
             ]) { error in
                 if let error = error {
