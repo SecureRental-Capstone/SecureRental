@@ -21,10 +21,8 @@ struct HomeView: View {
     @State private var showCommentView = false
     @State private var selectedListing: Listing?
     @State private var selectedListingForComment: Listing?
-//    @StateObject var user = AppUser.sampleUser
+    @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
-    @StateObject private var vm = HomeViewModel()
-    @State private var showingSettings = false
     
     var body: some View {
         ZStack {
@@ -72,7 +70,7 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
                             
-                            List($vm.listings) { $listing in
+                            List($viewModel.listings) { $listing in
                                 NavigationLink(destination: RentalListingDetailView(listing: listing)
                                     .environmentObject(dbHelper)) {
                                     HStack {
@@ -110,11 +108,7 @@ struct HomeView: View {
                             }
                             .navigationTitle("Secure Rental")
                             .onAppear {
-                                Task {
-                                    await vm.loadListings()
-                                    vm.handleFirstLoginLocationPrompt()
-                                }
-//                                viewModel.fetchListings()
+                                viewModel.fetchListings()
                             }
                             .toolbar {
                                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -125,11 +119,6 @@ struct HomeView: View {
                                     }
                                     .help("Create a new listing")            // ✅ macOS hover tooltip
                                     .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
-                                }
-                                ToolbarItem(placement: .navigationBarTrailing) {
-                                    Button("Settings") {
-                                                    showingSettings = true
-                                                }
                                 }
                             }
                         }
@@ -191,25 +180,6 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
-            }
-            .sheet(isPresented: $showingSettings) {
-                LocationSettingsView()
-            }
-            .onAppear {
-                Task {
-                    await vm.loadListings()
-                    vm.handleFirstLoginLocationPrompt()
-                }
-            }
-            .alert("Allow location access?", isPresented: $vm.showLocationPrompt) {
-                Button("Yes") {
-                    Task { await vm.updateLocationConsent(granted: true) }
-                }
-                Button("No") {
-                    Task { await vm.updateLocationConsent(granted: false) }
-                }
-            } message: {
-                Text("We use your location to show nearby rental listings within 2 km.")
             }
 
         }

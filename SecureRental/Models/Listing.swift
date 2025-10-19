@@ -29,9 +29,5 @@ struct Listing: Identifiable, Codable {
     var landlordId: String
         
     var averageRating: Double? = nil
-    
-    // ✅ Add these two
-    var latitude: Double?
-    var longitude: Double?
 }
 

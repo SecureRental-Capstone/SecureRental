@@ -47,12 +47,7 @@ class FireDBHelper: ObservableObject {
             "name": name,
             "profilePictureURL": "",
             "rating": 0,
-            "reviews": [],
-            "favoriteListingIDs": [],
-            "locationConsent": false,
-            "latitude": FieldValue.delete(),
-            "longitude": FieldValue.delete(),
-            "preferredRadius": 2.0
+            "reviews": []
         ])
         self.currentUser = newUser
     }
@@ -105,11 +100,7 @@ class FireDBHelper: ObservableObject {
                     profilePictureURL: data["profilePictureURL"] as? String,
                     rating: data["rating"] as? Double ?? 0.0,
                     reviews: data["reviews"] as? [String] ?? [],
-                    favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? [],
-                    locationConsent: data["locationConsent"] as? Bool ?? false,
-                    latitude: data["latitude"] as? Double,
-                    longitude: data["longitude"] as? Double,
-                    preferredRadius: data["preferredRadius"] as? Double ?? 2.0
+                    favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
 //                self.currentUser = user
                 return user
@@ -197,12 +188,6 @@ class FireDBHelper: ObservableObject {
         }
 
         mutableListing.imageURLs = uploadedURLs
-        
-        let fullAddress = "\(listing.street), \(listing.city), \(listing.province)"
-        let coordinates = try await GeocodingHelper.getCoordinates(for: fullAddress)
-        mutableListing.latitude = coordinates.latitude
-        mutableListing.longitude = coordinates.longitude
-
         let data = try Firestore.Encoder().encode(mutableListing)
         try await db.collection(COLLECTION_LISTINGS).document(mutableListing.id).setData(data)
     }
@@ -525,21 +510,8 @@ class FireDBHelper: ObservableObject {
             }
         }
     }
-    
-    func updateUserLocationPreference(consent: Bool, latitude: Double?, longitude: Double?, radius: Double?) async throws {
-        guard let user = currentUser else { return }
-        try await db.collection(COLLECTION_USERS).document(user.id).updateData([
-            "locationConsent": consent,
-            "latitude": latitude ?? FieldValue.delete(),
-            "longitude": longitude ?? FieldValue.delete(),
-            "preferredRadius": radius ?? 2.0
-        ])
-        
-        currentUser?.locationConsent = consent
-        currentUser?.latitude = latitude
-        currentUser?.longitude = longitude
-        currentUser?.preferredRadius = radius
-    }
+
+
 
 
 }

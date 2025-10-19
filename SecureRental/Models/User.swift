@@ -1,20 +1,16 @@
 import Foundation
+
 class AppUser: ObservableObject, Identifiable, Codable {
-    var id: String
+    var id: String                // Firebase UID
     var username: String
     var email: String
     var name: String
     var profilePictureURL: String?
-    var rating: Double
-    var reviews: [String]
-    var favoriteListingIDs: [String] = []
-
-    // ✅ Add location preferences
-    var locationConsent: Bool = false
-    var latitude: Double?
-    var longitude: Double?
-    var preferredRadius: Double? = 2.0 // in km
-
+    var rating: Double               // 1 to 5
+    var reviews: [String]         // Multiple reviews
+    var favoriteListingIDs: [String] = [] 
+    
+    // initialization
     init(
         id: String = UUID().uuidString,
         username: String,
@@ -23,11 +19,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
         profilePictureURL: String? = nil,
         rating: Double = 0.0,
         reviews: [String] = [],
-        favoriteListingIDs: [String] = [],
-        locationConsent: Bool = false,
-        latitude: Double? = nil,
-        longitude: Double? = nil,
-        preferredRadius: Double? = 2.0
+        favoriteListingIDs: [String] = []
     ) {
         self.id = id
         self.username = username
@@ -37,9 +29,19 @@ class AppUser: ObservableObject, Identifiable, Codable {
         self.rating = rating
         self.reviews = reviews
         self.favoriteListingIDs = favoriteListingIDs
-        self.locationConsent = locationConsent
-        self.latitude = latitude
-        self.longitude = longitude
-        self.preferredRadius = preferredRadius
     }
+    
+    static let sampleUser = AppUser(
+        id: "sample-uid-123",
+        username: "janedoe123",
+        email: "janedoe@example.com",
+        name: "Jane Doe",
+        profilePictureURL: "https://example.com/avatar.jpg",
+        rating: 4,
+        reviews: [
+            "Great landlord!",
+            "Very responsive and helpful.",
+            "Would rent again."
+        ]
+    )
 }
