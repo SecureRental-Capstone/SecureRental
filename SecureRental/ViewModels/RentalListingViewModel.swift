@@ -17,6 +17,7 @@ import Combine
 import UIKit
 import SwiftUICore
 import FirebaseAuth
+import CoreLocation
 
 @MainActor
 class RentalListingsViewModel: ObservableObject {
@@ -164,6 +165,28 @@ class RentalListingsViewModel: ObservableObject {
     
     
     
-   
+    func fetchListingsNear(latitude: Double, longitude: Double, radiusInKm: Double) {
+            Task {
+                do {
+                    let fetched = try await dbHelper.fetchListings()
+                    
+                    let filtered = fetched.filter { listing in
+                        guard let lat = listing.latitude, let lon = listing.longitude else { return false }
+                        let listingLocation = CLLocation(latitude: lat, longitude: lon)
+                        let userLocation = CLLocation(latitude: latitude, longitude: longitude)
+                        let distance = listingLocation.distance(from: userLocation) / 1000.0 // in km
+                        return distance <= radiusInKm && listing.isAvailable
+                    }
+                    
+                    await MainActor.run {
+                        self.listings = filtered
+                    }
+                    
+                    await fetchFavoriteListings()
+                } catch {
+                    print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
+                }
+            }
+        }
 
 }

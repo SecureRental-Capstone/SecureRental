@@ -9,6 +9,10 @@
 
 import SwiftUI
 import FirebaseAuth
+import CoreLocation
+
+
+
 
 struct HomeView: View {
     @Binding var rootView: RootView
@@ -23,10 +27,13 @@ struct HomeView: View {
     @State private var selectedListingForComment: Listing?
     @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
+    @State private var showLocationConsent = false
+    @State private var showLocationSettings = false
+    @State private var locationManager = CLLocationManager()
     
     var body: some View {
         ZStack {
-                // Main TabView Content
+            // Main TabView Content
             TabView(selection: $selectedTab) {
                 NavigationView {
                     VStack {
@@ -39,7 +46,7 @@ struct HomeView: View {
                                 
                                 Spacer() // pushes the button to the right
                                 
-                                    // Right side: My Listings button
+                                // Right side: My Listings button
                                 NavigationLink(destination: MyListingsView()) {
                                     Label("My Listings", systemImage: "house.fill")
                                         .font(.subheadline)
@@ -73,42 +80,45 @@ struct HomeView: View {
                             List($viewModel.listings) { $listing in
                                 NavigationLink(destination: RentalListingDetailView(listing: listing)
                                     .environmentObject(dbHelper)) {
-                                    HStack {
-                                        if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
-                                            AsyncImage(url: url) { phase in
-                                                switch phase {
-                                                case .empty:
-                                                    ProgressView()
-                                                case .success(let image):
-                                                    image.resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 100, height: 100)
-                                                        .cornerRadius(8)
-                                                case .failure:
-                                                    Image(systemName: "photo")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 100, height: 100)
-                                                        .foregroundColor(.gray)
-                                                @unknown default:
-                                                    EmptyView()
+                                        HStack {
+                                            if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                                AsyncImage(url: url) { phase in
+                                                    switch phase {
+                                                    case .empty:
+                                                        ProgressView()
+                                                    case .success(let image):
+                                                        image.resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 100, height: 100)
+                                                            .cornerRadius(8)
+                                                    case .failure:
+                                                        Image(systemName: "photo")
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 100, height: 100)
+                                                            .foregroundColor(.gray)
+                                                    @unknown default:
+                                                        EmptyView()
+                                                    }
                                                 }
                                             }
+                                            
+                                            VStack(alignment: .leading) {
+                                                Text(listing.title)
+                                                    .font(.headline)
+                                                Text("$\(listing.price)/month")
+                                                    .font(.subheadline)
+                                            }
+                                            Spacer()
                                         }
-                                        
-                                        VStack(alignment: .leading) {
-                                            Text(listing.title)
-                                                .font(.headline)
-                                            Text("$\(listing.price)/month")
-                                                .font(.subheadline)
-                                        }
-                                        Spacer()
                                     }
-                                }
                             }
                             .navigationTitle("Secure Rental")
+                            //                            .onAppear {
+                            //                                viewModel.fetchListings()
+                            //                            }
                             .onAppear {
-                                viewModel.fetchListings()
+                                handleLocationConsent()
                             }
                             .toolbar {
                                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -120,68 +130,112 @@ struct HomeView: View {
                                     .help("Create a new listing")            // ✅ macOS hover tooltip
                                     .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
                                 }
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                                    Button(action: { showLocationSettings = true }) {
+                                                        Image(systemName: "location.circle")
+                                                    }
+                                                }
                             }
                         }
                     }
-                    }
-                    .tabItem {
-                        Label("Home", systemImage: "house")
-                    }
-                    .tag(0)
-                    
-                        // Messages Tab
-                    MyChatsView()
-                        .tabItem {
-                            Label("Messages", systemImage: "message")
-                        }
-                        .tag(1)
-                    
-                        // Favourites Tab
-                    FavouriteListingsView(viewModel: viewModel)
-                        .tabItem {
-                            Label("Favourites", systemImage: "star.fill")
-                        }
-                        .tag(2)
-                    
-                        // Profile Tab
-                    ProfileView(rootView: $rootView)
-                        .tabItem {
-                            Label("Profile", systemImage: "person.circle")
-                        }
-                        .tag(3)
                 }
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+                .tag(0)
                 
-                    // Chatbot icon button
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            showMessageView = true
-                            print("Chatbot tapped")
-                        }) {
-                            Image(systemName: "bubble.right.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 30, height: 30)
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.blue)
-                                .clipShape(Circle())
-                                .shadow(radius: 10)
-                        }
-                        .padding(.bottom, 50)
-                        .padding(.trailing, 20)
+                // Messages Tab
+                MyChatsView()
+                    .tabItem {
+                        Label("Messages", systemImage: "message")
                     }
+                    .tag(1)
+                
+                // Favourites Tab
+                FavouriteListingsView(viewModel: viewModel)
+                    .tabItem {
+                        Label("Favourites", systemImage: "star.fill")
+                    }
+                    .tag(2)
+                
+                // Profile Tab
+                ProfileView(rootView: $rootView)
+                    .tabItem {
+                        Label("Profile", systemImage: "person.circle")
+                    }
+                    .tag(3)
+            }
+            
+            // Chatbot icon button
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showMessageView = true
+                        print("Chatbot tapped")
+                    }) {
+                        Image(systemName: "bubble.right.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30, height: 30)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                            .shadow(radius: 10)
+                    }
+                    .padding(.bottom, 50)
+                    .padding(.trailing, 20)
                 }
             }
-            .sheet(isPresented: $showMessageView) {
-                ChatbotView()
+        }
+        .sheet(isPresented: $showMessageView) {
+            ChatbotView()
+        }
+        .sheet(isPresented: $showCreateListingView) {
+            CreateRentalListingView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showLocationSettings) {
+            LocationSettingsView(viewModel: viewModel)
+        }
+        .alert("Use your location to show nearby rentals?", isPresented: $showLocationConsent) {
+            Button("No, show all") {
+                viewModel.fetchListings() // show all
+                savePreference(consentGiven: false)
             }
-            .sheet(isPresented: $showCreateListingView) {
-                CreateRentalListingView(viewModel: viewModel)
+            Button("Yes, use my location") {
+                requestUserLocation()
             }
+        } message: {
+            Text("You can change this preference anytime in settings.")
+        }
+    
 
+        }
+    private func handleLocationConsent() {
+            if LocationPreferenceManager.shared.load() == nil {
+                showLocationConsent = true
+            } else if let pref = LocationPreferenceManager.shared.load(), pref.consentGiven {
+                viewModel.fetchListingsNear(latitude: pref.latitude, longitude: pref.longitude, radiusInKm: pref.radiusInKm)
+            } else {
+                viewModel.fetchListings()
+            }
+        }
+        
+        private func savePreference(consentGiven: Bool, latitude: Double = 0, longitude: Double = 0, radius: Double = 2.0) {
+            let pref = LocationPreference(latitude: latitude, longitude: longitude, radiusInKm: radius, consentGiven: consentGiven)
+            LocationPreferenceManager.shared.save(pref)
+        }
+        
+        private func requestUserLocation() {
+            locationManager.requestWhenInUseAuthorization()
+            if let location = locationManager.location?.coordinate {
+                savePreference(consentGiven: true, latitude: location.latitude, longitude: location.longitude)
+                viewModel.fetchListingsNear(latitude: location.latitude, longitude: location.longitude, radiusInKm: 2.0)
+            } else {
+                viewModel.fetchListings() // fallback
+            }
         }
     }
 
