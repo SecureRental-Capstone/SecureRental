@@ -225,14 +225,23 @@ class RentalListingsViewModel: ObservableObject {
         case (nil, _, _):
             showLocationConsentAlert = true
         case (true, let lat?, let lon?):
-            await fetchListingsNearby(latitude: 43.7791987, longitude: -79.4172125)
+            
+//            await dbHelper.updateLocationConsent(consent: true,
+//                                                 latitude: 43.7791987,
+//                                                 longitude: -79.4172125)
+//            await fetchListingsNearby(latitude: 43.7791987, longitude: -79.4172125)
+            
             // set up the location manually because simulator will pick up the user's device simulator current location (because simulator doesn't have toronto time setup)
-//            await fetchListingsNearby(latitude: lat, longitude: lon) // this picks up the user's device simulator current location
+            await fetchListingsNearby(latitude: lat, longitude: lon) // this picks up the user's current location
         case (true, nil, nil):
             if let location = await getDeviceLocation() {
+//                await dbHelper.updateLocationConsent(consent: true,
+//                                                    latitude: location.latitude,
+//                                                    longitude: location.longitude)
                 await dbHelper.updateLocationConsent(consent: true,
-                                                    latitude: location.latitude,
-                                                    longitude: location.longitude)
+                                                     latitude: 43.7791987,
+                                                     longitude: -79.4172125)
+                
                 await fetchListingsNearby(latitude: location.latitude,
                                           longitude: location.longitude)
             }
@@ -246,14 +255,27 @@ class RentalListingsViewModel: ObservableObject {
         
         @MainActor
         func handleLocationConsentResponse(granted: Bool) async {
-            if granted, let location = await getDeviceLocation() {
+//            if granted, let location = await getDeviceLocation() {
+//                dbHelper.currentUser?.locationConsent = true
+//                dbHelper.currentUser?.latitude = location.latitude
+//                dbHelper.currentUser?.longitude = location.longitude
+//                await dbHelper.updateLocationConsent(consent: true,
+//                                                    latitude: location.latitude,
+//                                                    longitude: location.longitude)
+//                await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
+//            }
+            if granted {
                 dbHelper.currentUser?.locationConsent = true
-                dbHelper.currentUser?.latitude = location.latitude
-                dbHelper.currentUser?.longitude = location.longitude
+
+                dbHelper.currentUser?.latitude = 43.7791987
+                dbHelper.currentUser?.longitude = -79.4172125
+                let setLatitude = 43.7791987
+                let setLongitude = -79.4172125
                 await dbHelper.updateLocationConsent(consent: true,
-                                                    latitude: location.latitude,
-                                                    longitude: location.longitude)
-                await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
+                                                     latitude: setLatitude,
+                                                     longitude: setLongitude)
+                await fetchListingsNearby(latitude: setLatitude, longitude: setLongitude)
+                
             } else {
                 dbHelper.currentUser?.locationConsent = false
                 await dbHelper.updateLocationConsent(consent: false)
