@@ -50,7 +50,7 @@ class RentalListingsViewModel: ObservableObject {
                 .removeDuplicates { (prev, current) in
                     prev.0 == current.0 && prev.1 == current.1
                 }
-                .sink { [weak self] (searchTerm, amenities) in
+                .sink { [weak self] (searchTerm, amenities) in 
                     guard let self = self, self.shouldAutoFilter else { return }
                     self.filterListings(searchTerm: searchTerm, amenities: amenities)
                 }
@@ -113,7 +113,13 @@ class RentalListingsViewModel: ObservableObject {
 
     func filterListings(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
         if searchTerm.isEmpty && amenities.isEmpty {
-                fetchListings()
+            Task {
+                do {
+                    await loadHomePageListings(forceReload: true)
+                } catch {
+                    print("❌ Failed to loadHomePageListings : \(error.localizedDescription)")
+                }
+            }
         } else {
             listings = listings.filter { listing in
                     let matchesSearch = searchTerm.isEmpty ||
@@ -236,13 +242,13 @@ class RentalListingsViewModel: ObservableObject {
     }
     
     @MainActor
-    func loadHomePageListings() async {
+    func loadHomePageListings(forceReload: Bool = false) async {
         guard let user = dbHelper.currentUser else {
             showLocationConsentAlert = true
             return
         }
 
-        if !listings.isEmpty { return } // Don't reload if already have listings
+//        if !listings.isEmpty { return } // Don't reload if already have listings
 
         switch (user.locationConsent, user.latitude, user.longitude) {
         case (nil, _, _):

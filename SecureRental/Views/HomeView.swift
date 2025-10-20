@@ -37,7 +37,7 @@ struct HomeView: View {
                                 
                                 Spacer() // pushes the button to the right
                                 
-                                    // Right side: My Listings button
+                                // Right side: My Listings button
                                 NavigationLink(destination: MyListingsView()) {
                                     Label("My Listings", systemImage: "house.fill")
                                         .font(.subheadline)
@@ -68,7 +68,7 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
                             
-//                            if $viewModel.isLoading {
+//                            if viewModel.isLoading {
 //                                Button(action: {
 //                                    Task { await viewModel.loadHomePageListings() }
 //                                }) {
@@ -83,99 +83,100 @@ struct HomeView: View {
 //                                .padding()
 //                            }
 //                            else
+                            if viewModel.isLoading {
+                                ProgressView("Loading Listings...")
+                            } else {
                                 List($viewModel.listings) { $listing in
-                                NavigationLink(destination: RentalListingDetailView(listing: listing)
-                                    .environmentObject(dbHelper)) {
-                                    HStack {
-                                        if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
-                                            AsyncImage(url: url) { phase in
-                                                switch phase {
-                                                case .empty:
-                                                    ProgressView()
-                                                case .success(let image):
-                                                    image.resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 100, height: 100)
-                                                        .cornerRadius(8)
-                                                case .failure:
-                                                    Image(systemName: "photo")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 100, height: 100)
-                                                        .foregroundColor(.gray)
-                                                @unknown default:
-                                                    EmptyView()
+                                    NavigationLink(destination: RentalListingDetailView(listing: listing)
+                                        .environmentObject(dbHelper)) {
+                                            HStack {
+                                                if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                                    AsyncImage(url: url) { phase in
+                                                        switch phase {
+                                                        case .empty:
+                                                            ProgressView()
+                                                        case .success(let image):
+                                                            image.resizable()
+                                                                .scaledToFit()
+                                                                .frame(width: 100, height: 100)
+                                                                .cornerRadius(8)
+                                                        case .failure:
+                                                            Image(systemName: "photo")
+                                                                .resizable()
+                                                                .scaledToFit()
+                                                                .frame(width: 100, height: 100)
+                                                                .foregroundColor(.gray)
+                                                        @unknown default:
+                                                            EmptyView()
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                                
+                                                VStack(alignment: .leading) {
+                                                    Text(listing.title)
+                                                        .font(.headline)
+                                                    Text("$\(listing.price)/month")
+                                                        .font(.subheadline)
+                                                }
+                                                Spacer()
+                                            } // HStack
+                                        } // NavigationView
+                                }// List
+                                .navigationTitle("Secure Rental")
+                                .onAppear {
+                                    Task {
+                                        // 1️⃣ Fetch user from Firestore
+                                        if let uid = Auth.auth().currentUser?.uid,
+                                           let user = await dbHelper.getUser(byUID: uid) {
+                                            dbHelper.currentUser = user
                                         }
                                         
-                                        VStack(alignment: .leading) {
-                                            Text(listing.title)
-                                                .font(.headline)
-                                            Text("$\(listing.price)/month")
-                                                .font(.subheadline)
+                                        // 2️⃣ Let ViewModel handle location consent and fetching listings
+                                        await viewModel.loadHomePageListings()
+                                    }
+                                } // onappear
+                                
+                                .toolbar {
+                                    ToolbarItem(placement: .navigationBarTrailing) {
+                                        Button(action: {
+                                            showCreateListingView = true
+                                        }) {
+                                            Image(systemName: "plus")
                                         }
-                                        Spacer()
+                                        .help("Create a new listing")            // ✅ macOS hover tooltip
+                                        .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
                                     }
-                                }
-                            }
-                            .navigationTitle("Secure Rental")
-                            .onAppear {
-                                Task {
-                                    // 1️⃣ Fetch user from Firestore
-                                    if let uid = Auth.auth().currentUser?.uid,
-                                       let user = await dbHelper.getUser(byUID: uid) {
-                                        dbHelper.currentUser = user
-                                    }
-
-                                    // 2️⃣ Let ViewModel handle location consent and fetching listings
-                                    await viewModel.loadHomePageListings()
-                                }
-                            }
-
-
-                            
-                            
-
-                            .toolbar {
-                                ToolbarItem(placement: .navigationBarTrailing) {
-                                    Button(action: {
-                                        showCreateListingView = true
-                                    }) {
-                                        Image(systemName: "plus")
-                                    }
-                                    .help("Create a new listing")            // ✅ macOS hover tooltip
-                                    .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
                                 }
                             }
                         }
+                        
                     }
-                    }
+                }
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+                .tag(0)
+                
+                    // Messages Tab
+                MyChatsView()
                     .tabItem {
-                        Label("Home", systemImage: "house")
+                        Label("Messages", systemImage: "message")
                     }
-                    .tag(0)
-                    
-                        // Messages Tab
-                    MyChatsView()
-                        .tabItem {
-                            Label("Messages", systemImage: "message")
-                        }
-                        .tag(1)
-                    
-                        // Favourites Tab
-                    FavouriteListingsView(viewModel: viewModel)
-                        .tabItem {
-                            Label("Favourites", systemImage: "star.fill")
-                        }
-                        .tag(2)
-                    
-                        // Profile Tab
-                    ProfileView(rootView: $rootView)
-                        .tabItem {
-                            Label("Profile", systemImage: "person.circle")
-                        }
-                        .tag(3)
+                    .tag(1)
+                
+                    // Favourites Tab
+                FavouriteListingsView(viewModel: viewModel)
+                    .tabItem {
+                        Label("Favourites", systemImage: "star.fill")
+                    }
+                    .tag(2)
+                
+                    // Profile Tab
+                ProfileView(rootView: $rootView)
+                    .tabItem {
+                        Label("Profile", systemImage: "person.circle")
+                    }
+                    .tag(3)
                 }
                 
                     // Chatbot icon button
