@@ -90,7 +90,7 @@ class RentalListingsViewModel: ObservableObject {
         Task {
             do {
                 try await dbHelper.addListing(listing, images: images)
-                await fetchListings() // refresh after save
+//                await fetchListings() // refresh after save
             } catch {
                 print("❌ Failed to add listing: \(error.localizedDescription)")
             }
@@ -198,7 +198,7 @@ class RentalListingsViewModel: ObservableObject {
 
     // Fetch nearby listings based on latitude/longitude
     @MainActor
-    func fetchListingsNearby(latitude: Double, longitude: Double, radiusInKm: Double = 2.0) async {
+    func fetchListingsNearby(latitude: Double, longitude: Double, radiusInKm: Double = 6.0) async {
         do {
             let allListings = try await dbHelper.fetchListings()
             let nearby = allListings.filter { listing in
@@ -209,35 +209,6 @@ class RentalListingsViewModel: ObservableObject {
             await fetchFavoriteListings()
         } catch {
             print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
-        }
-    }
-
-    @MainActor
-    func loadListingsBasedOnLocation() async {
-        guard let user = dbHelper.currentUser else { return }
-
-        if let consent = user.locationConsent {
-            if consent {
-                if let lat = user.latitude, let lon = user.longitude {
-                    await fetchListingsNearby(latitude: lat, longitude: lon)
-                } else if let deviceLocation = await getDeviceLocation() {
-                    await dbHelper.updateLocationConsent(
-                        consent: true,
-                        latitude: deviceLocation.latitude,
-                        longitude: deviceLocation.longitude
-                    )
-                    await fetchListingsNearby(
-                        latitude: deviceLocation.latitude,
-                        longitude: deviceLocation.longitude
-                    )
-                } else {
-                    await fetchListings()
-                }
-            } else {
-                await fetchListings()
-            }
-        } else {
-            // show consent alert in HomeView
         }
     }
     
@@ -254,7 +225,9 @@ class RentalListingsViewModel: ObservableObject {
         case (nil, _, _):
             showLocationConsentAlert = true
         case (true, let lat?, let lon?):
-            await fetchListingsNearby(latitude: lat, longitude: lon)
+            await fetchListingsNearby(latitude: 43.7791987, longitude: -79.4172125)
+            // set up the location manually because simulator will pick up the user's device simulator current location (because simulator doesn't have toronto time setup)
+//            await fetchListingsNearby(latitude: lat, longitude: lon) // this picks up the user's device simulator current location
         case (true, nil, nil):
             if let location = await getDeviceLocation() {
                 await dbHelper.updateLocationConsent(consent: true,
