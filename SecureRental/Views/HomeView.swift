@@ -25,7 +25,7 @@ struct HomeView: View {
     @StateObject var viewModel = RentalListingsViewModel()
     
     @State private var showLocationConsentAlert = false
-    @State private var hasAskedLocationConsent = false
+//    @State private var hasAskedLocationConsent = false
 
     
     var body: some View {
@@ -113,25 +113,55 @@ struct HomeView: View {
                             .navigationTitle("Secure Rental")
                             .onAppear {
                                 Task {
-                                    if !hasAskedLocationConsent {
-                                        // Fetch current user from Firestore
-                                        if let uid = Auth.auth().currentUser?.uid,
-                                           let user = await dbHelper.getUser(byUID: uid) {
-                                            dbHelper.currentUser = user
-                                        }
+//                                    guard !hasAskedLocationConsent else { return }
 
-                                        // Show alert only if consent is nil
-                                        if dbHelper.currentUser?.locationConsent == nil {
-                                            showLocationConsentAlert = true
-                                        } else {
-                                            // If already set, load listings based on consent
-                                            await viewModel.loadListingsBasedOnLocation()
-                                        }
-
-                                        hasAskedLocationConsent = true
+                                    // Fetch current user from Firestore
+                                    if let uid = Auth.auth().currentUser?.uid,
+                                       let user = await dbHelper.getUser(byUID: uid) {
+                                        dbHelper.currentUser = user
                                     }
+
+                                    guard let user = dbHelper.currentUser else { return }
+
+                                    switch (user.locationConsent, user.latitude, user.longitude) {
+                                    case (nil, _, _):
+                                        // User never gave consent → show alert
+                                        showLocationConsentAlert = true
+
+                                    case (true, let lat?, let lon?):
+                                        // Consent already given & coordinates stored → fetch nearby
+                                        print("let's fetch nearby listings")
+                                        await viewModel.fetchListingsNearby(latitude: lat, longitude: lon)
+
+                                    case (true, nil, nil):
+                                        // Consent given but coordinates missing → get device location
+                                        if let deviceLocation = await viewModel.getDeviceLocation() {
+                                            await dbHelper.updateLocationConsent(
+                                                consent: true,
+                                                latitude: deviceLocation.latitude,
+                                                longitude: deviceLocation.longitude
+                                            )
+                                            print("")
+                                            await viewModel.fetchListingsNearby(
+                                                latitude: deviceLocation.latitude,
+                                                longitude: deviceLocation.longitude
+                                            )
+                                        } else {
+                                            // Fallback: fetch all
+                                            print(" dont have device location. so fetching all listings")
+                                            await viewModel.fetchListings()
+                                        }
+
+                                    case (false, _, _):
+                                        // User denied location → fetch all
+                                        await viewModel.fetchListings()
+                                    case (.some(_), _, _):
+                                        print("error for switch")
+                                    }
+
                                 }
                             }
+
 
 
                             

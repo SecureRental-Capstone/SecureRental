@@ -167,13 +167,10 @@ class RentalListingsViewModel: ObservableObject {
     
 
     // Fetch device location
+    @MainActor
     func getDeviceLocation() async -> CLLocationCoordinate2D? {
-        let manager = CLLocationManager()
-        manager.requestWhenInUseAuthorization()
-        if CLLocationManager.locationServicesEnabled(), let location = manager.location {
-            return location.coordinate
-        }
-        return nil
+        let service = LocationService()
+        return await service.requestLocation()
     }
 
     // Calculate distance in km between two points
