@@ -17,6 +17,8 @@ import Combine
 import UIKit
 import SwiftUICore
 import FirebaseAuth
+import CoreLocation
+
 
 @MainActor
 class RentalListingsViewModel: ObservableObject {
@@ -163,7 +165,77 @@ class RentalListingsViewModel: ObservableObject {
     }
     
     
-    
+
+    // Fetch device location
+    func getDeviceLocation() async -> CLLocationCoordinate2D? {
+        let manager = CLLocationManager()
+        manager.requestWhenInUseAuthorization()
+        if CLLocationManager.locationServicesEnabled(), let location = manager.location {
+            return location.coordinate
+        }
+        return nil
+    }
+
+    // Calculate distance in km between two points
+    func distanceBetween(lat1: Double, lon1: Double, lat2: Double, lon2: Double) -> Double {
+        let earthRadius = 6371.0
+        let dLat = (lat2 - lat1) * .pi / 180
+        let dLon = (lon2 - lon1) * .pi / 180
+        let a = sin(dLat/2) * sin(dLat/2) +
+                cos(lat1 * .pi / 180) * cos(lat2 * .pi / 180) *
+                sin(dLon/2) * sin(dLon/2)
+        let c = 2 * atan2(sqrt(a), sqrt(1-a))
+        return earthRadius * c
+    }
+
+    // Fetch nearby listings based on latitude/longitude
+    @MainActor
+    func fetchListingsNearby(latitude: Double, longitude: Double, radiusInKm: Double = 2.0) async {
+        do {
+            let allListings = try await dbHelper.fetchListings()
+            let nearby = allListings.filter { listing in
+                guard let lat = listing.latitude, let lon = listing.longitude else { return false }
+                return distanceBetween(lat1: latitude, lon1: longitude, lat2: lat, lon2: lon) <= radiusInKm
+            }
+            listings = nearby
+            await fetchFavoriteListings()
+        } catch {
+            print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    func loadListingsBasedOnLocation() async {
+        guard let user = dbHelper.currentUser else { return }
+
+        if let consent = user.locationConsent {
+            if consent {
+                if let lat = user.latitude, let lon = user.longitude {
+                    await fetchListingsNearby(latitude: lat, longitude: lon)
+                } else if let deviceLocation = await getDeviceLocation() {
+                    await dbHelper.updateLocationConsent(
+                        consent: true,
+                        latitude: deviceLocation.latitude,
+                        longitude: deviceLocation.longitude
+                    )
+                    await fetchListingsNearby(
+                        latitude: deviceLocation.latitude,
+                        longitude: deviceLocation.longitude
+                    )
+                } else {
+                    await fetchListings()
+                }
+            } else {
+                await fetchListings()
+            }
+        } else {
+            // show consent alert in HomeView
+        }
+    }
+
+
+
+
    
 
 }

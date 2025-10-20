@@ -102,6 +102,11 @@ class FireDBHelper: ObservableObject {
                     reviews: data["reviews"] as? [String] ?? [],
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
+                
+                // NEW: Load consent and coordinates
+                user.locationConsent = data["locationConsent"] as? Bool
+                user.latitude = data["latitude"] as? Double
+                user.longitude = data["longitude"] as? Double
 //                self.currentUser = user
                 return user
             }
@@ -510,8 +515,28 @@ class FireDBHelper: ObservableObject {
             }
         }
     }
+    
+    // Save user location consent and optional latitude/longitude
+    @MainActor
+    func updateLocationConsent(consent: Bool, latitude: Double? = nil, longitude: Double? = nil) async {
+        guard let user = currentUser else { return }
+        var data: [String: Any] = ["locationConsent": consent]
+        if let lat = latitude, let lon = longitude {
+            data["latitude"] = lat
+            data["longitude"] = lon
+        }
+        do {
+            try await db.collection("Users").document(user.id).updateData(data)
+            currentUser?.locationConsent = consent
+            if consent {
+                currentUser?.latitude = latitude
+                currentUser?.longitude = longitude
+            }
+            print("✅ Location consent saved")
+        } catch {
+            print("❌ Failed to save location consent: \(error.localizedDescription)")
+        }
+    }
 
-
-
-
+    
 }

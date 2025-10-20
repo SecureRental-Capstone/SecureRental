@@ -8,7 +8,12 @@ class AppUser: ObservableObject, Identifiable, Codable {
     var profilePictureURL: String?
     var rating: Double               // 1 to 5
     var reviews: [String]         // Multiple reviews
-    var favoriteListingIDs: [String] = [] 
+    var favoriteListingIDs: [String] = []
+    
+    // New properties
+    var locationConsent: Bool? = nil // nil means not asked yet
+    var latitude: Double? = nil
+    var longitude: Double? = nil
     
     // initialization
     init(

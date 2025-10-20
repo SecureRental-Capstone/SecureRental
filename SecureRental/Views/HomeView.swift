@@ -24,6 +24,10 @@ struct HomeView: View {
     @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
     
+    @State private var showLocationConsentAlert = false
+    @State private var hasAskedLocationConsent = false
+
+    
     var body: some View {
         ZStack {
                 // Main TabView Content
@@ -108,8 +112,31 @@ struct HomeView: View {
                             }
                             .navigationTitle("Secure Rental")
                             .onAppear {
-                                viewModel.fetchListings()
+                                Task {
+                                    if !hasAskedLocationConsent {
+                                        // Fetch current user from Firestore
+                                        if let uid = Auth.auth().currentUser?.uid,
+                                           let user = await dbHelper.getUser(byUID: uid) {
+                                            dbHelper.currentUser = user
+                                        }
+
+                                        // Show alert only if consent is nil
+                                        if dbHelper.currentUser?.locationConsent == nil {
+                                            showLocationConsentAlert = true
+                                        } else {
+                                            // If already set, load listings based on consent
+                                            await viewModel.loadListingsBasedOnLocation()
+                                        }
+
+                                        hasAskedLocationConsent = true
+                                    }
+                                }
                             }
+
+
+                            
+                            
+
                             .toolbar {
                                 ToolbarItem(placement: .navigationBarTrailing) {
                                     Button(action: {
@@ -181,6 +208,54 @@ struct HomeView: View {
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
             }
+            .alert("Allow SecureRental to access your location?", isPresented: $showLocationConsentAlert) {
+                Button("No") {
+                    Task {
+                        // Update local user
+                        dbHelper.currentUser?.locationConsent = false
+                        dbHelper.currentUser?.latitude = nil
+                        dbHelper.currentUser?.longitude = nil
+
+                        // Save to Firestore
+                        await dbHelper.updateLocationConsent(consent: false)
+
+                        // Fetch all listings since no location
+                        await viewModel.fetchListings()
+                    }
+                }
+                Button("Yes") {
+                    Task {
+                        // Get device location
+                        if let location = await viewModel.getDeviceLocation() {
+                            // Update local user
+                            dbHelper.currentUser?.locationConsent = true
+                            dbHelper.currentUser?.latitude = location.latitude
+                            dbHelper.currentUser?.longitude = location.longitude
+
+                            // Save to Firestore
+                            await dbHelper.updateLocationConsent(
+                                consent: true,
+                                latitude: location.latitude,
+                                longitude: location.longitude
+                            )
+
+                            // Fetch nearby listings
+                            await viewModel.fetchListingsNearby(
+                                latitude: location.latitude,
+                                longitude: location.longitude
+                            )
+                        } else {
+                            // If location unavailable, still set consent to true
+                            dbHelper.currentUser?.locationConsent = true
+                            await dbHelper.updateLocationConsent(consent: true)
+
+                            // Fetch all listings as fallback
+                            await viewModel.fetchListings()
+                        }
+                    }
+                }
+            }
+
 
         }
     }
