@@ -17,15 +17,9 @@ struct HomeView: View {
     @State private var selectedTab = 0
     @State private var showMessageView = false
     @State private var showCreateListingView = false
-    @State private var showEditListingView = false
-    @State private var showCommentView = false
-    @State private var selectedListing: Listing?
-    @State private var selectedListingForComment: Listing?
-    @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
     
     @State private var showLocationConsentAlert = false
-//    @State private var hasAskedLocationConsent = false
 
     
     var body: some View {
@@ -74,7 +68,22 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
                             
-                            List($viewModel.listings) { $listing in
+//                            if $viewModel.isLoading {
+//                                Button(action: {
+//                                    Task { await viewModel.loadHomePageListings() }
+//                                }) {
+//                                    HStack {
+//                                        ProgressView()
+//                                        Text("Loading Listings...")
+//                                    }
+//                                    .padding()
+//                                    .background(Color.blue.opacity(0.2))
+//                                    .cornerRadius(8)
+//                                }
+//                                .padding()
+//                            }
+//                            else
+                                List($viewModel.listings) { $listing in
                                 NavigationLink(destination: RentalListingDetailView(listing: listing)
                                     .environmentObject(dbHelper)) {
                                     HStack {
@@ -113,55 +122,16 @@ struct HomeView: View {
                             .navigationTitle("Secure Rental")
                             .onAppear {
                                 Task {
-//                                    guard !hasAskedLocationConsent else { return }
-
-                                    // Fetch current user from Firestore
+                                    // 1️⃣ Fetch user from Firestore
                                     if let uid = Auth.auth().currentUser?.uid,
                                        let user = await dbHelper.getUser(byUID: uid) {
                                         dbHelper.currentUser = user
                                     }
 
-                                    guard let user = dbHelper.currentUser else { return }
-
-                                    switch (user.locationConsent, user.latitude, user.longitude) {
-                                    case (nil, _, _):
-                                        // User never gave consent → show alert
-                                        showLocationConsentAlert = true
-
-                                    case (true, let lat?, let lon?):
-                                        // Consent already given & coordinates stored → fetch nearby
-                                        print("let's fetch nearby listings")
-                                        await viewModel.fetchListingsNearby(latitude: lat, longitude: lon)
-
-                                    case (true, nil, nil):
-                                        // Consent given but coordinates missing → get device location
-                                        if let deviceLocation = await viewModel.getDeviceLocation() {
-                                            await dbHelper.updateLocationConsent(
-                                                consent: true,
-                                                latitude: deviceLocation.latitude,
-                                                longitude: deviceLocation.longitude
-                                            )
-                                            print("")
-                                            await viewModel.fetchListingsNearby(
-                                                latitude: deviceLocation.latitude,
-                                                longitude: deviceLocation.longitude
-                                            )
-                                        } else {
-                                            // Fallback: fetch all
-                                            print(" dont have device location. so fetching all listings")
-                                            await viewModel.fetchListings()
-                                        }
-
-                                    case (false, _, _):
-                                        // User denied location → fetch all
-                                        await viewModel.fetchListings()
-                                    case (.some(_), _, _):
-                                        print("error for switch")
-                                    }
-
+                                    // 2️⃣ Let ViewModel handle location consent and fetching listings
+                                    await viewModel.loadHomePageListings()
                                 }
                             }
-
 
 
                             
@@ -238,52 +208,14 @@ struct HomeView: View {
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
             }
-            .alert("Allow SecureRental to access your location?", isPresented: $showLocationConsentAlert) {
+            .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
                 Button("No") {
-                    Task {
-                        // Update local user
-                        dbHelper.currentUser?.locationConsent = false
-                        dbHelper.currentUser?.latitude = nil
-                        dbHelper.currentUser?.longitude = nil
-
-                        // Save to Firestore
-                        await dbHelper.updateLocationConsent(consent: false)
-
-                        // Fetch all listings since no location
-                        await viewModel.fetchListings()
-                    }
+                    Task { await viewModel.handleLocationConsentResponse(granted: false) }
                 }
                 Button("Yes") {
-                    Task {
-                        // Get device location
-                        if let location = await viewModel.getDeviceLocation() {
-                            // Update local user
-                            dbHelper.currentUser?.locationConsent = true
-                            dbHelper.currentUser?.latitude = location.latitude
-                            dbHelper.currentUser?.longitude = location.longitude
-
-                            // Save to Firestore
-                            await dbHelper.updateLocationConsent(
-                                consent: true,
-                                latitude: location.latitude,
-                                longitude: location.longitude
-                            )
-
-                            // Fetch nearby listings
-                            await viewModel.fetchListingsNearby(
-                                latitude: location.latitude,
-                                longitude: location.longitude
-                            )
-                        } else {
-                            // If location unavailable, still set consent to true
-                            dbHelper.currentUser?.locationConsent = true
-                            await dbHelper.updateLocationConsent(consent: true)
-
-                            // Fetch all listings as fallback
-                            await viewModel.fetchListings()
-                        }
-                    }
+                    Task { await viewModel.handleLocationConsentResponse(granted: true) }
                 }
+            
             }
 
 

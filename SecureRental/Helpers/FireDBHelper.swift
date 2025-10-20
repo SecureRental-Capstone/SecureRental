@@ -362,46 +362,6 @@ class FireDBHelper: ObservableObject {
         }
     }
     
-//    private func updateAverageRating(for listing: Listing, newRating: Double) {
-//        let listingRef = db.collection("Listings").document(listing.id)
-//        
-//        listingRef.getDocument { snapshot, error in
-//            guard let data = snapshot?.data(), error == nil else {
-//                print("❌ Failed to fetch listing for average rating")
-//                return
-//            }
-//            
-//            let currentAverage = data["averageRating"] as? Double ?? 0.0
-//            let ratingsCount = data["ratingsCount"] as? Int ?? 0
-//            
-//            var updatedAverage: Double
-//            var updatedCount: Int
-//            
-//            if ratingsCount == 0 {
-//                    // First rating
-//                updatedAverage = newRating
-//                updatedCount = 1
-//            } else {
-//                    // Compute new average
-//                updatedCount = ratingsCount + 1
-//                updatedAverage = (currentAverage * Double(ratingsCount) + newRating) / Double(updatedCount)
-//            }
-//            
-//             
-//            let roundedAverage = Double(round(100 * updatedAverage) / 100)
-//            
-//            listingRef.updateData([
-//                "averageRating": roundedAverage,
-//                "ratingsCount": updatedCount
-//            ]) { error in
-//                if let error = error {
-//                    print("❌ Failed to update average rating: \(error.localizedDescription)")
-//                } else {
-//                    print("✅ Average rating updated: \(updatedAverage)")
-//                }
-//            }
-//        }
-//    }
     private func updateAverageRating(for listing: Listing, newRating: Double) {
         let listingRef = db.collection("Listings").document(listing.id)
         
@@ -448,33 +408,6 @@ class FireDBHelper: ObservableObject {
         }
     }
     
-        // MARK: - Update the landlord's rating based on all their listings
-//    private func updateUserRating(for ownerId: String) {
-//        let listingsRef = db.collection("Listings").whereField("landlordId", isEqualTo: ownerId)
-//        
-//        listingsRef.getDocuments { snapshot, error in
-//            guard let docs = snapshot?.documents, error == nil, !docs.isEmpty else { return }
-//            
-//            let total = docs.reduce(0.0) { sum, doc in
-//                sum + (doc.data()["averageRating"] as? Double ?? 0.0)
-//            }
-//            
-//            let userAverage = total / Double(docs.count)
-//            let rounded = Double(round(100 * userAverage) / 100)
-//            
-//            self.db.collection("Users").document(ownerId).updateData([
-//                "rating": rounded
-//            ]) { error in
-//                if let error = error {
-//                    print("❌ Failed to update user rating: \(error.localizedDescription)")
-//                } else {
-//                    print("✅ User rating updated: \(rounded)")
-//                }
-//            }
-//        }
-//    }
-
-
 
     private func updateUserRating(for ownerId: String) {
         guard Auth.auth().currentUser != nil else {
@@ -537,6 +470,8 @@ class FireDBHelper: ObservableObject {
             print("❌ Failed to save location consent: \(error.localizedDescription)")
         }
     }
+    
+    
 
     
 }

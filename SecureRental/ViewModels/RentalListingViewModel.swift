@@ -31,6 +31,11 @@ class RentalListingsViewModel: ObservableObject {
     
     @Published var favoriteListingIDs: Set<String> = []
     
+    @Published var showLocationConsentAlert: Bool = false
+    @Published var isLoading: Bool = false // ✅ loading state
+
+
+    
     // Derived property for favorite listings
     var favouriteListings: [Listing] {
         listings.filter { favoriteListingIDs.contains($0.id) }
@@ -192,7 +197,7 @@ class RentalListingsViewModel: ObservableObject {
             let allListings = try await dbHelper.fetchListings()
             let nearby = allListings.filter { listing in
                 guard let lat = listing.latitude, let lon = listing.longitude else { return false }
-                return distanceBetween(lat1: latitude, lon1: longitude, lat2: lat, lon2: lon) <= radiusInKm
+                return listing.isAvailable && distanceBetween(lat1: latitude, lon1: longitude, lat2: lat, lon2: lon) <= radiusInKm
             }
             listings = nearby
             await fetchFavoriteListings()
@@ -229,10 +234,53 @@ class RentalListingsViewModel: ObservableObject {
             // show consent alert in HomeView
         }
     }
+    
+    @MainActor
+    func loadHomePageListings() async {
+        guard let user = dbHelper.currentUser else {
+            showLocationConsentAlert = true
+            return
+        }
 
+        if !listings.isEmpty { return } // Don't reload if already have listings
 
+        switch (user.locationConsent, user.latitude, user.longitude) {
+        case (nil, _, _):
+            showLocationConsentAlert = true
+        case (true, let lat?, let lon?):
+            await fetchListingsNearby(latitude: lat, longitude: lon)
+        case (true, nil, nil):
+            if let location = await getDeviceLocation() {
+                await dbHelper.updateLocationConsent(consent: true,
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude)
+                await fetchListingsNearby(latitude: location.latitude,
+                                          longitude: location.longitude)
+            }
+        case (false, _, _):
+            await fetchListings()
+        @unknown default:
+            await fetchListings()
+        }
+    }
 
-
-   
+        
+        @MainActor
+        func handleLocationConsentResponse(granted: Bool) async {
+            if granted, let location = await getDeviceLocation() {
+                dbHelper.currentUser?.locationConsent = true
+                dbHelper.currentUser?.latitude = location.latitude
+                dbHelper.currentUser?.longitude = location.longitude
+                await dbHelper.updateLocationConsent(consent: true,
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude)
+                await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
+            } else {
+                dbHelper.currentUser?.locationConsent = false
+                await dbHelper.updateLocationConsent(consent: false)
+                await fetchListings()
+            }
+            showLocationConsentAlert = false
+        }
 
 }
