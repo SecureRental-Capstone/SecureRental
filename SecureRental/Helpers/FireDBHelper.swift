@@ -471,6 +471,15 @@ class FireDBHelper: ObservableObject {
         }
     }
     
+    func updateUserRadius(userId: String, radius: Double) async {
+        do {
+            try await db.collection(COLLECTION_USERS).document(userId).updateData(["radius": radius])
+            print("✅ Updated radius for user \(userId) to \(radius) km")
+        } catch {
+            print("❌ Error updating radius: \(error.localizedDescription)")
+        }
+    }
+
     
 
     

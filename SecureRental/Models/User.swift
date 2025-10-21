@@ -14,6 +14,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
     var locationConsent: Bool? = nil // nil means not asked yet
     var latitude: Double? = nil
     var longitude: Double? = nil
+    var radius: Double? // in kilometers
     
     // initialization
     init(

@@ -146,6 +146,25 @@ struct HomeView: View {
                                         .help("Create a new listing")            // ✅ macOS hover tooltip
                                         .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
                                     }
+                                    ToolbarItem(placement: .navigationBarTrailing) {
+                                            Button(action: {
+                                                viewModel.showUpdateLocationSheet = true
+                                            }) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "mappin.and.ellipse")
+                                                    if let city = viewModel.currentCity {
+                                                        Text(city)
+                                                            .font(.subheadline)
+                                                    } else {
+                                                        Text("Set Location")
+                                                            .font(.subheadline)
+                                                    }
+                                                }
+                                                .padding(8)
+                                                .background(Color.blue.opacity(0.1))
+                                                .cornerRadius(8)
+                                            }
+                                        }
                                 }
                             }
                         }
@@ -208,6 +227,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
+            }
+            .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
+                UpdateLocationView(viewModel: viewModel)
             }
             .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
                 Button("No") {

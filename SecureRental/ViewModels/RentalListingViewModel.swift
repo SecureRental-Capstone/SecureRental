@@ -34,8 +34,10 @@ class RentalListingsViewModel: ObservableObject {
     
     @Published var showLocationConsentAlert: Bool = false
     @Published var isLoading: Bool = false // ✅ loading state
-
-
+    
+    @Published var showUpdateLocationSheet = false
+    @Published var currentCity: String?
+//    @Published var radiusInKm: Double? = self.dbHelper.currentUser?.radius ?? 6.0
     
     // Derived property for favorite listings
     var favouriteListings: [Listing] {
@@ -200,9 +202,10 @@ class RentalListingsViewModel: ObservableObject {
 
     // Fetch nearby listings based on latitude/longitude
     @MainActor
-    func fetchListingsNearby(latitude: Double, longitude: Double, radiusInKm: Double = 6.0) async {
+    func fetchListingsNearby(latitude: Double, longitude: Double) async {
         do {
             let allListings = try await dbHelper.fetchListings()
+            let radiusInKm = self.dbHelper.currentUser?.radius ?? 6.0
             let nearby = allListings.filter { listing in
                 guard let lat = listing.latitude, let lon = listing.longitude else { return false }
                 return listing.isAvailable && distanceBetween(lat1: latitude, lon1: longitude, lat2: lat, lon2: lon) <= radiusInKm
@@ -286,5 +289,35 @@ class RentalListingsViewModel: ObservableObject {
             }
             showLocationConsentAlert = false
         }
+    
+    @MainActor
+    func updateUserLocation(latitude: Double, longitude: Double, radius: Double) async {
+        guard let user = dbHelper.currentUser else { return }
+        
+        // Reverse-geocode city/province
+        let geocoder = CLGeocoder()
+        var cityName = "Unknown"
+        if let placemark = try? await geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude)).first {
+            if let city = placemark.locality, let province = placemark.administrativeArea {
+                cityName = "\(city), \(province)"
+            }
+        }
+        
+        // Save to Firestore
+        await dbHelper.updateLocationConsent(consent: true, latitude: latitude, longitude: longitude)
+        await dbHelper.updateUserRadius(userId: user.id, radius: radius)
+//        try? await dbHelper.db.collection("Users").document(user.id).updateData(["radius": radius])
+        
+        // Update local user object
+        dbHelper.currentUser?.latitude = latitude
+        dbHelper.currentUser?.longitude = longitude
+        dbHelper.currentUser?.radius = radius
+        
+        self.currentCity = cityName
+        
+        // Reload listings based on new location
+        await fetchListingsNearby(latitude: latitude, longitude: longitude)
+    }
+
 
 }
