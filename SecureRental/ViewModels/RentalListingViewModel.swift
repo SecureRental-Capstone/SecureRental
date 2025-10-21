@@ -245,7 +245,8 @@ class RentalListingsViewModel: ObservableObject {
 //                                                    longitude: location.longitude)
                 await dbHelper.updateLocationConsent(consent: true,
                                                      latitude: 43.7791987,
-                                                     longitude: -79.4172125)
+                                                     longitude: -79.4172125,
+                                                     radius: 5.0)
                 
                 await fetchListingsNearby(latitude: location.latitude,
                                           longitude: location.longitude)
@@ -274,11 +275,14 @@ class RentalListingsViewModel: ObservableObject {
 
                 dbHelper.currentUser?.latitude = 43.7791987
                 dbHelper.currentUser?.longitude = -79.4172125
+                dbHelper.currentUser?.radius = 5.0
                 let setLatitude = 43.7791987
                 let setLongitude = -79.4172125
+                let setRadius = 5.0
                 await dbHelper.updateLocationConsent(consent: true,
                                                      latitude: setLatitude,
-                                                     longitude: setLongitude)
+                                                     longitude: setLongitude,
+                                                     radius: setRadius)
                 await fetchListingsNearby(latitude: setLatitude, longitude: setLongitude)
                 
             } else {
@@ -304,10 +308,9 @@ class RentalListingsViewModel: ObservableObject {
         }
         
         // Save to Firestore
-        await dbHelper.updateLocationConsent(consent: true, latitude: latitude, longitude: longitude)
-        await dbHelper.updateUserRadius(userId: user.id, radius: radius)
-//        try? await dbHelper.db.collection("Users").document(user.id).updateData(["radius": radius])
-        
+        await dbHelper.updateUserLocation(userId: user.id, latitude: latitude, longitude: longitude, radius: radius)
+//        await dbHelper.updateUserRadius(userId: user.id, radius: radius)
+
         // Update local user object
         dbHelper.currentUser?.latitude = latitude
         dbHelper.currentUser?.longitude = longitude

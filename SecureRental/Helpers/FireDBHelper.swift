@@ -451,36 +451,54 @@ class FireDBHelper: ObservableObject {
     
     // Save user location consent and optional latitude/longitude
     @MainActor
-    func updateLocationConsent(consent: Bool, latitude: Double? = nil, longitude: Double? = nil) async {
+    func updateLocationConsent(consent: Bool, latitude: Double? = nil, longitude: Double? = nil, radius: Double? = nil) async {
         guard let user = currentUser else { return }
         var data: [String: Any] = ["locationConsent": consent]
-        if let lat = latitude, let lon = longitude {
+        do{
+            try await db.collection("Users").document(user.id).updateData(data)
+            user.locationConsent = consent
+            await updateUserLocation(userId: user.id, latitude: latitude, longitude: longitude, radius: radius)
+            
+        }catch{
+            print("error in updating consent or calling update location")
+        }
+//        if let lat = latitude, let lon = longitude, let rad = radius {
+//            data["latitude"] = lat
+//            data["longitude"] = lon
+//            data["radius"] = rad
+//        }
+//        do {
+//            try await db.collection("Users").document(user.id).updateData(data)
+//            currentUser?.locationConsent = consent
+//            if consent {
+//                currentUser?.latitude = latitude
+//                currentUser?.longitude = longitude
+//                currentUser?.radius = radius
+//            }
+//            print("✅ Location consent saved")
+//        } catch {
+//            print("❌ Failed to save location consent: \(error.localizedDescription)")
+//        }
+    }
+    
+    func updateUserLocation(userId: String, latitude: Double?, longitude: Double?, radius: Double?) async {
+        var data: [String: Any] = [:]
+        if let lat = latitude, let lon = longitude, let rad = radius {
             data["latitude"] = lat
             data["longitude"] = lon
+            data["radius"] = rad
         }
         do {
-            try await db.collection("Users").document(user.id).updateData(data)
-            currentUser?.locationConsent = consent
-            if consent {
+            try await db.collection(COLLECTION_USERS).document(userId).updateData(data)
+            if ((currentUser?.locationConsent) == true) {
                 currentUser?.latitude = latitude
                 currentUser?.longitude = longitude
+                currentUser?.radius = radius
             }
-            print("✅ Location consent saved")
+            print("✅ Updated user location: \(currentUser?.latitude), \(currentUser?.longitude), \(currentUser?.radius)")
         } catch {
             print("❌ Failed to save location consent: \(error.localizedDescription)")
         }
     }
-    
-    func updateUserRadius(userId: String, radius: Double) async {
-        do {
-            try await db.collection(COLLECTION_USERS).document(userId).updateData(["radius": radius])
-            print("✅ Updated radius for user \(userId) to \(radius) km")
-        } catch {
-            print("❌ Error updating radius: \(error.localizedDescription)")
-        }
-    }
-
-    
-
     
 }
