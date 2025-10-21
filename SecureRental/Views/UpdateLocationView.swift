@@ -68,20 +68,31 @@ struct UpdateLocationView: View {
         }
         .padding()
         .navigationTitle("Update Location")
-//        .alert(item: $alertMessage) { msg in
-//            Alert(title: Text("Info"), message: Text(msg), dismissButton: .default(Text("OK")))
-//        }
         .onAppear {
-            if let user = dbHelper.currentUser,
-               let lat = user.latitude,
-               let lon = user.longitude {
-                let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-                region.center = coord
-                selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
-            }
+            loadUserData()
         }
     }
     
+    // MARK: - Load User Data
+    func loadUserData() {
+        guard let user = dbHelper.currentUser else { return }
+        
+        // Set map and pin location
+        if let lat = user.latitude, let lon = user.longitude {
+            let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            region.center = coord
+            selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
+        }
+        
+        // ✅ Set radius to user's saved radius (default 5 if not found)
+        if let userRadius = user.radius {
+            radius = userRadius
+        } else {
+            radius = 5.0
+        }
+    }
+    
+    // MARK: - Save Updated Location
     @MainActor
     func updateUserLocation() async {
         guard let coord = selectedCoordinate?.coordinate else {
