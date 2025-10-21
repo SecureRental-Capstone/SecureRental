@@ -39,7 +39,7 @@ struct RentalSearchView: View {
                     .padding()
                 Spacer()
             } else {
-                List(viewModel.listings) { listing in
+                List(viewModel.locationListings) { listing in
                     NavigationLink(destination: RentalListingDetailView(listing: listing)) {
                         Text(listing.title)
                             .font(.headline)

@@ -18,5 +18,65 @@
             endingLineNumber = "17">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "70F96E1A-A978-447E-948E-478F763A914F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SecureRental/ViewModels/RentalListingViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "277"
+            endingLineNumber = "277"
+            landmarkName = "handleLocationConsentResponse(granted:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "70F96E1A-A978-447E-948E-478F763A914F - da565ca162b6c3d4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for SecureRental.RentalListingsViewModel.handleLocationConsentResponse(granted: Swift.Bool) async -&gt; ()"
+                  moduleName = "SecureRental.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/anchalsharma/Documents/Fall%202025/QA/v1/SecureRental/SecureRental/ViewModels/RentalListingViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "279"
+                  endingLineNumber = "279">
+               </Location>
+               <Location
+                  uuid = "70F96E1A-A978-447E-948E-478F763A914F - 21a29271a2acc7d0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) await resume partial function for SecureRental.RentalListingsViewModel.handleLocationConsentResponse(granted: Swift.Bool) async -&gt; ()"
+                  moduleName = "SecureRental.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/anchalsharma/Documents/Fall%202025/QA/v1/SecureRental/SecureRental/ViewModels/RentalListingViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "279"
+                  endingLineNumber = "279">
+               </Location>
+               <Location
+                  uuid = "70F96E1A-A978-447E-948E-478F763A914F - 6aac37add2b117d6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for SecureRental.RentalListingsViewModel.handleLocationConsentResponse(granted: Swift.Bool) async -&gt; ()"
+                  moduleName = "SecureRental.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/anchalsharma/Documents/Fall%202025/QA/v1/SecureRental/SecureRental/ViewModels/RentalListingViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "279"
+                  endingLineNumber = "279">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

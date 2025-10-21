@@ -23,6 +23,7 @@ import CoreLocation
 @MainActor
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [Listing] = []
+    @Published var locationListings: [Listing] = []
     let dbHelper = FireDBHelper.getInstance()
     
     @Published var searchText: String = ""
@@ -121,7 +122,7 @@ class RentalListingsViewModel: ObservableObject {
                 }
             }
         } else {
-            listings = listings.filter { listing in
+            locationListings = locationListings.filter { listing in
                     let matchesSearch = searchTerm.isEmpty ||
                         listing.title.lowercased().contains(searchTerm.lowercased()) ||
                         listing.description.lowercased().contains(searchTerm.lowercased())
@@ -173,6 +174,7 @@ class RentalListingsViewModel: ObservableObject {
     func fetchFavoriteListings() {
         guard let currentUser = dbHelper.currentUser else { return }
         self.favoriteListingIDs = Set(currentUser.favoriteListingIDs)
+        
     }
     
     
@@ -205,7 +207,7 @@ class RentalListingsViewModel: ObservableObject {
                 guard let lat = listing.latitude, let lon = listing.longitude else { return false }
                 return listing.isAvailable && distanceBetween(lat1: latitude, lon1: longitude, lat2: lat, lon2: lon) <= radiusInKm
             }
-            listings = nearby
+            locationListings = nearby
             await fetchFavoriteListings()
         } catch {
             print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
@@ -277,6 +279,7 @@ class RentalListingsViewModel: ObservableObject {
                 await fetchListingsNearby(latitude: setLatitude, longitude: setLongitude)
                 
             } else {
+                locationListings = listings
                 dbHelper.currentUser?.locationConsent = false
                 await dbHelper.updateLocationConsent(consent: false)
                 await fetchListings()

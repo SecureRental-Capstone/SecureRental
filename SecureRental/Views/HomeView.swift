@@ -86,7 +86,7 @@ struct HomeView: View {
                             if viewModel.isLoading {
                                 ProgressView("Loading Listings...")
                             } else {
-                                List($viewModel.listings) { $listing in
+                                List($viewModel.locationListings) { $listing in
                                     NavigationLink(destination: RentalListingDetailView(listing: listing)
                                         .environmentObject(dbHelper)) {
                                             HStack {
