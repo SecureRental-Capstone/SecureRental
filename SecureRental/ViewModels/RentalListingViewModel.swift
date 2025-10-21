@@ -298,14 +298,7 @@ class RentalListingsViewModel: ObservableObject {
     func updateUserLocation(latitude: Double, longitude: Double, radius: Double) async {
         guard let user = dbHelper.currentUser else { return }
         
-        // Reverse-geocode city/province
-        let geocoder = CLGeocoder()
-        var cityName = "Unknown"
-        if let placemark = try? await geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude)).first {
-            if let city = placemark.locality, let province = placemark.administrativeArea {
-                cityName = "\(city), \(province)"
-            }
-        }
+        await updateCityFromStoredCoordinates(latitude: latitude, longitude: longitude)
         
         // Save to Firestore
         await dbHelper.updateUserLocation(userId: user.id, latitude: latitude, longitude: longitude, radius: radius)
@@ -316,11 +309,23 @@ class RentalListingsViewModel: ObservableObject {
         dbHelper.currentUser?.longitude = longitude
         dbHelper.currentUser?.radius = radius
         
-        self.currentCity = cityName
         
         // Reload listings based on new location
         await fetchListingsNearby(latitude: latitude, longitude: longitude)
     }
-
+    
+    // Reverse-geocode coordinates to city/province
+    @MainActor
+    func updateCityFromStoredCoordinates(latitude: Double?, longitude: Double?) async {
+        guard let lat = latitude, let lon = longitude else { return }
+        let geocoder = CLGeocoder()
+        if let placemark = try? await geocoder.reverseGeocodeLocation(CLLocation(latitude: lat, longitude: lon)).first {
+            if let city = placemark.locality, let province = placemark.administrativeArea {
+                self.currentCity = "\(city), \(province)"
+            } else {
+                self.currentCity = "Unknown"
+            }
+        }
+    }
 
 }

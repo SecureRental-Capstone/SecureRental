@@ -131,6 +131,12 @@ struct HomeView: View {
                                             dbHelper.currentUser = user
                                         }
                                         
+                                        if let lat = user.latitude,
+                                           let lon = user.longitude {
+                                            await viewModel.updateCityFromStoredCoordinates(latitude: lat, longitude: lon)
+                                        }
+
+                                        
                                         // 2️⃣ Let ViewModel handle location consent and fetching listings
                                         await viewModel.loadHomePageListings()
                                     }
