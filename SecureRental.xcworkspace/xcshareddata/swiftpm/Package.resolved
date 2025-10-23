@@ -1,5 +1,5 @@
 {
-  "originHash" : "f7b699ee06d014852c10440a409d76232cb614764e8b2a8bf3487948ef110392",
+  "originHash" : "1a71be67b886081ea3b4d989c9c2d6ef62ec27f3a1973c55691b086066eca8a0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -107,6 +107,15 @@
       "state" : {
         "revision" : "fb7f2740b1570d2f7599c6bb9531bf4fad6974b7",
         "version" : "5.0.0"
+      }
+    },
+    {
+      "identity" : "inquiry-ios-2",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/persona-id/inquiry-ios-2.git",
+      "state" : {
+        "revision" : "8e2f3f91225332c2d16b75f74bef237b958afe6f",
+        "version" : "2.30.3"
       }
     },
     {

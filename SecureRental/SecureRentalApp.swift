@@ -24,7 +24,8 @@ struct SecureRentalApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LaunchView()
+            //LaunchView()
+            VerificationView()
         }
     }
 }

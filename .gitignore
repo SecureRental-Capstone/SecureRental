@@ -32,3 +32,15 @@ amplifytools.xcconfig
 Package.resolved
 .build/
 DerivedData/
+
+# CocoaPods
+Pods/
+
+# User data
+*.xcuserdata/
+
+# User Interface State
+*.xcuserstate
+
+# Breakpoints
+*.xcbkptlist

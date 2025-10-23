@@ -25,7 +25,7 @@ class ChatbotViewModel: ObservableObject {
         let body: [String: Any] = [
             "model": "gpt-4o-mini",
             "messages": [
-                ["role": "system", "content": "You are a helpful assistant that answers questions about the rental app."],
+                ["role": "system", "content": "You are a helpful assistant that answers questions about the rental app. Only answer questions about the app or rental-related queries but not unrelated queries."],
                 ["role": "user", "content": text]
             ]
         ]

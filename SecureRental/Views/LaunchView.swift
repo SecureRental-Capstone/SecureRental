@@ -14,6 +14,7 @@ struct LaunchView: View {
     let fireDBHelper : FireDBHelper = FireDBHelper.getInstance()
     
     var body: some View {
+        
         NavigationStack{
             switch self.rootView{
             case .signUp:
