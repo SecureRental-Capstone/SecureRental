@@ -6,9 +6,15 @@ class AppUser: ObservableObject, Identifiable, Codable {
     var email: String
     var name: String
     var profilePictureURL: String?
-    var rating: Int               // 1 to 5
+    var rating: Double               // 1 to 5
     var reviews: [String]         // Multiple reviews
-    var favoriteListingIDs: [String] = [] 
+    var favoriteListingIDs: [String] = []
+    
+    // New properties
+    var locationConsent: Bool? = nil // nil means not asked yet
+    var latitude: Double? = nil
+    var longitude: Double? = nil
+    var radius: Double? // in kilometers
     
     // initialization
     init(
@@ -17,7 +23,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
         email: String,
         name: String,
         profilePictureURL: String? = nil,
-        rating: Int = 0,
+        rating: Double = 0.0,
         reviews: [String] = [],
         favoriteListingIDs: [String] = []
     ) {

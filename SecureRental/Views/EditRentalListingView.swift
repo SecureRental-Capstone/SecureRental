@@ -164,7 +164,7 @@ struct EditRentalListingView: View {
             street: street,
             city: city,
             province: province,
-            comments: listing.comments,
+           // comments: listing.comments,
             datePosted: listing.datePosted,
             landlordId: listing.landlordId
         )

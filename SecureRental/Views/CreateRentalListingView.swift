@@ -11,6 +11,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import CoreLocation
 
 struct CreateRentalListingView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -135,47 +136,68 @@ struct CreateRentalListingView: View {
 //    }
     
     private func saveListing() async {
-            guard let landlordId = Auth.auth().currentUser?.uid else { return }
-
-            isSaving = true
-
-            var newListing = Listing(
-                title: title,
-                description: description,
-                price: price,
-                imageURLs: [], // Will be filled after Cloudinary upload
-                location: "\(street), \(city), \(province)",
-                isAvailable: isAvailable,
-                numberOfBedrooms: numberOfBedrooms,
-                numberOfBathrooms: numberOfBathrooms,
-                squareFootage: Int(squareFootage) ?? 0,
-                amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity]),
-                street: street,
-                city: city,
-                province: province,
-                datePosted: Date(),
-                landlordId: landlordId
-            )
-
-            do {
-                var uploadedURLs: [String] = []
-
-                for image in images {
-                    let url = try await CloudinaryHelper.uploadImage(image)
-                    uploadedURLs.append(url)
-                }
-
-                newListing.imageURLs = uploadedURLs
-
-                try await viewModel.dbHelper.addListing(newListing, images: images) // Already uploads images internally, but you can skip if using Cloudinary separately
-                await viewModel.fetchListings() // Refresh listings
-                presentationMode.wrappedValue.dismiss()
-            } catch {
-                print("❌ Failed to save listing: \(error.localizedDescription)")
+        guard let landlordId = Auth.auth().currentUser?.uid else { return }
+        
+        isSaving = true
+        let fullAddress = "\(street), \(city), \(province)"
+        
+        let coordinates = await getCoordinates(for: fullAddress)
+        
+        
+        var newListing = Listing(
+            title: title,
+            description: description,
+            price: price,
+            imageURLs: [], // Will be filled after Cloudinary upload
+            location: fullAddress,
+            isAvailable: isAvailable,
+            numberOfBedrooms: numberOfBedrooms,
+            numberOfBathrooms: numberOfBathrooms,
+            squareFootage: Int(squareFootage) ?? 0,
+            amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity]),
+            street: street,
+            city: city,
+            province: province,
+            datePosted: Date(),
+            landlordId: landlordId,
+            latitude: coordinates?.latitude,
+            longitude: coordinates?.longitude
+        )
+        
+        do {
+            var uploadedURLs: [String] = []
+            
+            for image in images {
+                let url = try await CloudinaryHelper.uploadImage(image)
+                uploadedURLs.append(url)
             }
-
-            isSaving = false
+            
+            newListing.imageURLs = uploadedURLs
+            
+            try await viewModel.dbHelper.addListing(newListing, images: images) // Already uploads images internally, but you can skip if using Cloudinary separately
+            await viewModel.loadHomePageListings() // Refresh listings
+            presentationMode.wrappedValue.dismiss()
+        } catch {
+            print("❌ Failed to save listing: \(error.localizedDescription)")
         }
+        
+        isSaving = false
+    }
+    
+    func getCoordinates(for address: String) async -> CLLocationCoordinate2D? {
+        await withCheckedContinuation { continuation in
+            let geocoder = CLGeocoder()
+            geocoder.geocodeAddressString(address) { placemarks, error in
+                if let coordinate = placemarks?.first?.location?.coordinate {
+                    continuation.resume(returning: coordinate)
+                } else {
+                    print("❌ Failed to geocode address: \(error?.localizedDescription ?? "unknown error")")
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
 
 }
 

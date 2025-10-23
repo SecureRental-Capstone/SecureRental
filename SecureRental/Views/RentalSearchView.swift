@@ -1,16 +1,8 @@
-//
-//  SearchBar.swift
-//  SecureRental
-//
-//  Created by Anchal  Sharma  on 2024-11-07.
-//
-
-// SearchBar.swift
 import SwiftUI
 
 struct RentalSearchView: View {
     @ObservedObject var viewModel: RentalListingsViewModel
-    
+
     var body: some View {
         VStack {
             // Search bar
@@ -40,18 +32,27 @@ struct RentalSearchView: View {
             }
             .padding()
 
-            // Listings view
-            List(viewModel.listings) { listing in
-                NavigationLink(destination: RentalListingDetailView(listing: listing)) {
-                    Text(listing.title)
-                        .font(.headline)
+            // Listings view with loading indicator
+            if viewModel.isLoading {
+                Spacer()
+                ProgressView("Fetching listings...")
+                    .padding()
+                Spacer()
+            } else {
+                List(viewModel.locationListings) { listing in
+                    NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                        Text(listing.title)
+                            .font(.headline)
+                    }
                 }
             }
         }
         .navigationTitle("Search Rentals")
-        .onAppear{
+        .onAppear {
             viewModel.shouldAutoFilter = true
+            Task {
+                await viewModel.loadHomePageListings(forceReload: true) // ✅ fetch fresh listings
+            }
         }
     }
 }
-

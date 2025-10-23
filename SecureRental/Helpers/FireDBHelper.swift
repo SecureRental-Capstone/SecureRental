@@ -98,10 +98,15 @@ class FireDBHelper: ObservableObject {
                     email: data["email"] as? String ?? "",
                     name: data["name"] as? String ?? "",
                     profilePictureURL: data["profilePictureURL"] as? String,
-                    rating: data["rating"] as? Int ?? 0,
+                    rating: data["rating"] as? Double ?? 0.0,
                     reviews: data["reviews"] as? [String] ?? [],
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
+                
+                // NEW: Load consent and coordinates
+                user.locationConsent = data["locationConsent"] as? Bool
+                user.latitude = data["latitude"] as? Double
+                user.longitude = data["longitude"] as? Double
 //                self.currentUser = user
                 return user
             }
@@ -126,7 +131,7 @@ class FireDBHelper: ObservableObject {
                     email: data["email"] as? String ?? "",
                     name: data["name"] as? String ?? "",
                     profilePictureURL: data["profilePictureURL"] as? String,
-                    rating: data["rating"] as? Int ?? 0,
+                    rating: data["rating"] as? Double ?? 0.0,
                     reviews: data["reviews"] as? [String] ?? [],
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? [] 
                 )
@@ -331,18 +336,169 @@ class FireDBHelper: ObservableObject {
         // Update local user
         currentUser?.favoriteListingIDs = updatedFavorites
     }
-
     
-//    // Fetch favorite listings for user
-//    func fetchFavoriteListings(for user: AppUser) async throws -> [Listing] {
-//        guard !user.favoriteListingIDs.isEmpty else { return [] }
-//        
-//        let snapshot = try await db.collection(COLLECTION_LISTINGS)
-//            .whereField("id", in: user.favoriteListingIDs)
-//            .getDocuments()
-//        
-//        let listings = snapshot.documents.compactMap { try? $0.data(as: Listing.self) }
-//        return listings
-//    }
+    func addReview(to listing: Listing, rating: Double, comment: String, user: AppUser) {
+        let reviewsRef = db.collection("Listings").document(listing.id).collection("reviews")
+        let reviewRef = reviewsRef.document() // Auto-generated ID
+        
+        let reviewData: [String: Any] = [
+            "userId": user.id,
+            "userName": user.name,
+            "rating": rating,
+            "comment": comment,
+            "timestamp": FieldValue.serverTimestamp()
+        ]
+        
+            // Add the review
+        reviewRef.setData(reviewData) { error in
+            if let error = error {
+                print("❌ Failed to add review: \(error.localizedDescription)")
+                return
+            }
+            print("✅ Review added successfully")
+            
+                // Update average
+            self.updateAverageRating(for: listing, newRating: rating)
+        }
+    }
+    
+    private func updateAverageRating(for listing: Listing, newRating: Double) {
+        let listingRef = db.collection("Listings").document(listing.id)
+        
+        listingRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else {
+                print("❌ Failed to fetch listing for average rating")
+                return
+            }
+            
+            let currentAverage = data["averageRating"] as? Double ?? 0.0
+            let ratingsCount = data["ratingsCount"] as? Int ?? 0
+            let ownerId = data["landlordId"] as? String ?? ""
+            
+            var updatedAverage: Double
+            var updatedCount: Int
+            
+            if ratingsCount == 0 {
+                    // First rating
+                updatedAverage = newRating
+                updatedCount = 1
+            } else {
+                    // Compute new average
+                updatedCount = ratingsCount + 1
+                updatedAverage = (currentAverage * Double(ratingsCount) + newRating) / Double(updatedCount)
+            }
+            
+                // Round to 2 decimals
+            let roundedAverage = Double(round(100 * updatedAverage) / 100)
+            
+                // Update Listing
+            listingRef.updateData([
+                "averageRating": roundedAverage,
+                "ratingsCount": updatedCount
+            ]) { error in
+                if let error = error {
+                    print("❌ Failed to update average rating: \(error.localizedDescription)")
+                } else {
+                    print("✅ Average rating updated for listing: \(roundedAverage)")
+                    
+                        // ✅ Update the owner's rating
+                    self.updateUserRating(for: ownerId)
+                }
+            }
+        }
+    }
+    
 
+    private func updateUserRating(for ownerId: String) {
+        guard Auth.auth().currentUser != nil else {
+            print("❌ No authenticated user. Can't update user rating.")
+            return
+        }
+        
+        let listingsRef = db.collection("Listings").whereField("landlordId", isEqualTo: ownerId)
+        
+        listingsRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("❌ Failed to fetch listings: \(error.localizedDescription)")
+                return
+            }
+            guard let docs = snapshot?.documents, !docs.isEmpty else {
+                print("❌ No listings found for this landlord")
+                return
+            }
+            
+            let total = docs.reduce(0.0) { sum, doc in
+                let rating = doc.data()["averageRating"] as? Double ?? 0.0
+                return sum + rating
+            }
+            
+            let userAverage = total / Double(docs.count)
+            let rounded = Double(round(100 * userAverage) / 100)
+            
+            DispatchQueue.main.async {
+                self.db.collection("Users").document(ownerId).updateData([
+                    "rating": rounded
+                ]) { error in
+                    if let error = error {
+                        print("❌ Failed to update user rating: \(error.localizedDescription)")
+                    } else {
+                        print("✅ User rating updated: \(rounded)")
+                    }
+                }
+            }
+        }
+    }
+    
+    // Save user location consent and optional latitude/longitude
+    @MainActor
+    func updateLocationConsent(consent: Bool, latitude: Double? = nil, longitude: Double? = nil, radius: Double? = nil) async {
+        guard let user = currentUser else { return }
+        var data: [String: Any] = ["locationConsent": consent]
+        do{
+            try await db.collection("Users").document(user.id).updateData(data)
+            user.locationConsent = consent
+            await updateUserLocation(userId: user.id, latitude: latitude, longitude: longitude, radius: radius)
+            
+        }catch{
+            print("error in updating consent or calling update location")
+        }
+//        if let lat = latitude, let lon = longitude, let rad = radius {
+//            data["latitude"] = lat
+//            data["longitude"] = lon
+//            data["radius"] = rad
+//        }
+//        do {
+//            try await db.collection("Users").document(user.id).updateData(data)
+//            currentUser?.locationConsent = consent
+//            if consent {
+//                currentUser?.latitude = latitude
+//                currentUser?.longitude = longitude
+//                currentUser?.radius = radius
+//            }
+//            print("✅ Location consent saved")
+//        } catch {
+//            print("❌ Failed to save location consent: \(error.localizedDescription)")
+//        }
+    }
+    
+    func updateUserLocation(userId: String, latitude: Double?, longitude: Double?, radius: Double?) async {
+        var data: [String: Any] = [:]
+        if let lat = latitude, let lon = longitude, let rad = radius {
+            data["latitude"] = lat
+            data["longitude"] = lon
+            data["radius"] = rad
+        }
+        do {
+            try await db.collection(COLLECTION_USERS).document(userId).updateData(data)
+            if ((currentUser?.locationConsent) == true) {
+                currentUser?.latitude = latitude
+                currentUser?.longitude = longitude
+                currentUser?.radius = radius
+            }
+            print("✅ Updated user location: \(currentUser?.latitude), \(currentUser?.longitude), \(currentUser?.radius)")
+        } catch {
+            print("❌ Failed to save location consent: \(error.localizedDescription)")
+        }
+    }
+    
 }

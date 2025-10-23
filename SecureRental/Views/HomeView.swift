@@ -17,12 +17,10 @@ struct HomeView: View {
     @State private var selectedTab = 0
     @State private var showMessageView = false
     @State private var showCreateListingView = false
-    @State private var showEditListingView = false
-    @State private var showCommentView = false
-    @State private var selectedListing: Listing?
-    @State private var selectedListingForComment: Listing?
-    @StateObject var user = AppUser.sampleUser
     @StateObject var viewModel = RentalListingsViewModel()
+    
+    @State private var showLocationConsentAlert = false
+
     
     var body: some View {
         ZStack {
@@ -39,7 +37,7 @@ struct HomeView: View {
                                 
                                 Spacer() // pushes the button to the right
                                 
-                                    // Right side: My Listings button
+                                // Right side: My Listings button
                                 NavigationLink(destination: MyListingsView()) {
                                     Label("My Listings", systemImage: "house.fill")
                                         .font(.subheadline)
@@ -70,84 +68,140 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
                             
-                            List($viewModel.listings) { $listing in
-                                NavigationLink(destination: RentalListingDetailView(listing: listing)) {
-                                    HStack {
-                                        if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
-                                            AsyncImage(url: url) { phase in
-                                                switch phase {
-                                                case .empty:
-                                                    ProgressView()
-                                                case .success(let image):
-                                                    image.resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 100, height: 100)
-                                                        .cornerRadius(8)
-                                                case .failure:
-                                                    Image(systemName: "photo")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 100, height: 100)
-                                                        .foregroundColor(.gray)
-                                                @unknown default:
-                                                    EmptyView()
+//                            if viewModel.isLoading {
+//                                Button(action: {
+//                                    Task { await viewModel.loadHomePageListings() }
+//                                }) {
+//                                    HStack {
+//                                        ProgressView()
+//                                        Text("Loading Listings...")
+//                                    }
+//                                    .padding()
+//                                    .background(Color.blue.opacity(0.2))
+//                                    .cornerRadius(8)
+//                                }
+//                                .padding()
+//                            }
+//                            else
+                            if viewModel.isLoading {
+                                ProgressView("Loading Listings...")
+                            } else {
+                                List($viewModel.locationListings) { $listing in
+                                    NavigationLink(destination: RentalListingDetailView(listing: listing)
+                                        .environmentObject(dbHelper)) {
+                                            HStack {
+                                                if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                                    AsyncImage(url: url) { phase in
+                                                        switch phase {
+                                                        case .empty:
+                                                            ProgressView()
+                                                        case .success(let image):
+                                                            image.resizable()
+                                                                .scaledToFit()
+                                                                .frame(width: 100, height: 100)
+                                                                .cornerRadius(8)
+                                                        case .failure:
+                                                            Image(systemName: "photo")
+                                                                .resizable()
+                                                                .scaledToFit()
+                                                                .frame(width: 100, height: 100)
+                                                                .foregroundColor(.gray)
+                                                        @unknown default:
+                                                            EmptyView()
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                                
+                                                VStack(alignment: .leading) {
+                                                    Text(listing.title)
+                                                        .font(.headline)
+                                                    Text("$\(listing.price)/month")
+                                                        .font(.subheadline)
+                                                }
+                                                Spacer()
+                                            } // HStack
+                                        } // NavigationView
+                                }// List
+                                .navigationTitle("Secure Rental")
+                                .onAppear {
+                                    Task {
+                                        // 1️⃣ Fetch user from Firestore
+                                        if let uid = Auth.auth().currentUser?.uid,
+                                           let user = await dbHelper.getUser(byUID: uid) {
+                                            dbHelper.currentUser = user
                                         }
                                         
-                                        VStack(alignment: .leading) {
-                                            Text(listing.title)
-                                                .font(.headline)
-                                            Text("$\(listing.price)/month")
-                                                .font(.subheadline)
+                                        if let lat = user.latitude,
+                                           let lon = user.longitude {
+                                            await viewModel.updateCityFromStoredCoordinates(latitude: lat, longitude: lon)
                                         }
-                                        Spacer()
+
+                                        
+                                        // 2️⃣ Let ViewModel handle location consent and fetching listings
+                                        await viewModel.loadHomePageListings()
                                     }
-                                }
-                            }
-                            .navigationTitle("Secure Rental")
-                            .onAppear {
-                                viewModel.fetchListings()
-                            }
-                            .toolbar {
-                                ToolbarItem(placement: .navigationBarTrailing) {
-                                    Button(action: {
-                                        showCreateListingView = true
-                                    }) {
-                                        Image(systemName: "plus")
+                                } // onappear
+                                
+                                .toolbar {
+                                    ToolbarItem(placement: .navigationBarTrailing) {
+                                        Button(action: {
+                                            showCreateListingView = true
+                                        }) {
+                                            Image(systemName: "plus")
+                                        }
+                                        .help("Create a new listing")            // ✅ macOS hover tooltip
+                                        .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
                                     }
-                                    .help("Create a new listing")            // ✅ macOS hover tooltip
-                                    .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
+                                    ToolbarItem(placement: .navigationBarTrailing) {
+                                            Button(action: {
+                                                viewModel.showUpdateLocationSheet = true
+                                            }) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "mappin.and.ellipse")
+                                                    if let city = viewModel.currentCity {
+                                                        Text(city)
+                                                            .font(.subheadline)
+                                                    } else {
+                                                        Text("Set Location")
+                                                            .font(.subheadline)
+                                                    }
+                                                }
+                                                .padding(8)
+                                                .background(Color.blue.opacity(0.1))
+                                                .cornerRadius(8)
+                                            }
+                                        }
                                 }
                             }
                         }
+                        
                     }
-                    }
+                }
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+                .tag(0)
+                
+                    // Messages Tab
+                MyChatsView()
                     .tabItem {
-                        Label("Home", systemImage: "house")
+                        Label("Messages", systemImage: "message")
                     }
-                    .tag(0)
-                    
-                        // Messages Tab
-                    MyChatsView()
-                        .tabItem {
-                            Label("Messages", systemImage: "message")
-                        }
-                        .tag(1)
-                    
-                        // Favourites Tab
-                    FavouriteListingsView(viewModel: viewModel)
-                        .tabItem {
-                            Label("Favourites", systemImage: "star.fill")
-                        }
-                        .tag(2)
-                    
-                        // Profile Tab
-                    ProfileView(rootView: $rootView)
-                        .tabItem {
-                            Label("Profile", systemImage: "person.circle")
-                        }
-                        .tag(3)
+                    .tag(1)
+                
+                    // Favourites Tab
+                FavouriteListingsView(viewModel: viewModel)
+                    .tabItem {
+                        Label("Favourites", systemImage: "star.fill")
+                    }
+                    .tag(2)
+                
+                    // Profile Tab
+                ProfileView(rootView: $rootView)
+                    .tabItem {
+                        Label("Profile", systemImage: "person.circle")
+                    }
+                    .tag(3)
                 }
                 
                     // Chatbot icon button
@@ -180,6 +234,19 @@ struct HomeView: View {
             .sheet(isPresented: $showCreateListingView) {
                 CreateRentalListingView(viewModel: viewModel)
             }
+            .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
+                UpdateLocationView(viewModel: viewModel)
+            }
+            .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
+                Button("No") {
+                    Task { await viewModel.handleLocationConsentResponse(granted: false) }
+                }
+                Button("Yes") {
+                    Task { await viewModel.handleLocationConsentResponse(granted: true) }
+                }
+            
+            }
+
 
         }
     }

@@ -1,16 +1,14 @@
-//
-//  RentalListingDetailView.swift
-//  SecureRental
-//
-//  Created by Anchal  Sharma  on 2024-11-07.
-//
 
-// RentalListingDetailView.swift
+    //  RentalListingDetailView.swift
+    //  SecureRental
+    //
+    //  Created by Anchal Sharma on 2024-11-07.
+    //
+
 import SwiftUI
 import MapKit
 import CoreLocation
 import FirebaseAuth
-
 
 struct RentalListingDetailView: View {
     var listing: Listing
@@ -22,12 +20,11 @@ struct RentalListingDetailView: View {
     @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject var viewModel = RentalListingsViewModel()
     @State private var showCommentView = false
-
     
     var body: some View {
-        ScrollView{
+        ScrollView {
             VStack(spacing: 20) {
-                // Swipeable Carousel View for Image
+                    // Swipeable Carousel View for Image
                 if !listing.imageURLs.isEmpty {
                     CarouselView(imageURLs: listing.imageURLs)
                         .frame(height: 300)
@@ -46,7 +43,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                // Display property description
+                    // Display property description
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Description:")
                         .font(.headline)
@@ -60,8 +57,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                
-                // Display address
+                    // Display address
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Location:")
                         .font(.headline)
@@ -75,7 +71,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                // Display additional property details
+                    // Display additional property details
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Property Details:")
                         .font(.headline)
@@ -113,10 +109,9 @@ struct RentalListingDetailView: View {
                 }
                 .padding(.horizontal)
                 
-                
                 Divider()
                 
-                // Map View with Geocoding for location
+                    // Map View with Geocoding for location
                 Text("Map")
                     .font(.headline)
                     .padding(.top, 10)
@@ -129,7 +124,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                // Display Amenities
+                    // Display Amenities
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Amenities:")
                         .font(.headline)
@@ -146,19 +141,45 @@ struct RentalListingDetailView: View {
                 }
                 .padding(.horizontal)
                 
+                    // Actions Row
                 if listing.landlordId != Auth.auth().currentUser?.uid {
-                    NavigationLink(destination: ChatView(listing: listing)) {
-                        HStack {
-                            Image(systemName: "message.fill")
-                            Text("Message Landlord")
+                    HStack(spacing: 48) {
+                            // Message Action
+                        VStack {
+                            NavigationLink(destination: ChatView(listing: listing)) {
+                                Image(systemName: "message.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(.blue)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .clipShape(Circle())
+                            }
+                            Text("Message")
+                                .font(.footnote)
+                                .foregroundColor(.primary)
                         }
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(10)
+                        
+                            // Favourites (Heart) Action
+                        VStack {
+                            Button(action: {
+                                withAnimation(.spring()) {
+                                    viewModel.toggleFavorite(for: listing)
+                                }
+                            }) {
+                                Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .clipShape(Circle())
+                            }
+                            Text("Favourite")
+                                .font(.footnote)
+                                .foregroundColor(.primary)
+                        }
                     }
-                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
                 } else {
                     Text("You are the landlord for this listing")
                         .foregroundColor(.gray)
@@ -166,48 +187,33 @@ struct RentalListingDetailView: View {
                         .padding()
                 }
                 
-                Divider()
-                Text("Actions")
-                    .font(.headline)
-                    .padding(.top, 10)
-
-                Button(action: {
-                    viewModel.toggleFavorite(for: listing)
-                }) {
-                    Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
-                        .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
-                        .font(.title2)
-                }
-
-
-                // Rate / Review Button
+                    // Rate / Review Button
                 Button(action: {
                     showCommentView = true
                 }) {
                     Label("Rate / Review", systemImage: "star.circle.fill")
+                        .font(.headline)
                         .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                         .background(Color.orange)
-                        .cornerRadius(10)
+                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 2)
                 }
                 .padding(.horizontal)
                 .padding(.top, 5)
-
-
                 
                 Spacer()
             }
             .padding()
             .navigationTitle(listing.title)
             .sheet(isPresented: $showCommentView) {
-                CommentView(listing: listing, viewModel: viewModel)
+                CommentView(listing: listing)
+                    .environmentObject(dbHelper)
             }
-
         }
     }
     
-    // Function to geocode the address for the map view
+        // Function to geocode the address for the map view
     private func geocodeAddress() {
         let geocoder = CLGeocoder()
         let address = "\(listing.street), \(listing.city), \(listing.province)"
