@@ -203,6 +203,28 @@ struct RentalListingDetailView: View {
                 .padding(.top, 5)
                 
                 Spacer()
+                
+                Divider()
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Reviews")
+                        .font(.headline)
+                        .padding(.bottom, 4)
+                    
+                    if dbHelper.reviews.isEmpty {
+                        Text("No reviews yet. Be the first to review this listing!")
+                            .italic()
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(dbHelper.reviews) { review in
+                            ReviewRow(review: review)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .task {
+                    await dbHelper.fetchReviews(for: listing.id)
+                }
+
             }
             .padding()
             .navigationTitle(listing.title)
