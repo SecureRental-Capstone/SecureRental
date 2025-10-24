@@ -341,6 +341,7 @@ class FireDBHelper: ObservableObject {
         // Update local user
         currentUser?.favoriteListingIDs = updatedFavorites
     }
+
     
     func addReview(to listing: Listing, rating: Double, comment: String, user: AppUser) {
         let reviewsRef = db.collection("Listings").document(listing.id).collection("reviews")
@@ -484,12 +485,14 @@ class FireDBHelper: ObservableObject {
     // Save user location consent and optional latitude/longitude
     @MainActor
     func updateLocationConsent(consent: Bool, latitude: Double? = nil, longitude: Double? = nil, radius: Double? = nil) async {
+
         //bypass
 //#if DEBUG
 //        print("🚧 DEBUG MODE: Skipping location consent logic")
 //        currentUser?.locationConsent = true
 //        return
 //#endif
+
         guard let user = currentUser else { return }
         var data: [String: Any] = ["locationConsent": consent]
         do{
@@ -500,25 +503,31 @@ class FireDBHelper: ObservableObject {
         }catch{
             print("error in updating consent or calling update location")
         }
+
         if let lat = latitude, let lon = longitude, let rad = radius {
             data["latitude"] = lat
             data["longitude"] = lon
             data["radius"] = rad
         }
         do {
+
             try await db.collection("Users").document(user.id).updateData(data)
             currentUser?.locationConsent = consent
             if consent {
+
                 currentUser?.latitude = latitude
                 currentUser?.longitude = longitude
                 currentUser?.radius = radius
             }
+
             print("✅ Location consent saved")
+
         } catch {
             print("❌ Failed to save location consent: \(error.localizedDescription)")
         }
     }
     
+
     func updateUserLocation(userId: String, latitude: Double?, longitude: Double?, radius: Double?) async {
         var data: [String: Any] = [:]
         if let lat = latitude, let lon = longitude, let rad = radius {

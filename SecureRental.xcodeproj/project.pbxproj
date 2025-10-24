@@ -14,7 +14,10 @@
 		0BBD089F2E822E06002175ED /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD089E2E822E06002175ED /* FirebaseMessaging */; };
 		0BBD08A12E822E06002175ED /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBD08A02E822E06002175ED /* FirebaseStorage */; };
 		3E8AFB702E86327F00657384 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 3E8AFB6F2E86327F00657384 /* FirebaseInAppMessaging-Beta */; };
+		4D44157C2347509A86484D9F /* Pods_SecureRental_SecureRentalUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D179D4E0817DF5F5D700A8E5 /* Pods_SecureRental_SecureRentalUITests.framework */; };
 		92DDD7402E8A166600FD4310 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 92DDD73F2E8A166600FD4310 /* AWSS3 */; };
+		9C16F561D642CE47BE2F240F /* Pods_SecureRental.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0F05D740DAFC31631EF049B /* Pods_SecureRental.framework */; };
+		F3B265280194C8974CBB1A90 /* Pods_SecureRentalTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E272A5D0E4123EDE597F42D /* Pods_SecureRentalTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,11 +41,33 @@
 		0B3ED3B82CC41BD800136A00 /* SecureRental.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureRental.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B3ED3C82CC41BD900136A00 /* SecureRentalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureRentalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B3ED3D22CC41BD900136A00 /* SecureRentalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureRentalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D91CDE7604DBF9D75354440 /* Pods-SecureRentalTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRentalTests.release.xcconfig"; path = "Target Support Files/Pods-SecureRentalTests/Pods-SecureRentalTests.release.xcconfig"; sourceTree = "<group>"; };
+		223D1A41E52361062C23CB3A /* Pods-SecureRental-SecureRentalUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental-SecureRentalUITests.release.xcconfig"; path = "Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests.release.xcconfig"; sourceTree = "<group>"; };
+		26CD50983AF7DB1234F960D9 /* Pods-SecureRental.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental.debug.xcconfig"; path = "Target Support Files/Pods-SecureRental/Pods-SecureRental.debug.xcconfig"; sourceTree = "<group>"; };
+		5E272A5D0E4123EDE597F42D /* Pods_SecureRentalTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureRentalTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DD328DE64ADB9C6E7AABDE8 /* Pods-SecureRental.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental.release.xcconfig"; path = "Target Support Files/Pods-SecureRental/Pods-SecureRental.release.xcconfig"; sourceTree = "<group>"; };
+		8AD37AE50F6424B7C73B1A2A /* Pods-SecureRental-SecureRentalUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRental-SecureRentalUITests.debug.xcconfig"; path = "Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		B0F05D740DAFC31631EF049B /* Pods_SecureRental.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureRental.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D179D4E0817DF5F5D700A8E5 /* Pods_SecureRental_SecureRentalUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecureRental_SecureRentalUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E576C5CFEB0341350A1D65A8 /* Pods-SecureRentalTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecureRentalTests.debug.xcconfig"; path = "Target Support Files/Pods-SecureRentalTests/Pods-SecureRentalTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0B206EE52E91F732005C807A /* Exceptions for "SecureRental" folder in "SecureRental" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B3ED3B72CC41BD800136A00 /* SecureRental */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B3ED3BA2CC41BD800136A00 /* SecureRental */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0B206EE52E91F732005C807A /* Exceptions for "SecureRental" folder in "SecureRental" target */,
+			);
 			path = SecureRental;
 			sourceTree = "<group>";
 		};
@@ -71,6 +96,7 @@
 				0BBD089D2E822E06002175ED /* FirebaseInAppMessaging-Beta in Frameworks */,
 				92DDD7402E8A166600FD4310 /* AWSS3 in Frameworks */,
 				0BBD08A12E822E06002175ED /* FirebaseStorage in Frameworks */,
+				9C16F561D642CE47BE2F240F /* Pods_SecureRental.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3B265280194C8974CBB1A90 /* Pods_SecureRentalTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +112,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D44157C2347509A86484D9F /* Pods_SecureRental_SecureRentalUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +126,8 @@
 				0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */,
 				0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */,
 				0B3ED3B92CC41BD800136A00 /* Products */,
+				FC87C0980BD9A01327C22900 /* Pods */,
+				633CB7694829E4DE13062AD7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -111,6 +141,29 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		633CB7694829E4DE13062AD7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B0F05D740DAFC31631EF049B /* Pods_SecureRental.framework */,
+				D179D4E0817DF5F5D700A8E5 /* Pods_SecureRental_SecureRentalUITests.framework */,
+				5E272A5D0E4123EDE597F42D /* Pods_SecureRentalTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FC87C0980BD9A01327C22900 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				26CD50983AF7DB1234F960D9 /* Pods-SecureRental.debug.xcconfig */,
+				7DD328DE64ADB9C6E7AABDE8 /* Pods-SecureRental.release.xcconfig */,
+				8AD37AE50F6424B7C73B1A2A /* Pods-SecureRental-SecureRentalUITests.debug.xcconfig */,
+				223D1A41E52361062C23CB3A /* Pods-SecureRental-SecureRentalUITests.release.xcconfig */,
+				E576C5CFEB0341350A1D65A8 /* Pods-SecureRentalTests.debug.xcconfig */,
+				1D91CDE7604DBF9D75354440 /* Pods-SecureRentalTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -118,9 +171,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B3ED3DC2CC41BD900136A00 /* Build configuration list for PBXNativeTarget "SecureRental" */;
 			buildPhases = (
+				A91C3AB5DD2927CB5E99F370 /* [CP] Check Pods Manifest.lock */,
 				0B3ED3B42CC41BD800136A00 /* Sources */,
 				0B3ED3B52CC41BD800136A00 /* Frameworks */,
 				0B3ED3B62CC41BD800136A00 /* Resources */,
+				B003679DA0E94CFA88DC0367 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -138,6 +193,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B3ED3DF2CC41BD900136A00 /* Build configuration list for PBXNativeTarget "SecureRentalTests" */;
 			buildPhases = (
+				CF8A3B1AF98F8C0B2D0EF099 /* [CP] Check Pods Manifest.lock */,
 				0B3ED3C42CC41BD900136A00 /* Sources */,
 				0B3ED3C52CC41BD900136A00 /* Frameworks */,
 				0B3ED3C62CC41BD900136A00 /* Resources */,
@@ -159,9 +215,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B3ED3E22CC41BD900136A00 /* Build configuration list for PBXNativeTarget "SecureRentalUITests" */;
 			buildPhases = (
+				D9FB0219E4CC40CF67AEC72D /* [CP] Check Pods Manifest.lock */,
 				0B3ED3CE2CC41BD900136A00 /* Sources */,
 				0B3ED3CF2CC41BD900136A00 /* Frameworks */,
 				0B3ED3D02CC41BD900136A00 /* Resources */,
+				174E7EED33C4C48CBA720A4F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -211,6 +269,7 @@
 			packageReferences = (
 				0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				92DDD73E2E8A166600FD4310 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
+				0B206EE32E9193BC005C807A /* XCRemoteSwiftPackageReference "inquiry-ios-2" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B3ED3B92CC41BD800136A00 /* Products */;
@@ -247,6 +306,109 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		174E7EED33C4C48CBA720A4F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SecureRental-SecureRentalUITests/Pods-SecureRental-SecureRentalUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A91C3AB5DD2927CB5E99F370 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureRental-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B003679DA0E94CFA88DC0367 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental/Pods-SecureRental-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SecureRental/Pods-SecureRental-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SecureRental/Pods-SecureRental-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CF8A3B1AF98F8C0B2D0EF099 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureRentalTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D9FB0219E4CC40CF67AEC72D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SecureRental-SecureRentalUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0B3ED3B42CC41BD800136A00 /* Sources */ = {
@@ -407,23 +569,33 @@
 		};
 		0B3ED3DD2CC41BD900136A00 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 26CD50983AF7DB1234F960D9 /* Pods-SecureRental.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = Z36V6GABX3;
+				DEVELOPMENT_TEAM = VHM74NZAQ3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SecureRental/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = akhtahan.SecureRental;
@@ -436,23 +608,33 @@
 		};
 		0B3ED3DE2CC41BD900136A00 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7DD328DE64ADB9C6E7AABDE8 /* Pods-SecureRental.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = Z36V6GABX3;
+				DEVELOPMENT_TEAM = VHM74NZAQ3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SecureRental/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = akhtahan.SecureRental;
@@ -465,6 +647,7 @@
 		};
 		0B3ED3E02CC41BD900136A00 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E576C5CFEB0341350A1D65A8 /* Pods-SecureRentalTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -484,6 +667,7 @@
 		};
 		0B3ED3E12CC41BD900136A00 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1D91CDE7604DBF9D75354440 /* Pods-SecureRentalTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -503,6 +687,7 @@
 		};
 		0B3ED3E32CC41BD900136A00 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8AD37AE50F6424B7C73B1A2A /* Pods-SecureRental-SecureRentalUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -520,6 +705,7 @@
 		};
 		0B3ED3E42CC41BD900136A00 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 223D1A41E52361062C23CB3A /* Pods-SecureRental-SecureRentalUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -577,6 +763,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0B206EE32E9193BC005C807A /* XCRemoteSwiftPackageReference "inquiry-ios-2" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/persona-id/inquiry-ios-2.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.30.3;
+			};
+		};
 		0BBD08952E822E06002175ED /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";

@@ -131,6 +131,7 @@ struct HomeView: View {
                                             dbHelper.currentUser = user
                                         }
                                         
+
 //                                        if let lat = user.latitude,
 //                                           let lon = user.longitude {
 //                                            await viewModel.updateCityFromStoredCoordinates(latitude: lat, longitude: lon)
@@ -175,6 +176,7 @@ struct HomeView: View {
                             }
                         }
                         
+
                     }
                 }
                 .tabItem {

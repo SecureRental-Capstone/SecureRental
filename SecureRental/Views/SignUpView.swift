@@ -1,6 +1,7 @@
 
 
 import SwiftUI
+import Persona2
 
 struct SignUpView: View {
     @Binding var rootView: RootView
@@ -12,6 +13,9 @@ struct SignUpView: View {
     @State private var showAlert: Bool = false
     @EnvironmentObject var dbHelper : FireDBHelper
 
+    @State private var isLoading = false
+    @State private var showError = false
+    private let personaDelegate = PersonaHandler()
     
     var body: some View {
         VStack {
@@ -109,10 +113,41 @@ struct SignUpView: View {
         }
         do {
             try await dbHelper.signUp(email: email, password: password, name: name)
+            startPersonaFlow()
+            try await Task.sleep(nanoseconds: 900_000_000)
             rootView = .main
         } catch {
             errorMessage = error.localizedDescription
             showAlert = true
         }
     }
+    
+    func startPersonaFlow() {
+        isLoading = true
+
+        createPersonaInquiry(firstName: "Jane", lastName: "Doe", birthdate: "1994-04-12") { result in
+            DispatchQueue.main.async {
+                isLoading = false
+
+                switch result {
+                case .success(let inquiryId):
+                    print("Inquiry ID: \(inquiryId)")
+
+                    //launch the Persona SDK flow using the delegate handler
+                    if let topVC = UIApplication.shared.topViewController() {
+                        Persona2.Inquiry
+                            .from(inquiryId: inquiryId, delegate: personaDelegate)  //pass delegate
+                            .build()
+                            .start(from: topVC)
+                    }
+
+                case .failure(let error):
+                    showError = true
+                    errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    
 }
