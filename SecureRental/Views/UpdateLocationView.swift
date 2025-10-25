@@ -48,6 +48,19 @@ struct UpdateLocationView: View {
             }
             .padding(.horizontal)
             
+            Button(action: {
+                Task { await setHardcodedLocation() }
+            }) {
+                HStack {
+                    Image(systemName: "location.fill")
+                    Text("Set Current Location")
+                }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            
             // Save button
             Button(action: {
                 Task { await updateUserLocation() }
@@ -109,4 +122,27 @@ struct UpdateLocationView: View {
         isUpdating = false
         alertMessage = "Location updated successfully!"
     }
+    
+    @MainActor
+    func setHardcodedLocation() async {
+        // ✅ Hardcoded coordinates
+        let hardcodedLatitude = 43.7791987
+        let hardcodedLongitude = -79.4172125
+
+        // Update map pin and region
+        let coord = CLLocationCoordinate2D(latitude: hardcodedLatitude, longitude: hardcodedLongitude)
+        selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
+        region.center = coord
+
+        // Update city from coordinates
+        await viewModel.updateCityFromStoredCoordinates(latitude: hardcodedLatitude, longitude: hardcodedLongitude)
+
+//        // Save user location to Firestore and local user object
+//        await viewModel.updateUserLocation(latitude: hardcodedLatitude,
+//                                           longitude: hardcodedLongitude,
+//                                           radius: hardcodedRadius)
+        
+        alertMessage = "Location set to predefined coordinates!"
+    }
+
 }
