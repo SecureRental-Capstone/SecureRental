@@ -112,6 +112,7 @@ class FireDBHelper: ObservableObject {
                 user.locationConsent = data["locationConsent"] as? Bool
                 user.latitude = data["latitude"] as? Double
                 user.longitude = data["longitude"] as? Double
+                user.radius = data["radius"] as? Double ?? 5.0
 //                self.currentUser = user
                 return user
             }
@@ -138,8 +139,13 @@ class FireDBHelper: ObservableObject {
                     profilePictureURL: data["profilePictureURL"] as? String,
                     rating: data["rating"] as? Double ?? 0.0,
                     reviews: data["reviews"] as? [String] ?? [],
-                    favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? [] 
+                    favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
+                // NEW: Load consent and coordinates
+                user.locationConsent = data["locationConsent"] as? Bool
+                user.latitude = data["latitude"] as? Double
+                user.longitude = data["longitude"] as? Double
+                user.radius = data["radius"] as? Double ?? 5.0
 //                self.currentUser = user
                 return user
             }
@@ -547,5 +553,5 @@ class FireDBHelper: ObservableObject {
             print("❌ Failed to save location consent: \(error.localizedDescription)")
         }
   }
-    
+       
 }
