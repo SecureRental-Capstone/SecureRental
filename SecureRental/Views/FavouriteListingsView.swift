@@ -67,8 +67,10 @@ struct FavouriteListingsView: View {
                 }
                 .navigationTitle("Favorites")
                 .onAppear{
-                    viewModel.fetchListings() // ✅ Load all listings to match favourites
-                    viewModel.fetchFavoriteListings()
+//                    viewModel.fetchListings() // ✅ Load all listings to match favourites
+//                    viewModel.fetchFavoriteListings()
+                     viewModel.fetchFavoriteListings()
+                     viewModel.fetchListings()
 
                 }
             }
