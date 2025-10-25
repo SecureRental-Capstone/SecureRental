@@ -49,7 +49,7 @@ struct UpdateLocationView: View {
             .padding(.horizontal)
             
             Button(action: {
-                Task { await setHardcodedLocation() }
+                Task { await setCurrentLocation() }
             }) {
                 HStack {
                     Image(systemName: "location.fill")
@@ -124,25 +124,35 @@ struct UpdateLocationView: View {
     }
     
     @MainActor
-    func setHardcodedLocation() async {
-        // ✅ Hardcoded coordinates
-        let hardcodedLatitude = 43.7791987
-        let hardcodedLongitude = -79.4172125
-
+    func setCurrentLocation() async {
+//        guard let currentLocation = await viewModel.getDeviceLocation() else {
+//            alertMessage = "Unable to get your current location."
+//            return
+//        }
+//
+//        let userlatitude = currentLocation.latitude
+//        let userLongitude = currentLocation.longitude
+        
+        // Hardcoded coordinates
+        let userlatitude = 43.7791987
+        let userLongitude = -79.4172125
+      
         // Update map pin and region
-        let coord = CLLocationCoordinate2D(latitude: hardcodedLatitude, longitude: hardcodedLongitude)
+        let coord = CLLocationCoordinate2D(latitude: userlatitude, longitude: userLongitude)
         selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
         region.center = coord
-
+        
         // Update city from coordinates
-        await viewModel.updateCityFromStoredCoordinates(latitude: hardcodedLatitude, longitude: hardcodedLongitude)
-
-//        // Save user location to Firestore and local user object
-//        await viewModel.updateUserLocation(latitude: hardcodedLatitude,
-//                                           longitude: hardcodedLongitude,
-//                                           radius: hardcodedRadius)
+        await viewModel.updateCityFromStoredCoordinates(latitude: userlatitude, longitude: userLongitude)
+        
+        //        // Save user location to Firestore and local user object
+        //        await viewModel.updateUserLocation(latitude: userlatitude,
+        //                                           longitude: userLongitude,
+        //                                           radius: hardcodedRadius)
         
         alertMessage = "Location set to predefined coordinates!"
+        
     }
+
 
 }
