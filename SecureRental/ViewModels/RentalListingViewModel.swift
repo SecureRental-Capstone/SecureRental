@@ -41,7 +41,8 @@ class RentalListingsViewModel: ObservableObject {
     
     // Derived property for favorite listings
     var favouriteListings: [Listing] {
-        listings.filter { favoriteListingIDs.contains($0.id) }
+        fetchListings()
+        return listings.filter { favoriteListingIDs.contains($0.id) }
     }
 
     
