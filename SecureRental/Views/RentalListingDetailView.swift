@@ -328,6 +328,25 @@ struct RentalListingDetailView: View {
             ]
         )
     }
+    
+//    private func openInAppleMaps() {
+//        // Destination: Listing location
+//        let destinationPlacemark = MKPlacemark(coordinate: region.center)
+//        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
+//        destinationMapItem.name = listing.title
+//
+//        // Source: User's current location
+//        let userLocationMapItem = MKMapItem.forCurrentLocation()
+//        
+//        // Open Maps with directions from current location to listing
+//        MKMapItem.openMaps(
+//            with: [userLocationMapItem, destinationMapItem],
+//            launchOptions: [
+//                MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+//            ]
+//        )
+//    }
+
 
 
 
