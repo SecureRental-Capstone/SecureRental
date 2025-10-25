@@ -9,6 +9,13 @@ import SwiftUI
 import MapKit
 import CoreLocation
 import FirebaseAuth
+import Contacts
+
+struct MapLocation: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+}
+
 
 struct RentalListingDetailView: View {
     var listing: Listing
@@ -16,6 +23,7 @@ struct RentalListingDetailView: View {
         center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832), // Default to Toronto
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+    @State private var locationItem: MapLocation?
     
     @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject var viewModel = RentalListingsViewModel()
@@ -24,7 +32,7 @@ struct RentalListingDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                    // Swipeable Carousel View for Image
+                // Swipeable Carousel View for Image
                 if !listing.imageURLs.isEmpty {
                     CarouselView(imageURLs: listing.imageURLs)
                         .frame(height: 300)
@@ -43,7 +51,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                    // Display property description
+                // Display property description
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Description:")
                         .font(.headline)
@@ -57,7 +65,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                    // Display address
+                // Display address
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Location:")
                         .font(.headline)
@@ -71,7 +79,7 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                    // Display additional property details
+                // Display additional property details
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Property Details:")
                         .font(.headline)
@@ -111,16 +119,40 @@ struct RentalListingDetailView: View {
                 
                 Divider()
                 
-                    // Map View with Geocoding for location
+                
                 Text("Map")
                     .font(.headline)
                     .padding(.top, 10)
-                Map(coordinateRegion: $region)
-                    .frame(height: 200)
-                    .cornerRadius(12)
-                    .onAppear {
-                        geocodeAddress()
-                    }
+
+                Map(
+                    coordinateRegion: $region,
+                    annotationItems: [MapLocation(coordinate: region.center)]
+                ) { location in
+                    MapMarker(coordinate: location.coordinate, tint: .red)
+                }
+                .frame(height: 200)
+                .cornerRadius(12)
+                .onAppear {
+                    geocodeAddressWithAnimation()
+                }
+                
+                
+                // 🧭 Open Directions Button
+                Button(action: {
+                    openInAppleMaps()
+                }) {
+                    Label("Open Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 2)
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+
                 
                 Divider()
                 
@@ -235,19 +267,69 @@ struct RentalListingDetailView: View {
         }
     }
     
-        // Function to geocode the address for the map view
-    private func geocodeAddress() {
+    private func geocodeAddressWithAnimation() {
         let geocoder = CLGeocoder()
         let address = "\(listing.street), \(listing.city), \(listing.province)"
+        
         geocoder.geocodeAddressString(address) { placemarks, error in
             if let placemark = placemarks?.first, let location = placemark.location {
                 DispatchQueue.main.async {
-                    self.region = MKCoordinateRegion(
-                        center: location.coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                    )
+                    withAnimation(.easeInOut(duration: 1.2)) {
+                        self.region = MKCoordinateRegion(
+                            center: location.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)
+                        )
+                    }
                 }
+            } else if let error = error {
+                print("❌ Geocoding failed: \(error.localizedDescription)")
             }
         }
     }
+
+    private func openInAppleMaps() {
+        // Destination: Listing address
+        let destinationPlacemark = MKPlacemark(
+            coordinate: region.center,
+            addressDictionary: [
+                CNPostalAddressStreetKey: listing.street,
+                CNPostalAddressCityKey: listing.city,
+                CNPostalAddressStateKey: listing.province
+            ]
+        )
+        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
+        destinationMapItem.name = "Rental: \(listing.title)" // Optional: title for pin
+
+        var mapItems: [MKMapItem] = []
+
+        // Source: User's stored location if consented
+        if let user = dbHelper.currentUser,
+           let lat = user.latitude,
+           let lon = user.longitude,
+           user.locationConsent == true {
+            
+            let userPlacemark = MKPlacemark(
+                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            )
+            let userMapItem = MKMapItem(placemark: userPlacemark)
+            userMapItem.name = "Your Location"
+            mapItems.append(userMapItem)
+        } else {
+            // Fallback to device current location
+            mapItems.append(MKMapItem.forCurrentLocation())
+        }
+
+        mapItems.append(destinationMapItem)
+
+        MKMapItem.openMaps(
+            with: mapItems,
+            launchOptions: [
+                MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+            ]
+        )
+    }
+
+
+
+
 }
