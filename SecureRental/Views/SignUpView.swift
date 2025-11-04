@@ -114,7 +114,7 @@ struct SignUpView: View {
         do {
             try await dbHelper.signUp(email: email, password: password, name: name)
             startPersonaFlow()
-            try await Task.sleep(nanoseconds: 900_000_000)
+            try await Task.sleep(nanoseconds: 9_000_000_000)
             rootView = .main
         } catch {
             errorMessage = error.localizedDescription
