@@ -48,6 +48,7 @@ struct EditRentalListingView: View {
     }
 
     var body: some View {
+        VStack(spacing: 0) {
         Form {
             Section(header: Text("Basic Info")) {
                 TextField("Title", text: $title)
@@ -104,45 +105,92 @@ struct EditRentalListingView: View {
 //                    isShowingImagePicker = true
 //                }
 //            }
-            HStack(spacing: 20) { // Adjust spacing as needed
-                Button(action: {
-                    saveChanges()
-                }) {
-                    Text("Save Changes")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                
-                Button(action: {
-                    showDeleteAlert = true
-                }) {
-                    Text("Delete Listing")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red)
-                        .cornerRadius(10)
-                }
-            }
-            .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
-                Button("Delete", role: .destructive) {
-                    Task {
-                        do {
-                            try await viewModel.deleteListing(listing)
-                            dismiss()  // go back to MyListingsView
-                        } catch {
-                            print("Failed to delete listing: \(error.localizedDescription)")
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
-            }
+//            HStack(spacing: 20) { // Adjust spacing as needed
+//                Button(action: {
+//                    saveChanges()
+//                }) {
+//                    Text("Save Changes")
+//                        .foregroundColor(.white)
+//                        .padding()
+//                        .frame(maxWidth: .infinity)
+//                        .background(Color.blue)
+//                        .cornerRadius(10)
+//                }
+//                
+//
+//                VStack {   // wrap the delete button in a container
+//                    Button(action: {
+//                        showDeleteAlert = true
+//                    }) {
+//                        Text("Delete Listing")
+//                            .foregroundColor(.white)
+//                            .padding()
+//                            .frame(maxWidth: .infinity)
+//                            .background(Color.red)
+//                            .cornerRadius(10)
+//                    }
+//                }
+//                .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
+//                    Button("Delete", role: .destructive) {
+//                        Task {
+//                            try? await viewModel.deleteListing(listing)
+//                            dismiss()
+//                        }
+//                    }
+//                    Button("Cancel", role: .cancel) { }
+//                }
+//
+//            }
+          
+//            .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
+//                Button("Delete", role: .destructive) {
+//                    Task {
+//                        try? await viewModel.deleteListing(listing)
+//                        dismiss()
+//                    }
+//                }
+//                Button("Cancel", role: .cancel) { }
+//            }
+
 
         }
         .navigationTitle("Edit Listing")
+       
+            
+          
+            
+                // Sticky bottom action bar
+            HStack(spacing: 16) {
+                Button(action: saveChanges) {
+                    Text("Save Changes")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                }
+                
+                Button(action: { showDeleteAlert = true }) {
+                    Text("Delete Listing")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(12)
+                }
+            }
+            .padding()                   // ✅ space around
+            .background(.regularMaterial) // ✅ blurry iOS bar style
+            .ignoresSafeArea(.keyboard)   // ✅ buttons stay visible
+        }
+        .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                Task { try? await viewModel.deleteListing(listing); dismiss() }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
 //        .sheet(isPresented: $isShowingImagePicker) {
 //            ImagePicker(images: $selectedImage)
 //                }
@@ -170,6 +218,8 @@ struct EditRentalListingView: View {
         )
         
         viewModel.updateListing(updatedListing)
+            
+        dismiss()
     }
     private func deleteListing(){
         
