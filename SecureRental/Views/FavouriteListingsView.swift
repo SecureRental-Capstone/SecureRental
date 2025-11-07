@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FavouriteListingsView: View {
     @ObservedObject var viewModel: RentalListingsViewModel
+    @EnvironmentObject var dbHelper: FireDBHelper
     
     var body: some View {
         NavigationView {
@@ -24,7 +25,8 @@ struct FavouriteListingsView: View {
                 }
             } else {
                 List(viewModel.favouriteListings) { listing in
-                    NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                    NavigationLink(destination: RentalListingDetailView(listing: listing)
+                        .environmentObject(dbHelper)) {
                         HStack {
 
                             if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {

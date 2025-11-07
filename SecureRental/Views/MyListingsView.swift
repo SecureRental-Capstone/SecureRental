@@ -11,11 +11,13 @@ import FirebaseAuth
 struct MyListingsView: View {
     @StateObject private var viewModel = RentalListingsViewModel()
     @State private var selectedListing: Listing?
+    @EnvironmentObject var dbHelper: FireDBHelper
     
     var body: some View {
         NavigationView {
             List($viewModel.listings) { $listing in
-                NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                NavigationLink(destination: RentalListingDetailView(listing: listing)
+                    .environmentObject(dbHelper)) {
                     
                     HStack {
                         if let firstImage = listing.imageURLs.first {

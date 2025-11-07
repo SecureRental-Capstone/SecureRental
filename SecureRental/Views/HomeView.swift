@@ -38,7 +38,7 @@ struct HomeView: View {
                                 Spacer() // pushes the button to the right
                                 
                                 // Right side: My Listings button
-                                NavigationLink(destination: MyListingsView()) {
+                                NavigationLink(destination: MyListingsView().environmentObject(dbHelper)) {
                                     Label("My Listings", systemImage: "house.fill")
                                         .font(.subheadline)
                                         .padding(.horizontal, 12)
