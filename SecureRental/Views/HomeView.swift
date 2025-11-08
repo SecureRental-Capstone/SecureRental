@@ -20,11 +20,10 @@ struct HomeView: View {
     @StateObject var viewModel = RentalListingsViewModel()
     
     @State private var showLocationConsentAlert = false
-
     
     var body: some View {
         ZStack {
-                // Main TabView Content
+            // Main TabView Content
             TabView(selection: $selectedTab) {
                 NavigationView {
                     VStack {
@@ -68,29 +67,43 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
                             
-//                            if viewModel.isLoading {
-//                                Button(action: {
-//                                    Task { await viewModel.loadHomePageListings() }
-//                                }) {
-//                                    HStack {
-//                                        ProgressView()
-//                                        Text("Loading Listings...")
-//                                    }
-//                                    .padding()
-//                                    .background(Color.blue.opacity(0.2))
-//                                    .cornerRadius(8)
-//                                }
-//                                .padding()
-//                            }
-//                            else
+                            // 👉 Listing count / empty state / list
                             if viewModel.isLoading {
                                 ProgressView("Loading Listings...")
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.top, 8)
                             } else {
-                                List($viewModel.locationListings) { $listing in
-                                    NavigationLink(destination: RentalListingDetailView(listing: listing)
-                                        .environmentObject(dbHelper)) {
+                                // Show count
+                                Text("Listings near you: \(viewModel.locationListings.count)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                                
+                                if viewModel.locationListings.isEmpty {
+                                    // Empty state
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "tray")
+                                            .font(.system(size: 32))
+                                            .foregroundColor(.gray.opacity(0.6))
+                                        Text("No listings found in your area.")
+                                            .font(.body)
+                                            .foregroundColor(.secondary)
+                                        Text("Try expanding your radius or updating your location.")
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                    .padding()
+                                } else {
+                                    // Actual list
+                                    List($viewModel.locationListings) { $listing in
+                                        NavigationLink(
+                                            destination: RentalListingDetailView(listing: listing)
+                                                .environmentObject(dbHelper)
+                                        ) {
                                             HStack {
-                                                if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
+                                                if let firstURL = listing.imageURLs.first,
+                                                   let url = URL(string: firstURL) {
                                                     AsyncImage(url: url) { phase in
                                                         switch phase {
                                                         case .empty:
@@ -120,63 +133,59 @@ struct HomeView: View {
                                                 }
                                                 Spacer()
                                             } // HStack
-                                        } // NavigationView
-                                }// List
-                                .navigationTitle("Secure Rental")
-                                .onAppear {
-                                    Task {
-                                        // 1️⃣ Fetch user from Firestore
-                                        if let uid = Auth.auth().currentUser?.uid,
-                                           let user = await dbHelper.getUser(byUID: uid) {
-                                            dbHelper.currentUser = user
-                                        }
-                                        
-
-                                        if let lat = user.latitude,
-                                           let lon = user.longitude {
-                                            await viewModel.updateCityFromStoredCoordinates(latitude: lat, longitude: lon)
-                                        }
-
-                                        
-                                        // 2️⃣ Let ViewModel handle location consent and fetching listings
-                                        await viewModel.loadHomePageListings()
-                                    }
-                                } // onappear
-                                
-                                .toolbar {
-                                    ToolbarItem(placement: .navigationBarTrailing) {
-                                        Button(action: {
-                                            showCreateListingView = true
-                                        }) {
-                                            Image(systemName: "plus")
-                                        }
-                                        .help("Create a new listing")            // ✅ macOS hover tooltip
-                                        .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
-                                    }
-                                    ToolbarItem(placement: .navigationBarTrailing) {
-                                            Button(action: {
-                                                viewModel.showUpdateLocationSheet = true
-                                            }) {
-                                                HStack(spacing: 4) {
-                                                    Image(systemName: "mappin.and.ellipse")
-                                                    if let city = viewModel.currentCity {
-                                                        Text(city)
-                                                            .font(.subheadline)
-                                                    } else {
-                                                        Text("Set Location")
-                                                            .font(.subheadline)
-                                                    }
-                                                }
-                                                .padding(8)
-                                                .background(Color.blue.opacity(0.1))
-                                                .cornerRadius(8)
-                                            }
-                                        }
+                                        } // NavigationLink
+                                    } // List
                                 }
                             }
                         }
-                        
-
+                    }
+                    .navigationTitle("Secure Rental")
+                    .onAppear {
+                        Task {
+                            // 1️⃣ Fetch user from Firestore
+                            if let uid = Auth.auth().currentUser?.uid,
+                               let fetchedUser = await dbHelper.getUser(byUID: uid) {
+                                dbHelper.currentUser = fetchedUser
+                                
+                                if let lat = fetchedUser.latitude,
+                                   let lon = fetchedUser.longitude {
+                                    await viewModel.updateCityFromStoredCoordinates(latitude: lat, longitude: lon)
+                                }
+                            }
+                            
+                            // 2️⃣ Let ViewModel handle location consent and fetching listings
+                            await viewModel.loadHomePageListings()
+                        }
+                    } // onAppear
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                showCreateListingView = true
+                            }) {
+                                Image(systemName: "plus")
+                            }
+                            .help("Create a new listing")                // ✅ macOS hover tooltip
+                            .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                viewModel.showUpdateLocationSheet = true
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "mappin.and.ellipse")
+                                    if let city = viewModel.currentCity {
+                                        Text(city)
+                                            .font(.subheadline)
+                                    } else {
+                                        Text("Set Location")
+                                            .font(.subheadline)
+                                    }
+                                }
+                                .padding(8)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(8)
+                            }
+                        }
                     }
                 }
                 .tabItem {
@@ -184,72 +193,68 @@ struct HomeView: View {
                 }
                 .tag(0)
                 
-                    // Messages Tab
+                // Messages Tab
                 MyChatsView()
                     .tabItem {
                         Label("Messages", systemImage: "message")
                     }
                     .tag(1)
                 
-                    // Favourites Tab
+                // Favourites Tab
                 FavouriteListingsView(viewModel: viewModel)
                     .tabItem {
                         Label("Favourites", systemImage: "star.fill")
                     }
                     .tag(2)
                 
-                    // Profile Tab
+                // Profile Tab
                 ProfileView(rootView: $rootView)
                     .tabItem {
                         Label("Profile", systemImage: "person.circle")
                     }
                     .tag(3)
-                }
-                
-                    // Chatbot icon button
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            showMessageView = true
-                            print("Chatbot tapped")
-                        }) {
-                            Image(systemName: "bubble.right.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 30, height: 30)
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.blue)
-                                .clipShape(Circle())
-                                .shadow(radius: 10)
-                        }
-                        .padding(.bottom, 50)
-                        .padding(.trailing, 20)
-                    }
-                }
             }
-            .sheet(isPresented: $showMessageView) {
-                ChatbotView()
-            }
-            .sheet(isPresented: $showCreateListingView) {
-                CreateRentalListingView(viewModel: viewModel)
-            }
-            .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
-                UpdateLocationView(viewModel: viewModel)
-            }
-            .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
-                Button("No") {
-                    Task { await viewModel.handleLocationConsentResponse(granted: false) }
-                }
-                Button("Yes") {
-                    Task { await viewModel.handleLocationConsentResponse(granted: true) }
-                }
             
+            // Chatbot icon button
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showMessageView = true
+                        print("Chatbot tapped")
+                    }) {
+                        Image(systemName: "bubble.right.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30, height: 30)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                            .shadow(radius: 10)
+                    }
+                    .padding(.bottom, 50)
+                    .padding(.trailing, 20)
+                }
             }
-
-
+        }
+        .sheet(isPresented: $showMessageView) {
+            ChatbotView()
+        }
+        .sheet(isPresented: $showCreateListingView) {
+            CreateRentalListingView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
+            UpdateLocationView(viewModel: viewModel)
+        }
+        .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
+            Button("No") {
+                Task { await viewModel.handleLocationConsentResponse(granted: false) }
+            }
+            Button("Yes") {
+                Task { await viewModel.handleLocationConsentResponse(granted: true) }
+            }
         }
     }
-
+}
