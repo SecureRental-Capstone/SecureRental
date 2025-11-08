@@ -23,62 +23,55 @@ struct HomeView: View {
     @State private var shouldOpenLocationSheetAfterConsent = false   // 👈 NEW
     @State private var isConsentFlowLoading = false                  // 👈 NEW
 
-
-    
     var body: some View {
         ZStack {
             // Main TabView Content
             TabView(selection: $selectedTab) {
                 NavigationView {
-                    VStack {
-                        if let user = dbHelper.currentUser {
-                            HStack {
-                                Text("Welcome, \(user.name)")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                                
-                                Spacer() // pushes the button to the right
-                                
-                                // Right side: My Listings button
-                                NavigationLink(destination: MyListingsView().environmentObject(dbHelper)) {
-                                    Label("My Listings", systemImage: "house.fill")
-                                        .font(.subheadline)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(Color.blue.opacity(0.1))
-                                        .foregroundColor(.blue)
-                                        .cornerRadius(8)
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.top, 8)
-                            
-                            NavigationLink(destination: RentalSearchView(viewModel: viewModel)) {
+                    ZStack {   // 👈 NEW: keep content fixed, overlay loader
+                        VStack {
+                            if let user = dbHelper.currentUser {
                                 HStack {
-                                    Image(systemName: "magnifyingglass") // search icon
-                                        .foregroundColor(.gray)
+                                    Text("Welcome, \(user.name)")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
                                     
-                                    Text("Search rental listing") // placeholder text
-                                        .foregroundColor(.gray)
-                                        .font(.body)
+                                    Spacer() // pushes the button to the right
                                     
-                                    Spacer()
+                                    // Right side: My Listings button
+                                    NavigationLink(destination: MyListingsView().environmentObject(dbHelper)) {
+                                        Label("My Listings", systemImage: "house.fill")
+                                            .font(.subheadline)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(Color.blue.opacity(0.1))
+                                            .foregroundColor(.blue)
+                                            .cornerRadius(8)
+                                    }
                                 }
-                                .padding()
-                                .background(Color(.systemGray6)) // light background
-                                .cornerRadius(10)
-                            }
-                            .padding(.horizontal)
-                            
-                            // 👉 Listing count / empty state / list
-                            if viewModel.isLoading || isConsentFlowLoading {
-                                ProgressView("Loading Listings...")
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .padding(.top, 8)
-                            } else {
-                                // Show count
-                                // Simple listing count info
+                                .padding(.horizontal)
+                                .padding(.top, 8)
+                                
+                                NavigationLink(destination: RentalSearchView(viewModel: viewModel)) {
+                                    HStack {
+                                        Image(systemName: "magnifyingglass") // search icon
+                                            .foregroundColor(.gray)
+                                        
+                                        Text("Search rental listing") // placeholder text
+                                            .foregroundColor(.gray)
+                                            .font(.body)
+                                        
+                                        Spacer()
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6)) // light background
+                                    .cornerRadius(10)
+                                }
+                                .padding(.horizontal)
+                                
+                                // 👉 Listing count / empty state / list
+                                // ❗️content always shown, no more if-loading-here
                                 HStack {
                                     Image(systemName: "list.bullet.rectangle")
                                         .foregroundColor(.blue)
@@ -153,6 +146,16 @@ struct HomeView: View {
                                 }
                             }
                         }
+                        
+                        // 👇 overlay loader so UI doesn’t jump
+                        if viewModel.isLoading || isConsentFlowLoading {
+                            Color.black.opacity(0.05)
+                                .ignoresSafeArea()
+                            ProgressView("Loading Listings...")
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(12)
+                        }
                     }
                     .navigationTitle("Secure Rental")
                     .onAppear {
@@ -172,36 +175,6 @@ struct HomeView: View {
                             await viewModel.loadHomePageListings()
                         }
                     } // onAppear
-//                    .toolbar {
-//                        ToolbarItem(placement: .navigationBarTrailing) {
-//                            Button(action: {
-//                                showCreateListingView = true
-//                            }) {
-//                                Image(systemName: "plus")
-//                            }
-//                            .help("Create a new listing")                // ✅ macOS hover tooltip
-//                            .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
-//                        }
-//                        ToolbarItem(placement: .navigationBarTrailing) {
-//                            Button(action: {
-//                                viewModel.showUpdateLocationSheet = true
-//                            }) {
-//                                HStack(spacing: 4) {
-//                                    Image(systemName: "mappin.and.ellipse")
-//                                    if let city = viewModel.currentCity {
-//                                        Text(city)
-//                                            .font(.subheadline)
-//                                    } else {
-//                                        Text("Set Location")
-//                                            .font(.subheadline)
-//                                    }
-//                                }
-//                                .padding(8)
-//                                .background(Color.blue.opacity(0.1))
-//                                .cornerRadius(8)
-//                            }
-//                        }
-//                    }
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
@@ -240,7 +213,6 @@ struct HomeView: View {
                             }
                         }
                     }
-
                     
                 }
                 .tabItem {
@@ -303,17 +275,10 @@ struct HomeView: View {
         .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
             UpdateLocationView(viewModel: viewModel)
         }
-//        .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
-//            Button("No") {
-//                Task { await viewModel.handleLocationConsentResponse(granted: false) }
-//            }
-//            Button("Yes") {
-//                Task { await viewModel.handleLocationConsentResponse(granted: true) }
-//            }
-//        }
         .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
             Button("No") {
-                Task { await viewModel.handleLocationConsentResponse(granted: false)
+                Task {
+                    await viewModel.handleLocationConsentResponse(granted: false)
                     isConsentFlowLoading = false
                     shouldOpenLocationSheetAfterConsent = false
                 }
@@ -321,21 +286,16 @@ struct HomeView: View {
             Button("Yes") {
                 Task {
                     await viewModel.handleLocationConsentResponse(granted: true)
-//                    if shouldOpenLocationSheetAfterConsent {
-//                        viewModel.showUpdateLocationSheet = true   // 👈 now open it
-//                        shouldOpenLocationSheetAfterConsent = false
-//                    }
-                    // after consent is actually saved
+                    
                     if shouldOpenLocationSheetAfterConsent {
                         viewModel.showUpdateLocationSheet = true
                     }
-
+                    
                     // in any case, stop the loading flag
                     isConsentFlowLoading = false
                     shouldOpenLocationSheetAfterConsent = false
                 }
             }
         }
-
     }
 }
