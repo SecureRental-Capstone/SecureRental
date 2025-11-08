@@ -255,8 +255,10 @@ class RentalListingsViewModel: ObservableObject {
             }
         case (false, _, _):
             await fetchListings()
+            self.locationListings = self.listings   // 👈 add this
         @unknown default:
             await fetchListings()
+            self.locationListings = self.listings
         }
     }
 
