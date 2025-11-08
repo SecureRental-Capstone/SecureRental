@@ -206,7 +206,7 @@ class RentalListingsViewModel: ObservableObject {
     func fetchListingsNearby(latitude: Double, longitude: Double) async {
         do {
             let allListings = try await dbHelper.fetchListings()
-            let radiusInKm = self.dbHelper.currentUser?.radius ?? 6.0
+            let radiusInKm = self.dbHelper.currentUser?.radius ?? 5.0
             let nearby = allListings.filter { listing in
                 guard let lat = listing.latitude, let lon = listing.longitude else { return false }
                 return listing.isAvailable && distanceBetween(lat1: latitude, lon1: longitude, lat2: lat, lon2: lon) <= radiusInKm
@@ -241,13 +241,14 @@ class RentalListingsViewModel: ObservableObject {
             await fetchListingsNearby(latitude: lat, longitude: lon) // this picks up the user's current location
         case (true, nil, nil):
             if let location = await getDeviceLocation() {
-//                await dbHelper.updateLocationConsent(consent: true,
-//                                                    latitude: location.latitude,
-//                                                    longitude: location.longitude)
                 await dbHelper.updateLocationConsent(consent: true,
-                                                     latitude: 43.7791987,
-                                                     longitude: -79.4172125,
-                                                     radius: 5.0)
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude,
+                                                    radius: 5.0)
+//                await dbHelper.updateLocationConsent(consent: true,
+//                                                     latitude: 43.7791987,
+//                                                     longitude: -79.4172125,
+//                                                     radius: 5.0)
                 
                 await fetchListingsNearby(latitude: location.latitude,
                                           longitude: location.longitude)
@@ -262,29 +263,32 @@ class RentalListingsViewModel: ObservableObject {
         
         @MainActor
         func handleLocationConsentResponse(granted: Bool) async {
-//            if granted, let location = await getDeviceLocation() {
-//                dbHelper.currentUser?.locationConsent = true
-//                dbHelper.currentUser?.latitude = location.latitude
-//                dbHelper.currentUser?.longitude = location.longitude
-//                await dbHelper.updateLocationConsent(consent: true,
-//                                                    latitude: location.latitude,
-//                                                    longitude: location.longitude)
-//                await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
-//            }
-            if granted {
+            if granted, let location = await getDeviceLocation() {
                 dbHelper.currentUser?.locationConsent = true
-
-                dbHelper.currentUser?.latitude = 43.7791987
-                dbHelper.currentUser?.longitude = -79.4172125
+                dbHelper.currentUser?.latitude = location.latitude
+                dbHelper.currentUser?.longitude = location.longitude
                 dbHelper.currentUser?.radius = 5.0
-                let setLatitude = 43.7791987
-                let setLongitude = -79.4172125
                 let setRadius = 5.0
                 await dbHelper.updateLocationConsent(consent: true,
-                                                     latitude: setLatitude,
-                                                     longitude: setLongitude,
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude,
                                                      radius: setRadius)
-                await fetchListingsNearby(latitude: setLatitude, longitude: setLongitude)
+                await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
+//            }
+//            if granted {
+//                dbHelper.currentUser?.locationConsent = true
+//
+//                dbHelper.currentUser?.latitude = 43.7791987
+//                dbHelper.currentUser?.longitude = -79.4172125
+//                dbHelper.currentUser?.radius = 5.0
+//                let setLatitude = 43.7791987
+//                let setLongitude = -79.4172125
+//                let setRadius = 5.0
+//                await dbHelper.updateLocationConsent(consent: true,
+//                                                     latitude: setLatitude,
+//                                                     longitude: setLongitude,
+//                                                     radius: setRadius)
+//                await fetchListingsNearby(latitude: setLatitude, longitude: setLongitude)
                 
             } else {
                 locationListings = listings

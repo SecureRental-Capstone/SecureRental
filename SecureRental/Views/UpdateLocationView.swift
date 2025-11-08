@@ -27,6 +27,7 @@ struct UpdateLocationView: View {
     @State private var radius: Double = 5.0
     @State private var isUpdating = false
     @State private var alertMessage: String?
+    @State private var isFetchingLocation = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -48,18 +49,27 @@ struct UpdateLocationView: View {
             }
             .padding(.horizontal)
             
+            // Set current location
             Button(action: {
                 Task { await setCurrentLocation() }
             }) {
                 HStack {
-                    Image(systemName: "location.fill")
-                    Text("Set Current Location")
+                    if isFetchingLocation {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    } else {
+                        Image(systemName: "location.fill")
+                        Text("Set Current Location")
+                    }
                 }
                 .padding()
-                .background(Color.green)
+                .frame(maxWidth: .infinity)
+                .background(isFetchingLocation ? Color.green.opacity(0.6) : Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(10)
             }
+            .disabled(isFetchingLocation)   // 👈 disable while loading
+            .padding(.horizontal)
             
             // Save button
             Button(action: {
@@ -125,17 +135,21 @@ struct UpdateLocationView: View {
     
     @MainActor
     func setCurrentLocation() async {
-//        guard let currentLocation = await viewModel.getDeviceLocation() else {
-//            alertMessage = "Unable to get your current location."
-//            return
-//        }
-//
-//        let userlatitude = currentLocation.latitude
-//        let userLongitude = currentLocation.longitude
+        // start loading
+        isFetchingLocation = true
+       
+        // try to get device location
+        guard let currentLocation = await viewModel.getDeviceLocation() else {
+            alertMessage = "Unable to get your current location."
+            return
+        }
+
+        let userlatitude = currentLocation.latitude
+        let userLongitude = currentLocation.longitude
         
-        // Hardcoded coordinates
-        let userlatitude = 43.7791987
-        let userLongitude = -79.4172125
+//        // Hardcoded coordinates
+//        let userlatitude = 43.7791987
+//        let userLongitude = -79.4172125
       
         // Update map pin and region
         let coord = CLLocationCoordinate2D(latitude: userlatitude, longitude: userLongitude)
@@ -151,6 +165,9 @@ struct UpdateLocationView: View {
         //                                           radius: hardcodedRadius)
         
         alertMessage = "Location set to predefined coordinates!"
+        
+        // stop loading
+        isFetchingLocation = false
         
     }
 
