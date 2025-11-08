@@ -20,6 +20,10 @@ struct HomeView: View {
     @StateObject var viewModel = RentalListingsViewModel()
     
     @State private var showLocationConsentAlert = false
+    @State private var shouldOpenLocationSheetAfterConsent = false   // 👈 NEW
+    @State private var isConsentFlowLoading = false                  // 👈 NEW
+
+
     
     var body: some View {
         ZStack {
@@ -68,7 +72,7 @@ struct HomeView: View {
                             .padding(.horizontal)
                             
                             // 👉 Listing count / empty state / list
-                            if viewModel.isLoading {
+                            if viewModel.isLoading || isConsentFlowLoading {
                                 ProgressView("Loading Listings...")
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding(.top, 8)
@@ -168,6 +172,36 @@ struct HomeView: View {
                             await viewModel.loadHomePageListings()
                         }
                     } // onAppear
+//                    .toolbar {
+//                        ToolbarItem(placement: .navigationBarTrailing) {
+//                            Button(action: {
+//                                showCreateListingView = true
+//                            }) {
+//                                Image(systemName: "plus")
+//                            }
+//                            .help("Create a new listing")                // ✅ macOS hover tooltip
+//                            .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
+//                        }
+//                        ToolbarItem(placement: .navigationBarTrailing) {
+//                            Button(action: {
+//                                viewModel.showUpdateLocationSheet = true
+//                            }) {
+//                                HStack(spacing: 4) {
+//                                    Image(systemName: "mappin.and.ellipse")
+//                                    if let city = viewModel.currentCity {
+//                                        Text(city)
+//                                            .font(.subheadline)
+//                                    } else {
+//                                        Text("Set Location")
+//                                            .font(.subheadline)
+//                                    }
+//                                }
+//                                .padding(8)
+//                                .background(Color.blue.opacity(0.1))
+//                                .cornerRadius(8)
+//                            }
+//                        }
+//                    }
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
@@ -175,12 +209,20 @@ struct HomeView: View {
                             }) {
                                 Image(systemName: "plus")
                             }
-                            .help("Create a new listing")                // ✅ macOS hover tooltip
-                            .accessibilityLabel("Create a new listing") // ✅ iOS VoiceOver label
+                            .help("Create a new listing")
+                            .accessibilityLabel("Create a new listing")
                         }
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
-                                viewModel.showUpdateLocationSheet = true
+                                // ✅ only allow if user has given location consent
+                                if let user = dbHelper.currentUser, user.locationConsent == true {
+                                    viewModel.showUpdateLocationSheet = true
+                                } else {
+                                    // remember that user wanted to open the sheet
+                                    shouldOpenLocationSheetAfterConsent = true
+                                    isConsentFlowLoading = true  // new
+                                    viewModel.showLocationConsentAlert = true
+                                }
                             }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "mappin.and.ellipse")
@@ -198,6 +240,8 @@ struct HomeView: View {
                             }
                         }
                     }
+
+                    
                 }
                 .tabItem {
                     Label("Home", systemImage: "house")
@@ -259,13 +303,39 @@ struct HomeView: View {
         .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
             UpdateLocationView(viewModel: viewModel)
         }
+//        .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
+//            Button("No") {
+//                Task { await viewModel.handleLocationConsentResponse(granted: false) }
+//            }
+//            Button("Yes") {
+//                Task { await viewModel.handleLocationConsentResponse(granted: true) }
+//            }
+//        }
         .alert("Allow SecureRental to access your location?", isPresented: $viewModel.showLocationConsentAlert) {
             Button("No") {
-                Task { await viewModel.handleLocationConsentResponse(granted: false) }
+                Task { await viewModel.handleLocationConsentResponse(granted: false)
+                    isConsentFlowLoading = false
+                    shouldOpenLocationSheetAfterConsent = false
+                }
             }
             Button("Yes") {
-                Task { await viewModel.handleLocationConsentResponse(granted: true) }
+                Task {
+                    await viewModel.handleLocationConsentResponse(granted: true)
+//                    if shouldOpenLocationSheetAfterConsent {
+//                        viewModel.showUpdateLocationSheet = true   // 👈 now open it
+//                        shouldOpenLocationSheetAfterConsent = false
+//                    }
+                    // after consent is actually saved
+                    if shouldOpenLocationSheetAfterConsent {
+                        viewModel.showUpdateLocationSheet = true
+                    }
+
+                    // in any case, stop the loading flag
+                    isConsentFlowLoading = false
+                    shouldOpenLocationSheetAfterConsent = false
+                }
             }
         }
+
     }
 }
