@@ -232,9 +232,8 @@ class RentalListingsViewModel: ObservableObject {
             showLocationConsentAlert = true
         case (true, let lat?, let lon?):
             
-//            await dbHelper.updateLocationConsent(consent: true,
-//                                                 latitude: 43.7791987,
-//                                                 longitude: -79.4172125)
+
+            // Hardcoded current location
 //            await fetchListingsNearby(latitude: 43.7791987, longitude: -79.4172125)
             
             // set up the location manually because simulator will pick up the user's device simulator current location (because simulator doesn't have toronto time setup)
@@ -245,6 +244,7 @@ class RentalListingsViewModel: ObservableObject {
                                                     latitude: location.latitude,
                                                     longitude: location.longitude,
                                                     radius: 5.0)
+                // Hardcoded current location
 //                await dbHelper.updateLocationConsent(consent: true,
 //                                                     latitude: 43.7791987,
 //                                                     longitude: -79.4172125,
@@ -275,6 +275,7 @@ class RentalListingsViewModel: ObservableObject {
                                                      radius: setRadius)
                 await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
 //            }
+                // Hardcoded current location
 //            if granted {
 //                dbHelper.currentUser?.locationConsent = true
 //

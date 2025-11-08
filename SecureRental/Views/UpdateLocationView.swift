@@ -147,7 +147,7 @@ struct UpdateLocationView: View {
         let userlatitude = currentLocation.latitude
         let userLongitude = currentLocation.longitude
         
-//        // Hardcoded coordinates
+//        // Hardcoded current location
 //        let userlatitude = 43.7791987
 //        let userLongitude = -79.4172125
       
