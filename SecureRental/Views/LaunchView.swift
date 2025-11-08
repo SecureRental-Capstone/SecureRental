@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LaunchView: View {
     
-    @State private var rootView : RootView = .login
+    @State private var rootView : RootView = .splash
     
     let fireDBHelper : FireDBHelper = FireDBHelper.getInstance()
     
@@ -17,12 +17,31 @@ struct LaunchView: View {
         
         NavigationStack{
             switch self.rootView{
+            case .splash:
+                SplashView()
+                    .onAppear {
+                            // After animation delay, go to login
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation {
+                                self.rootView = .login
+                            }
+                        }
+                    }
+                
             case .signUp:
                 SignUpView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+                
             case .login:
                 SignInView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+                
             case .main:
                 HomeView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+//            case .signUp:
+//                SignUpView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+//            case .login:
+//                SignInView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+//            case .main:
+//                HomeView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
             }
         }
     }
