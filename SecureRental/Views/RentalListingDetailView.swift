@@ -226,27 +226,28 @@ struct RentalListingDetailView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
+                        
+                        // 👇 Rate / Review ALSO only for non-landlord
+                        Button(action: {
+                            showCommentView = true
+                        }) {
+                            Label("Rate / Review", systemImage: "star.circle.fill")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(Color.orange)
+                                .cornerRadius(12)
+                                .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 2)
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 5)
+                        
                     } else {
                         Text("You are the landlord for this listing")
                             .foregroundColor(.gray)
                             .italic()
                             .padding()
                     }
-                    
-                    // Rate / Review Button
-                    Button(action: {
-                        showCommentView = true
-                    }) {
-                        Label("Rate / Review", systemImage: "star.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .background(Color.orange)
-                            .cornerRadius(12)
-                            .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 2)
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 5)
                     
                     Spacer()
                     

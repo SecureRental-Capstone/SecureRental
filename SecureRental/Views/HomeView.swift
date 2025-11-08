@@ -79,7 +79,7 @@ struct HomeView: View {
                                         .font(.subheadline)
                                         .fontWeight(.medium)
                                         .foregroundColor(.primary)
-                                    Text("based on your location and radius.")
+                                    Text("based on your preferences.")
                                         .font(.footnote)
                                         .foregroundColor(.secondary)
                                     Spacer()
