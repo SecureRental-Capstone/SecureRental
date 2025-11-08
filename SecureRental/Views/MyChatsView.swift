@@ -34,7 +34,13 @@ struct MyChatsView: View {
                            let landlord = users[listing.landlordId],
                            let lastMessage = lastMessages[conversation.id ?? ""] {
                             
-                            NavigationLink(destination: ChatView(listing: listing)) {
+//                            NavigationLink(destination: ChatView(listing: listing)) {
+                            NavigationLink(
+                                destination: StreamChatDetailView(
+                                    listing: listing,
+                                    landlordId: landlord.id    // <- we have it
+                                )
+                            ) {
                                 HStack(alignment: .top, spacing: 12) {
                                     // listing image
                                     if let firstURL = listing.imageURLs.first,

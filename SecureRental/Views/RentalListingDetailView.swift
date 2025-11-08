@@ -192,14 +192,27 @@ struct RentalListingDetailView: View {
                         HStack(spacing: 48) {
                             // Message Action
                             VStack {
-                                NavigationLink(destination: ChatView(listing: listing)) {
-                                    Image(systemName: "message.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(.blue)
-                                        .padding()
-                                        .background(Color(.systemGray6))
-                                        .clipShape(Circle())
-                                }
+//                                NavigationLink(destination: ChatView(listing: listing)) {
+//                                    Image(systemName: "message.fill")
+//                                        .font(.system(size: 28))
+//                                        .foregroundColor(.blue)
+//                                        .padding()
+//                                        .background(Color(.systemGray6))
+//                                        .clipShape(Circle())
+//                                }
+                                NavigationLink(
+                                                destination: StreamChatDetailView(
+                                                    listing: listing,
+                                                    landlordId: listing.landlordId
+                                                )
+                                            ) {
+                                                Image(systemName: "message.fill")
+                                                    .font(.system(size: 28))
+                                                    .foregroundColor(.blue)
+                                                    .padding()
+                                                    .background(Color(.systemGray6))
+                                                    .clipShape(Circle())
+                                            }
                                 Text("Message")
                                     .font(.footnote)
                                     .foregroundColor(.primary)

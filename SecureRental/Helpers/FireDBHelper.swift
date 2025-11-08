@@ -58,13 +58,21 @@ class FireDBHelper: ObservableObject {
         let uid = result.user.uid
             // Fetch user profile from Firestore
         if let user = try await getUser(byUID: uid) {
-                // Force bypass for development
-//#if DEBUG
-//            user.locationConsent = true
-//#endif
-
             self.currentUser = user
         }
+        
+        // right after you set self.currentUser
+        Task {
+            guard let name = self.currentUser?.name else { return }
+            do {
+                let token = try await self.fetchStreamToken(for: uid)
+                StreamChatManager.shared.connect(userId: uid, name: name, streamToken: token)
+            } catch {
+                print("⚠️ Stream token fetch failed, continuing without chat: \(error)")
+            }
+        }
+
+
     }
     
     
@@ -553,5 +561,19 @@ class FireDBHelper: ObservableObject {
             print("❌ Failed to save location consent: \(error.localizedDescription)")
         }
   }
+    
+    // Ask your backend for a Stream chat token for this Firebase user.
+    /// For now this is a placeholder – replace URL + decoding with your real backend.
+    func fetchStreamToken(for uid: String) async throws -> String {
+        let url = URL(string: "https://secure-rental-backend.com/stream-token?uid=\(uid)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        // optionally add Firebase ID token header here
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        struct TokenResponse: Decodable { let token: String }
+        return try JSONDecoder().decode(TokenResponse.self, from: data).token
+    }
+
        
 }
