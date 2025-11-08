@@ -74,10 +74,21 @@ struct HomeView: View {
                                     .padding(.top, 8)
                             } else {
                                 // Show count
-                                Text("Listings near you: \(viewModel.locationListings.count)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal)
+                                // Simple listing count info
+                                HStack {
+                                    Image(systemName: "list.bullet.rectangle")
+                                        .foregroundColor(.blue)
+                                    Text("\(viewModel.locationListings.count) \(viewModel.locationListings.count == 1 ? "listing" : "listings") found")
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                    Text("based on your location and radius.")
+                                        .font(.footnote)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                }
+                                .padding(.horizontal)
+                                .padding(.top, 6)
                                 
                                 if viewModel.locationListings.isEmpty {
                                     // Empty state
