@@ -212,9 +212,11 @@ struct EditRentalListingView: View {
             street: street,
             city: city,
             province: province,
-           // comments: listing.comments,
             datePosted: listing.datePosted,
-            landlordId: listing.landlordId
+            landlordId: listing.landlordId,
+            latitude: listing.latitude,
+            longitude: listing.longitude
+            
         )
         
         viewModel.updateListing(updatedListing)
