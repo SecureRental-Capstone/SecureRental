@@ -8,52 +8,58 @@
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
-
 @MainActor
 class ChatViewModel: ObservableObject {
     @Published var messages: [ChatMessage] = []
     @Published var newMessage: String = ""
 
-    private var dbHelper = FireDBHelper.getInstance()
-
     private var listener: ListenerRegistration?
-    private var conversationId: String?
-    private let currentUserId = Auth.auth().currentUser?.uid ?? ""
+    private let db = Firestore.firestore()
 
-    func startConversation(listingId: String, landlordId: String) async {
-        do {
-            let convId = try await dbHelper.startConversation(
-                listingId: listingId,
-                landlordId: landlordId,
-                tenantId: currentUserId
-            )
-            self.conversationId = convId
-            listenForMessages(conversationId: convId)
-        } catch {
-            print("❌ Failed to start conversation: \(error.localizedDescription)")
-        }
-    }
-
-    func listenForMessages(conversationId: String) {
+    func listenToMessages(conversationId: String) async {
         listener?.remove()
-        listener = dbHelper.listenForMessages(conversationId: conversationId) { [weak self] msgs in
-            DispatchQueue.main.async {
-                self?.messages = msgs
+        listener = db.collection("conversations")
+            .document(conversationId)
+            .collection("messages")
+            .order(by: "timestamp", descending: false)
+            .addSnapshotListener { snapshot, error in
+                guard let docs = snapshot?.documents else { return }
+                self.messages = docs.compactMap { try? $0.data(as: ChatMessage.self) }
             }
+    }
+
+    func sendMessage(to conversationId: String, text: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        let now = Date()
+
+        let msg = ChatMessage(
+            id: nil,
+            senderId: uid,
+            text: text,
+            timestamp: now
+        )
+
+        do {
+            // add message
+            _ = try db.collection("conversations")
+                .document(conversationId)
+                .collection("messages")
+                .addDocument(from: msg)
+
+            // update parent doc
+            try await db.collection("conversations")
+                .document(conversationId)
+                .updateData([
+                    "lastMessage": text,
+                    "lastMessageAt": now
+                ])
+
+        } catch {
+            print("❌ send failed: \(error)")
         }
     }
 
-    func sendMessage() async {
-        guard let conversationId = conversationId, !newMessage.isEmpty else { return }
-        do {
-            try await dbHelper.sendMessage(conversationId: conversationId, senderId: currentUserId, text: newMessage)
-            DispatchQueue.main.async {
-                self.newMessage = ""
-            }
-        } catch {
-            print("❌ Failed to send message: \(error.localizedDescription)")
-        }
-    }
 
     deinit {
         listener?.remove()

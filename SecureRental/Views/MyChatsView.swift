@@ -1,19 +1,20 @@
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
-//import SDWebImageSwiftUI
 
 struct MyChatsView: View {
     @StateObject private var viewModel = ConversationsViewModel()
-    @State private var listings: [String: Listing] = [:]
-    @State private var users: [String: AppUser] = [:]
-    @State private var lastMessages: [String: ChatMessage] = [:] // conversationId -> last message
+
+    // cache for related data
+    @State private var listings: [String: Listing] = [:]          // listingId -> Listing
+    @State private var users: [String: AppUser] = [:]              // userId -> AppUser
+    @State private var lastMessages: [String: ChatMessage] = [:]   // conversationId -> last ChatMessage
 
     var body: some View {
         NavigationView {
             Group {
                 if sortedConversations.isEmpty {
-                    // 👉 Empty state
+                    // empty state
                     VStack(spacing: 12) {
                         Image(systemName: "bubble.left.and.bubble.right")
                             .font(.system(size: 40))
@@ -28,14 +29,21 @@ struct MyChatsView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    // 👉 Actual list of conversations
                     List(sortedConversations, id: \.id) { conversation in
+                        // we need listing, landlord, and lastMessage to show a proper row
                         if let listing = listings[conversation.listingId],
                            let landlord = users[listing.landlordId],
                            let lastMessage = lastMessages[conversation.id ?? ""] {
-                            
-                            NavigationLink(destination: ChatView(listing: listing)) {
+
+                            // 👇 IMPORTANT: ChatView wants (listing:..., conversationId:...)
+                            NavigationLink(
+                                destination: ChatView(
+                                    listing: listing,
+                                    conversationId: conversation.id ?? ""
+                                )
+                            ) {
                                 HStack(alignment: .top, spacing: 12) {
+
                                     // listing image
                                     if let firstURL = listing.imageURLs.first,
                                        let url = URL(string: firstURL) {
@@ -68,17 +76,17 @@ struct MyChatsView: View {
                                             .frame(width: 70, height: 70)
                                             .foregroundColor(.gray)
                                     }
-                                    
+
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("\(landlord.name) – \(listing.title)")
                                             .font(.headline)
                                             .lineLimit(1)
-                                        
+
                                         Text(lastMessage.text)
                                             .font(.subheadline)
                                             .foregroundColor(.gray)
                                             .lineLimit(1)
-                                        
+
                                         if let date = lastMessage.timestamp {
                                             Text(formatDate(date))
                                                 .font(.caption)
@@ -89,6 +97,7 @@ struct MyChatsView: View {
                                 .padding(.vertical, 4)
                             }
                         } else {
+                            // still loading listing/user/last message
                             Text("Loading...")
                                 .foregroundColor(.gray)
                         }
@@ -102,13 +111,17 @@ struct MyChatsView: View {
         }
     }
 
+    // MARK: - Sorting
+
     private var sortedConversations: [Conversation] {
         viewModel.conversations.sorted {
-            let t1 = lastMessages[$0.id ?? ""]?.timestamp ?? $0.createdAt ?? Date.distantPast
-            let t2 = lastMessages[$1.id ?? ""]?.timestamp ?? $1.createdAt ?? Date.distantPast
+            let t1 = lastMessages[$0.id ?? ""]?.timestamp ?? $0.createdAt ?? .distantPast
+            let t2 = lastMessages[$1.id ?? ""]?.timestamp ?? $1.createdAt ?? .distantPast
             return t1 > t2
         }
     }
+
+    // MARK: - Helpers
 
     private func formatDate(_ date: Date) -> String {
         let calendar = Calendar.current
@@ -119,7 +132,8 @@ struct MyChatsView: View {
             return formatter.string(from: date)
         } else if calendar.isDateInYesterday(date) {
             return "Yesterday"
-        } else if let daysAgo = calendar.dateComponents([.day], from: date, to: Date()).day, daysAgo < 7 {
+        } else if let daysAgo = calendar.dateComponents([.day], from: date, to: Date()).day,
+                  daysAgo < 7 {
             formatter.dateFormat = "EEEE"
             return formatter.string(from: date)
         } else {
@@ -136,21 +150,27 @@ struct MyChatsView: View {
 
             for conv in convs {
                 Task {
-                    // Fetch listing
+                    // 1. fetch listing for this conversation (once)
                     if listings[conv.listingId] == nil,
                        let listing = try? await FireDBHelper.getInstance().fetchListing(byId: conv.listingId) {
-                        DispatchQueue.main.async { listings[conv.listingId] = listing }
-                        
-                        // Fetch landlord user for this listing
+                        await MainActor.run {
+                            listings[conv.listingId] = listing
+                        }
+
+                        // 2. fetch landlord for that listing (once)
                         if users[listing.landlordId] == nil,
                            let landlord = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
-                            DispatchQueue.main.async { users[listing.landlordId] = landlord }
+                            await MainActor.run {
+                                users[listing.landlordId] = landlord
+                            }
                         }
                     }
 
-                    // Fetch last message
+                    // 3. fetch last message for this conversation
                     if let lastMsg = try? await fetchLastMessage(conversationId: conv.id ?? "") {
-                        DispatchQueue.main.async { lastMessages[conv.id ?? ""] = lastMsg }
+                        await MainActor.run {
+                            lastMessages[conv.id ?? ""] = lastMsg
+                        }
                     }
                 }
             }

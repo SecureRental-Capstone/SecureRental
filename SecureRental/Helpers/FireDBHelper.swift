@@ -553,5 +553,36 @@ class FireDBHelper: ObservableObject {
             print("❌ Failed to save location consent: \(error.localizedDescription)")
         }
   }
-       
+    
+    func getOrCreateConversation(listingId: String,
+                                    landlordId: String,
+                                    tenantId: String) async throws -> Conversation {
+           let db = Firestore.firestore()
+
+           // 1) try to find existing conversation for these 3
+           let snapshot = try await db.collection("conversations")
+               .whereField("listingId", isEqualTo: listingId)
+               .whereField("participants", arrayContains: tenantId)
+               .getDocuments()
+
+           if let doc = snapshot.documents.first {
+               if let conv = try? doc.data(as: Conversation.self) {
+                   return conv
+               }
+           }
+
+           // 2) if not found, create new
+           let newConv = Conversation(
+               id: nil,
+               participants: [landlordId, tenantId],
+               listingId: listingId,
+               createdAt: Date()
+           )
+
+           let ref = try db.collection("conversations").addDocument(from: newConv)
+
+           var convWithId = newConv
+           convWithId.id = ref.documentID
+           return convWithId
+       }
 }
