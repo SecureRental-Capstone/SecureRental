@@ -2,24 +2,31 @@ import SwiftUI
 import FirebaseAuth
 
 struct ChatView: View {
-    @EnvironmentObject var dbHelper: FireDBHelper      // 👈 so we can pass it down
+//    @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject var chatVM = ChatViewModel()
 
-    var listing: Listing
+    // passed in
+    let listing: Listing
     let conversationId: String
 
-    // info state
+    // live / refreshed listing
+    @State private var liveListing: Listing?
+
     @State private var showInfoSheet = false
     @State private var landlord: AppUser?
     @State private var tenant: AppUser?
 
     var body: some View {
+        // use the live listing if we have it, otherwise fallback to the passed one
+        let listingToShow = liveListing ?? listing
+        let isSoldOut = listingToShow.isAvailable == false
+
         VStack(spacing: 0) {
 
-            // MARK: - Top context bar
+            // MARK: - Top bar
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(listing.title)
+                    Text(listingToShow.title)
                         .font(.headline)
                         .lineLimit(1)
 
@@ -30,27 +37,48 @@ struct ChatView: View {
 
                 Spacer()
 
+                if isSoldOut {
+                    Text("SOLD OUT")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(999)
+                }
+
                 Button {
                     showInfoSheet = true
                 } label: {
                     Image(systemName: "info.circle")
                         .font(.title3)
+                        .padding(.leading, 4)
                 }
-                .accessibilityLabel("Show chat info")
             }
             .padding()
             .background(Color(.systemGray6))
 
             Divider()
 
+            // MARK: - Availability banner
+            if isSoldOut {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                    Text("This listing is SOLD OUT / no longer available.")
+                        .font(.subheadline)
+                }
+                .foregroundColor(.white)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity)
+                .background(Color.red.opacity(0.9))
+            }
+
             // MARK: - Messages
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
-
                         ForEach(groupMessagesByDate(chatVM.messages), id: \.0) { (dateString, messagesForDate) in
-
-                            // Date header
                             HStack {
                                 Spacer()
                                 Text(dateString)
@@ -60,7 +88,6 @@ struct ChatView: View {
                                 Spacer()
                             }
 
-                            // Messages
                             ForEach(messagesForDate) { message in
                                 HStack(alignment: .bottom) {
                                     if message.senderId == Auth.auth().currentUser?.uid {
@@ -112,10 +139,14 @@ struct ChatView: View {
                 }
             }
 
-            // MARK: - Input field
+            // MARK: - Input
             HStack {
-                TextField("Type a message...", text: $chatVM.newMessage)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                TextField(
+                    isSoldOut ? "Listing is SOLD OUT" : "Type a message...",
+                    text: $chatVM.newMessage
+                )
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .disabled(isSoldOut)
 
                 Button {
                     Task {
@@ -126,8 +157,9 @@ struct ChatView: View {
                     }
                 } label: {
                     Image(systemName: "paperplane.fill")
-                        .foregroundColor(.blue)
+                        .foregroundColor(isSoldOut ? .gray : .blue)
                 }
+                .disabled(isSoldOut)
             }
             .padding(.horizontal)
             .padding(.vertical, 6)
@@ -137,19 +169,31 @@ struct ChatView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             Task {
+                // messages
                 await chatVM.listenToMessages(conversationId: conversationId)
             }
             Task {
+                // people
                 await loadPeople()
+            }
+            Task {
+                // 🔁 refresh listing so isAvailable is up-to-date
+                if let fresh = try? await FireDBHelper.getInstance().fetchListing(byId: listing.id) {
+                    await MainActor.run {
+                        self.liveListing = fresh
+                    }
+                }
             }
         }
         .sheet(isPresented: $showInfoSheet) {
             ChatInfoSheet(
-                listing: listing,
+                listing: liveListing ?? listing,   // pass the fresh one
                 landlord: landlord,
-                tenant: tenant
+                tenant: tenant,
+                dbHelper: FireDBHelper.getInstance()
+//                dbHelper: dbHelper
             )
-            .environmentObject(dbHelper)   // 👈 so detail view can use it
+//            .environmentObject(dbHelper)
         }
     }
 
@@ -157,7 +201,6 @@ struct ChatView: View {
     private var otherPartyName: String {
         let myId = Auth.auth().currentUser?.uid
         if myId == listing.landlordId {
-            // I'm the landlord, so show tenant
             return tenant?.name ?? "Tenant"
         } else {
             return landlord?.name ?? "Landlord"
@@ -166,21 +209,19 @@ struct ChatView: View {
 
     // MARK: - Load landlord / tenant
     private func loadPeople() async {
-        // landlord
         if landlord == nil {
             if let user = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
                 await MainActor.run { landlord = user }
             }
         }
 
-        // tenant is current user
         if let uid = Auth.auth().currentUser?.uid,
            let user = await FireDBHelper.getInstance().getUser(byUID: uid) {
             await MainActor.run { tenant = user }
         }
     }
 
-    // MARK: - Helpers (same as before)
+    // MARK: - Helpers
     func groupMessagesByDate(_ messages: [ChatMessage]) -> [(String, [ChatMessage])] {
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: messages) { message -> String in
@@ -222,16 +263,20 @@ struct ChatView: View {
     }
 }
 
+
+// MARK: - Sheet
+
 struct ChatInfoSheet: View {
-    @EnvironmentObject var dbHelper: FireDBHelper   // so we can pass to detail
+//    @EnvironmentObject var dbHelper: FireDBHelper
     let listing: Listing
     let landlord: AppUser?
     let tenant: AppUser?
+    let dbHelper: FireDBHelper    // pass in explicitly
+
 
     var body: some View {
         NavigationView {
             List {
-                // Listing
                 Section("Listing") {
                     NavigationLink {
                         RentalListingDetailView(listing: listing)
@@ -241,6 +286,10 @@ struct ChatInfoSheet: View {
                             Text(listing.title)
                                 .font(.headline)
                             Text("$\(listing.price)/month")
+                            // 👇 availability indicator
+                            Text(listing.isAvailable ? "Available" : "Not available / Sold out")
+                                .font(.caption)
+                                .foregroundColor(listing.isAvailable ? .green : .red)
                             Text("\(listing.street), \(listing.city), \(listing.province)")
                                 .foregroundColor(.secondary)
                                 .font(.caption)
@@ -248,23 +297,19 @@ struct ChatInfoSheet: View {
                     }
                 }
 
-                // Landlord
                 Section("Landlord") {
                     if let landlord {
                         UserRow(user: landlord, subtitle: "Listing owner")
                     } else {
-                        Text("Loading landlord…")
-                            .foregroundColor(.secondary)
+                        Text("Loading landlord…").foregroundColor(.secondary)
                     }
                 }
 
-                // Tenant / You
                 Section("Tenant") {
                     if let tenant {
                         UserRow(user: tenant, subtitle: "Renter / you")
                     } else {
-                        Text("Loading tenant…")
-                            .foregroundColor(.secondary)
+                        Text("Loading tenant…").foregroundColor(.secondary)
                     }
                 }
             }
@@ -274,22 +319,19 @@ struct ChatInfoSheet: View {
     }
 }
 
-
 struct UserRow: View {
     let user: AppUser
     var subtitle: String?
 
     var body: some View {
         HStack(spacing: 12) {
-            // avatar
             if let urlString = user.profilePictureURL,
                !urlString.isEmpty,
                let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .empty:
-                        ProgressView()
-                            .frame(width: 46, height: 46)
+                        ProgressView().frame(width: 46, height: 46)
                     case .success(let image):
                         image
                             .resizable()
@@ -322,7 +364,6 @@ struct UserRow: View {
                         .foregroundColor(.secondary)
                 }
 
-                // rating if present
                 let rating = user.rating ?? 0
                 if rating > 0 {
                     HStack(spacing: 2) {
