@@ -1,173 +1,89 @@
-////
-////  StreamChatManager.swift
-////  SecureRental
-////
-////  Created by Anchal Sharma on 2025-11-08.
-////
-//
-//import StreamChat
-//import StreamChatUI
-//import UIKit
-//import FirebaseAuth
-//
-//final class StreamChatManager {
-//    static let shared = StreamChatManager()
-//
-//    // Stream client
-//    let client: ChatClient
-//
-//    private init() {
-//        // 1. your Stream API key
-//        let config = ChatClientConfig(apiKey: .init("acpt4mkqnv66"))
-//
-//        // 2. create client
-//        client = ChatClient(config: config)
-//
-//        // ❌ don’t connect here with a dev token
-//        // we’ll connect later when we actually have a valid token
-//        print("ℹ️ StreamChatManager created – call connectCurrentFirebaseUser() or connect(userId:name:token:) later.")
-//    }
-//
-//    // OPTION A: simple helper – call this right after Firebase login,
-//    // but ONLY if your Stream app is in DEVELOPMENT and dev tokens are allowed.
-//    func connectCurrentFirebaseUserWithDevToken() {
-//        guard let uid = Auth.auth().currentUser?.uid else {
-//            print("⚠️ No Firebase user yet, can’t connect to Stream.")
-//            return
-//        }
-//
-//        client.connectUser(
-//            userInfo: .init(id: uid),
-//            token: .development(userId: uid)
-//        ) { error in
-//            if let error = error {
-//                print("❌ Stream connect (dev token) failed:", error)
-//            } else {
-//                print("✅ Stream connected with dev token")
-//            }
-//        }
-//    }
-//
-//    // OPTION B (recommended for Production):
-//    // you fetch a real token from YOUR backend, then call this.
-//    func connect(userId: String, name: String? = nil, streamToken: String) {
-//        var info = UserInfo(id: userId)
-//        if var name { info.name = name }
-//
-//        client.connectUser(
-//            userInfo: info,
-//            token: .init(stringLiteral: streamToken)
-//        ) { error in
-//            if let error = error {
-//                print("❌ Stream connect failed:", error)
-//            } else {
-//                print("✅ Stream connected")
-//            }
-//        }
-//    }
-//
-//    // Get (or create) a 1:1 channel for this listing
-//    func channelController(
-//        listingId: String,
-//        landlordId: String,
-//        tenantId: String,
-//        listingTitle: String
-//    ) -> ChatChannelController? {
-//
-//        // stable id so we don’t make duplicates
-//        let channelId = ChannelId(
-//            type: .messaging,
-//            id: "listing-\(listingId)-\(landlordId)-\(tenantId)"
-//        )
-//
-//        do {
-//            let controller = try client.channelController(
-//                createChannelWithId: channelId,
-//                name: listingTitle,
-//                members: [landlordId, tenantId],
-//                extraData: ["listingId": .string(listingId)]
-//            )
-//            return controller
-//        } catch {
-//            print("❌ Failed to create or fetch channel controller: \(error.localizedDescription)")
-//            return nil
-//        }
-//    }
-//}
-//
-//  StreamChatManager.swift
-//  SecureRental
-//
-//  Created by Anchal Sharma on 2025-11-08.
-//
-
 import StreamChat
-import StreamChatUI
 import FirebaseAuth
 
 final class StreamChatManager {
     static let shared = StreamChatManager()
 
-    // Expose the client so views / VMs can use it
     let client: ChatClient
+    private(set) var isConnected = false
 
     private init() {
-        // 1. use your real (production) Stream API key here
-        var config = ChatClientConfig(apiKey: .init("acpt4mkqnv66"))
-        // (optional) config.isClientInActiveMode = true
-
-        // 2. create client – but do NOT connect yet
-        client = ChatClient(config: config)
+        let config = ChatClientConfig(apiKey: .init("mvjkgnhbeuhz")) // your dev key
+        self.client = ChatClient(config: config)
     }
 
-    // MARK: - Connect user (called AFTER you get token from your backend)
-    func connect(userId: String, name: String, streamToken: String) {
+    // call AFTER Firebase sign-in
+    func connect(userId: String, name: String?) {
         client.connectUser(
             userInfo: .init(id: userId, name: name),
-            token: .init(stringLiteral: streamToken)
-        ) { error in
+            token: .development(userId: userId)
+        ) { [weak self] error in
             if let error = error {
-                print("❌ Stream connect failed: \(error)")
-            } else {
-                print("✅ Stream connected as \(userId)")
+                print("❌ Stream connect error: \(error)")
+                return
+            }
+            print("✅ Stream connected as \(userId)")
+            self?.isConnected = true
+
+            self?.client.currentUserController().reloadUserIfNeeded { err in
+                if let err = err {
+                    print("⚠️ reloadUserIfNeeded error: \(err)")
+                } else {
+                    print("✅ Stream current user is ready")
+                }
             }
         }
     }
 
-    // MARK: - Optional: disconnect
-    func disconnect() {
-        client.disconnect()
-    }
-
-    // MARK: - Channel helper
-    /// Get (or create) a 1:1 channel for this listing
-    func channelController(
+    /// Make a channel for this listing. For now: only the current user is a member.
+    func makeChannelController(
         listingId: String,
-        landlordId: String,
+        landlordId: String,   // we'll keep it in extraData
         tenantId: String,
-        listingTitle: String
-    ) -> ChatChannelController? {
+        listingTitle: String,
+        completion: @escaping (ChatChannelController?) -> Void
+    ) {
+        guard isConnected else {
+            print("⚠️ Stream not connected yet")
+            completion(nil)
+            return
+        }
 
-        // stable channel id – so we don't create duplicates
-        let channelId = ChannelId(
-            type: .messaging,
-            id: "listing-\(listingId)-\(landlordId)-\(tenantId)"
-        )
+        // ensure current user is loaded
+        client.currentUserController().reloadUserIfNeeded { [weak self] error in
+            guard let self = self else {
+                completion(nil)
+                return
+            }
 
-        do {
-            // create-or-get style controller
-            let controller = try client.channelController(
-                createChannelWithId: channelId,
-                name: listingTitle,
-                members: [landlordId, tenantId],
-                extraData: ["listingId": .string(listingId)]
-            )
+            if let error = error {
+                print("⚠️ reloadUserIfNeeded before channel failed: \(error)")
+                completion(nil)
+                return
+            }
 
-            // you still need to call `synchronize()` on the controller where you use it
-            return controller
-        } catch {
-            print("❌ Failed to create/get channel controller: \(error.localizedDescription)")
-            return nil
+            // shorten id so it's < 64 chars
+            let shortListing = String(listingId.prefix(12))
+            let shortTenant = String(tenantId.prefix(12))
+            let channelId = "lst-\(shortListing)-t-\(shortTenant)"
+
+            do {
+                let controller = try self.client.channelController(
+                    createChannelWithId: ChannelId(type: .messaging, id: channelId),
+                    name: listingTitle,
+                    // 👇 only current user is a member for now
+                    members: [tenantId],
+                    // 👇 store landlordId & full listingId in extraData
+                    extraData: [
+                        "listingId": .string(listingId),
+                        "landlordId": .string(landlordId)
+                    ]
+                )
+                completion(controller)
+            } catch {
+                print("❌ Failed to create/fetch channel controller: \(error)")
+                completion(nil)
+            }
         }
     }
 }

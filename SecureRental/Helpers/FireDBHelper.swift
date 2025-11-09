@@ -57,20 +57,45 @@ class FireDBHelper: ObservableObject {
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
         let uid = result.user.uid
             // Fetch user profile from Firestore
+//        if let user = try await getUser(byUID: uid) {
+//            self.currentUser = user
+//        }
+        
+        // fetch user profile
         if let user = try await getUser(byUID: uid) {
             self.currentUser = user
+
+            // 👉 CONNECT TO STREAM *here* because now we know the Firebase user AND the name
+            StreamChatManager.shared.connect(
+                userId: uid,
+                name: user.name.isEmpty ? user.email : user.name
+            )
+            print("yes get User")
+        } else {
+            // we still have uid, so we can at least connect with email
+            StreamChatManager.shared.connect(
+                userId: uid,
+                name: email
+            )
+            print(" no get user")
         }
-        
+//
         // right after you set self.currentUser
-        Task {
-            guard let name = self.currentUser?.name else { return }
-            do {
-                let token = try await self.fetchStreamToken(for: uid)
-                StreamChatManager.shared.connect(userId: uid, name: name, streamToken: token)
-            } catch {
-                print("⚠️ Stream token fetch failed, continuing without chat: \(error)")
-            }
-        }
+//        Task {
+//            guard let name = self.currentUser?.name else { return }
+//            do {
+//                let token = try await self.fetchStreamToken(for: uid)
+//                StreamChatManager.shared.connect(userId: uid, name: name, streamToken: token)
+//            } catch {
+//                print("⚠️ Stream token fetch failed, continuing without chat: \(error)")
+//            }
+//        }
+//        Task {
+//            StreamChatManager.shared.connectIfNeeded(
+//                userId: uid,
+//                name: self.currentUser?.name ?? "User"
+//            )
+//        }
 
 
     }

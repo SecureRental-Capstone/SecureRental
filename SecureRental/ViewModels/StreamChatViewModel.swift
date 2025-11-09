@@ -1,42 +1,47 @@
-//
-//  StreamChatViewModel.swift
-//  SecureRental
-//
-//  Created by Anchal  Sharma  on 2025-11-08.
-//
-
-// StreamChatViewModel.swift
-import Foundation
+import SwiftUI
 import StreamChat
 import StreamChatUI
 import FirebaseAuth
+@MainActor
 final class StreamChatViewModel: ObservableObject {
     @Published var channelController: ChatChannelController?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
 
     func setupChannel(for listing: Listing, landlordId: String) {
-        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        guard let currentUserId = Auth.auth().currentUser?.uid else {
+            self.errorMessage = "Not signed in."
+            return
+        }
 
-        // this returns an optional, so unwrap safely
-        guard let controller = StreamChatManager.shared.channelController(
+        isLoading = true
+        StreamChatManager.shared.makeChannelController(
             listingId: listing.id,
             landlordId: landlordId,
             tenantId: currentUserId,
             listingTitle: listing.title
-        ) else {
-            print("❌ Failed to create Stream channel controller.")
-            return
-        }
+        ) { [weak self] controller in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.isLoading = false
+                guard let controller = controller else {
+                    self.errorMessage = "Could not create chat channel."
+                    return
+                }
 
-        // start syncing
-        controller.synchronize { error in
-            if let error = error {
-                print("❌ Stream channel sync failed: \(error.localizedDescription)")
-            } else {
-                print("✅ Stream channel synchronized successfully.")
+                self.isLoading = true
+                controller.synchronize { error in
+                    Task { @MainActor in
+                        self.isLoading = false
+                        if let error = error {
+                            print("❌ Stream channel sync failed: \(error)")
+                            self.errorMessage = error.localizedDescription
+                        } else {
+                            self.channelController = controller
+                        }
+                    }
+                }
             }
         }
-
-        // store for the view
-        self.channelController = controller
     }
 }
