@@ -199,24 +199,41 @@ struct RentalListingDetailView: View {
 //                                        .padding()
 //                                        .background(Color(.systemGray6))
 //                                        .clipShape(Circle())
-//                                }
-                                NavigationLink(
-                                                destination: StreamChatDetailView(
-                                                    listing: listing,
-                                                    landlordId: listing.landlordId
-                                                )
-                                            ) {
-                                                Image(systemName: "message.fill")
-                                                    .font(.system(size: 28))
-                                                    .foregroundColor(.blue)
-                                                    .padding()
-                                                    .background(Color(.systemGray6))
-                                                    .clipShape(Circle())
-                                            }
-                                Text("Message")
-                                    .font(.footnote)
-                                    .foregroundColor(.primary)
-                            }
+//
+                                if let currentUserId = Auth.auth().currentUser?.uid {
+                                               // build the same channel id we use in StreamChatManager
+                                               let shortListing = String(listing.id.prefix(12))
+                                               let shortTenant  = String(currentUserId.prefix(12))
+                                               let channelId = "lst-\(shortListing)-t-\(shortTenant)"
+
+                                               NavigationLink(
+                                                   destination: StreamChatDetailView(
+                                                       listing: listing,
+                                                       landlordId: listing.landlordId,
+                                                       channelId: channelId   // 👈 pass it
+                                                   )
+                                               ) {
+                                                   Image(systemName: "message.fill")
+                                                       .font(.system(size: 28))
+                                                       .foregroundColor(.blue)
+                                                       .padding()
+                                                       .background(Color(.systemGray6))
+                                                       .clipShape(Circle())
+                                               }
+                                           } else {
+                                               // optional: show disabled button if not signed in
+                                               Image(systemName: "message.fill")
+                                                   .font(.system(size: 28))
+                                                   .foregroundColor(.gray)
+                                                   .padding()
+                                                   .background(Color(.systemGray6))
+                                                   .clipShape(Circle())
+                                           }
+
+                                           Text("Message")
+                                               .font(.footnote)
+                                               .foregroundColor(.primary)
+                                       }
                             
                             // Favourites (Heart) Action
                             VStack {

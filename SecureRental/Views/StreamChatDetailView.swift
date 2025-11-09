@@ -12,27 +12,37 @@ import StreamChatUI
 import StreamChatSwiftUI
 
 
+import SwiftUI
+import StreamChatUI
+
 struct StreamChatDetailView: View {
     let listing: Listing
     let landlordId: String
+    let channelId: String
 
-    // wrap Stream’s controller in an ObservableObject
-    @StateObject private var streamVM = StreamChatViewModel()
+    @StateObject private var vm = StreamChatViewModel()
 
     var body: some View {
         Group {
-            if let channelController = streamVM.channelController {
-                // Stream has a ready-made UIKit controller, we can wrap it
-                ChatChannelView(channelController: channelController)
-                    .edgesIgnoringSafeArea(.bottom)
-            } else {
+            if let controller = vm.channelController {
+                ChatChannelView(
+                    viewFactory: DefaultViewFactory.shared,
+                    channelController: controller
+                )
+            } else if vm.isLoading {
                 ProgressView("Loading chat…")
+            } else if let error = vm.errorMessage {
+                Text(error).foregroundColor(.red)
+            } else {
+                Text("Loading…")
             }
         }
         .onAppear {
-            streamVM.setupChannel(for: listing, landlordId: landlordId)
+            vm.openOrCreateChannel(
+                channelId: channelId,
+                listing: listing,
+                landlordId: landlordId
+            )
         }
-        .navigationTitle(listing.title)
     }
 }
-
