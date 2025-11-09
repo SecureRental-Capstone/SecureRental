@@ -25,6 +25,8 @@ struct SecureRentalApp: App {
     var body: some Scene {
         WindowGroup {
             LaunchView()
+                .environmentObject(FireDBHelper.getInstance())
+
         }
     }
 }

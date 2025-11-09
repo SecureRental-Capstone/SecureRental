@@ -2,23 +2,55 @@ import SwiftUI
 import FirebaseAuth
 
 struct ChatView: View {
+    @EnvironmentObject var dbHelper: FireDBHelper      // 👈 so we can pass it down
     @StateObject var chatVM = ChatViewModel()
 
-    // you already had this
     var listing: Listing
-    // new param we pass from MyChatsView / Detail
     let conversationId: String
 
+    // info state
+    @State private var showInfoSheet = false
+    @State private var landlord: AppUser?
+    @State private var tenant: AppUser?
+
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
+
+            // MARK: - Top context bar
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(listing.title)
+                        .font(.headline)
+                        .lineLimit(1)
+
+                    Text("With: \(otherPartyName)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Button {
+                    showInfoSheet = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.title3)
+                }
+                .accessibilityLabel("Show chat info")
+            }
+            .padding()
+            .background(Color(.systemGray6))
+
+            Divider()
+
+            // MARK: - Messages
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
 
-                        // group by date (your original logic)
                         ForEach(groupMessagesByDate(chatVM.messages), id: \.0) { (dateString, messagesForDate) in
 
-                            // date header
+                            // Date header
                             HStack {
                                 Spacer()
                                 Text(dateString)
@@ -28,11 +60,10 @@ struct ChatView: View {
                                 Spacer()
                             }
 
-                            // messages for that date
+                            // Messages
                             ForEach(messagesForDate) { message in
                                 HStack(alignment: .bottom) {
                                     if message.senderId == Auth.auth().currentUser?.uid {
-                                        // current user bubble
                                         Spacer()
                                         VStack(alignment: .trailing, spacing: 2) {
                                             Text(message.text)
@@ -48,7 +79,6 @@ struct ChatView: View {
                                             }
                                         }
                                     } else {
-                                        // other user bubble
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(message.text)
                                                 .padding(10)
@@ -69,10 +99,11 @@ struct ChatView: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
                 }
                 .onChange(of: chatVM.messages.count) { _ in
-                    // scroll to bottom on new message
                     if let last = chatVM.messages.last {
                         withAnimation {
                             proxy.scrollTo(last.id ?? UUID().uuidString, anchor: .bottom)
@@ -81,7 +112,7 @@ struct ChatView: View {
                 }
             }
 
-            // input field
+            // MARK: - Input field
             HStack {
                 TextField("Type a message...", text: $chatVM.newMessage)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -98,19 +129,58 @@ struct ChatView: View {
                         .foregroundColor(.blue)
                 }
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(Color(.systemBackground))
         }
         .navigationTitle("Chat")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             Task {
                 await chatVM.listenToMessages(conversationId: conversationId)
             }
+            Task {
+                await loadPeople()
+            }
+        }
+        .sheet(isPresented: $showInfoSheet) {
+            ChatInfoSheet(
+                listing: listing,
+                landlord: landlord,
+                tenant: tenant
+            )
+            .environmentObject(dbHelper)   // 👈 so detail view can use it
         }
     }
 
-    // MARK: - Helper Functions (kept from your original code)
+    // MARK: - Derived
+    private var otherPartyName: String {
+        let myId = Auth.auth().currentUser?.uid
+        if myId == listing.landlordId {
+            // I'm the landlord, so show tenant
+            return tenant?.name ?? "Tenant"
+        } else {
+            return landlord?.name ?? "Landlord"
+        }
+    }
 
-    /// Group messages by date (Today, Yesterday, or a formatted date)
+    // MARK: - Load landlord / tenant
+    private func loadPeople() async {
+        // landlord
+        if landlord == nil {
+            if let user = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
+                await MainActor.run { landlord = user }
+            }
+        }
+
+        // tenant is current user
+        if let uid = Auth.auth().currentUser?.uid,
+           let user = await FireDBHelper.getInstance().getUser(byUID: uid) {
+            await MainActor.run { tenant = user }
+        }
+    }
+
+    // MARK: - Helpers (same as before)
     func groupMessagesByDate(_ messages: [ChatMessage]) -> [(String, [ChatMessage])] {
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: messages) { message -> String in
@@ -127,7 +197,6 @@ struct ChatView: View {
             }
         }
 
-        // sort sections by actual date
         let sortedKeys = grouped.keys.sorted { key1, key2 in
             dateFromString(key1) ?? .distantPast < dateFromString(key2) ?? .distantPast
         }
@@ -135,14 +204,12 @@ struct ChatView: View {
         return sortedKeys.map { ($0, grouped[$0] ?? []) }
     }
 
-    /// Format a single timestamp (e.g. “12:28 AM”)
     func formatTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
         return formatter.string(from: date)
     }
 
-    /// Convert section header (Today / Yesterday / date) to Date for sorting
     func dateFromString(_ string: String) -> Date? {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM yyyy"
@@ -152,5 +219,125 @@ struct ChatView: View {
             return Calendar.current.date(byAdding: .day, value: -1, to: Date())
         }
         return formatter.date(from: string)
+    }
+}
+
+struct ChatInfoSheet: View {
+    @EnvironmentObject var dbHelper: FireDBHelper   // so we can pass to detail
+    let listing: Listing
+    let landlord: AppUser?
+    let tenant: AppUser?
+
+    var body: some View {
+        NavigationView {
+            List {
+                // Listing
+                Section("Listing") {
+                    NavigationLink {
+                        RentalListingDetailView(listing: listing)
+                            .environmentObject(dbHelper)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(listing.title)
+                                .font(.headline)
+                            Text("$\(listing.price)/month")
+                            Text("\(listing.street), \(listing.city), \(listing.province)")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+                }
+
+                // Landlord
+                Section("Landlord") {
+                    if let landlord {
+                        UserRow(user: landlord, subtitle: "Listing owner")
+                    } else {
+                        Text("Loading landlord…")
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                // Tenant / You
+                Section("Tenant") {
+                    if let tenant {
+                        UserRow(user: tenant, subtitle: "Renter / you")
+                    } else {
+                        Text("Loading tenant…")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("Chat Info")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+
+struct UserRow: View {
+    let user: AppUser
+    var subtitle: String?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // avatar
+            if let urlString = user.profilePictureURL,
+               !urlString.isEmpty,
+               let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 46, height: 46)
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 46, height: 46)
+                            .clipShape(Circle())
+                    case .failure:
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 46, height: 46)
+                            .overlay(Image(systemName: "person.fill"))
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 46, height: 46)
+                    .overlay(Image(systemName: "person.fill"))
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(user.name)
+                    .font(.body)
+
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                // rating if present
+                let rating = user.rating ?? 0
+                if rating > 0 {
+                    HStack(spacing: 2) {
+                        ForEach(0..<5, id: \.self) { idx in
+                            Image(systemName: idx < Int(rating.rounded()) ? "star.fill" : "star")
+                                .font(.caption2)
+                                .foregroundColor(.yellow)
+                        }
+                        Text(String(format: "%.1f", rating))
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
