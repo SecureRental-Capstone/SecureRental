@@ -13,8 +13,7 @@ struct MyChatsView: View {
     var body: some View {
         NavigationView {
             Group {
-                if sortedConversations.isEmpty {
-                    // empty state
+                if filteredConversations.isEmpty {   // 👈 use filtered list
                     VStack(spacing: 12) {
                         Image(systemName: "bubble.left.and.bubble.right")
                             .font(.system(size: 40))
@@ -29,13 +28,11 @@ struct MyChatsView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(sortedConversations, id: \.id) { conversation in
-                        // we need listing, landlord, and lastMessage to show a proper row
+                    List(filteredConversations, id: \.id) { conversation in   // 👈 use filtered list
                         if let listing = listings[conversation.listingId],
                            let landlord = users[listing.landlordId],
                            let lastMessage = lastMessages[conversation.id ?? ""] {
 
-                            // 👇 IMPORTANT: ChatView wants (listing:..., conversationId:...)
                             NavigationLink(
                                 destination: ChatView(
                                     listing: listing,
@@ -97,7 +94,6 @@ struct MyChatsView: View {
                                 .padding(.vertical, 4)
                             }
                         } else {
-                            // still loading listing/user/last message
                             Text("Loading...")
                                 .foregroundColor(.gray)
                         }
@@ -111,10 +107,20 @@ struct MyChatsView: View {
         }
     }
 
-    // MARK: - Sorting
+    // MARK: - Filter + Sort
 
-    private var sortedConversations: [Conversation] {
-        viewModel.conversations.sorted {
+    /// conversations that actually have at least 1 message
+    private var filteredConversations: [Conversation] {
+        // keep only conversations where we successfully loaded a last message
+        let withMessages = viewModel.conversations.filter { conv in
+            if let id = conv.id {
+                return lastMessages[id] != nil
+            }
+            return false
+        }
+
+        // sort those by last message time (or createdAt as fallback)
+        return withMessages.sorted {
             let t1 = lastMessages[$0.id ?? ""]?.timestamp ?? $0.createdAt ?? .distantPast
             let t2 = lastMessages[$1.id ?? ""]?.timestamp ?? $1.createdAt ?? .distantPast
             return t1 > t2
@@ -150,14 +156,14 @@ struct MyChatsView: View {
 
             for conv in convs {
                 Task {
-                    // 1. fetch listing for this conversation (once)
+                    // fetch listing (once)
                     if listings[conv.listingId] == nil,
                        let listing = try? await FireDBHelper.getInstance().fetchListing(byId: conv.listingId) {
                         await MainActor.run {
                             listings[conv.listingId] = listing
                         }
 
-                        // 2. fetch landlord for that listing (once)
+                        // fetch landlord (once)
                         if users[listing.landlordId] == nil,
                            let landlord = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
                             await MainActor.run {
@@ -166,7 +172,7 @@ struct MyChatsView: View {
                         }
                     }
 
-                    // 3. fetch last message for this conversation
+                    // fetch last message
                     if let lastMsg = try? await fetchLastMessage(conversationId: conv.id ?? "") {
                         await MainActor.run {
                             lastMessages[conv.id ?? ""] = lastMsg
