@@ -87,7 +87,7 @@ struct MyChatsView: View {
                                                 ChatRowView(
                                                     listing: listing,
                                                     otherUserName: otherUserName,
-                                                    roleLabel: chatRoleLabel(for: conversation, listing: listing),
+//                                                    roleLabel: chatRoleLabel(for: conversation, listing: listing),
                                                     lastMessage: lastMessage
                                                 )
                                                 .padding(.horizontal)
@@ -147,28 +147,39 @@ struct MyChatsView: View {
         }
     }
 
-    private func chatRoleLabel(for conversation: Conversation, listing: Listing) -> String {
-        guard let myId = Auth.auth().currentUser?.uid else { return "" }
-        return myId == listing.landlordId ? "Tenant" : "Landlord"
-    }
+//    private func chatRoleLabel(for conversation: Conversation, listing: Listing) -> String {
+//        guard let myId = Auth.auth().currentUser?.uid else { return "" }
+//        return myId == listing.landlordId ? "Tenant" : "Landlord"
+//    }
 
     private func setupListeners() {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
 
         viewModel.listenForMyConversations(userId: currentUserId) { convs in
+            // 1. Always update local list
             viewModel.conversations = convs
 
-            Task {
-                await preloadMetadata(for: convs)
-
-                await MainActor.run {
+            // 2. As soon as we get the FIRST snapshot (even if empty),
+            //    stop showing the skeleton and let UI show either:
+            //    - "No conversations yet", or
+            //    - the loaded conversations.
+            Task { @MainActor in
+                if isInitialLoading {
                     withAnimation(.easeInOut(duration: 0.25)) {
                         isInitialLoading = false
                     }
                 }
             }
+
+            // 3. Load metadata in the background (does NOT affect loading state)
+            Task {
+                await preloadMetadata(for: convs)
+            }
         }
     }
+ 
+        
+
 
     private func preloadMetadata(for convs: [Conversation]) async {
         for conv in convs {
@@ -231,7 +242,6 @@ struct MyChatsView: View {
 struct ChatRowView: View {
     let listing: Listing
     let otherUserName: String
-    let roleLabel: String
     let lastMessage: ChatMessage
 
     var body: some View {
@@ -275,17 +285,17 @@ struct ChatRowView: View {
                         .font(.subheadline.weight(.semibold))
                         .lineLimit(1)
 
-                    Text("•")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    Text(roleLabel)
-                        .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.hunterGreen.opacity(0.12))
-                        .foregroundColor(.hunterGreen)
-                        .clipShape(Capsule())
+//                    Text("•")
+//                        .font(.caption)
+//                        .foregroundColor(.secondary)
+//
+//                    Text(roleLabel)
+//                        .font(.caption2)
+//                        .padding(.horizontal, 6)
+//                        .padding(.vertical, 3)
+//                        .background(Color.hunterGreen.opacity(0.12))
+//                        .foregroundColor(.hunterGreen)
+//                        .clipShape(Capsule())
 
                     Spacer()
 
