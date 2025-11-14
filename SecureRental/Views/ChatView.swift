@@ -72,7 +72,8 @@ struct ChatView: View {
                             .foregroundColor(.gray.opacity(0.7))
                     }
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
+
                         Text(listingToShow.title)
                             .font(.subheadline.weight(.semibold))
                             .lineLimit(1)
@@ -80,7 +81,13 @@ struct ChatView: View {
                         Text("With \(otherPartyName)")
                             .font(.caption)
                             .foregroundColor(.secondary)
+
+                        // Only show this IF user is landlord
+                        if isLandlord {
+                            landlordBadge
+                        }
                     }
+
 
                     Spacer()
 
@@ -125,11 +132,13 @@ struct ChatView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 10) {
-                            ForEach(groupMessagesByDate(chatVM.messages), id: \.0) { (dateString, messagesForDate) in
+                            let sections = makeSections(from: chatVM.messages)
+
+                            ForEach(sections) { section in
                                 // Date chip
                                 HStack {
                                     Spacer()
-                                    Text(dateString)
+                                    Text(section.title)
                                         .font(.caption2)
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 4)
@@ -141,23 +150,24 @@ struct ChatView: View {
                                 .padding(.vertical, 4)
 
                                 // Messages for this date
-                                ForEach(messagesForDate) { message in
+                                ForEach(section.messages) { message in
                                     messageBubble(for: message)
-                                        .id(message.id ?? UUID().uuidString)
                                 }
                             }
                         }
+
                         .padding(.horizontal, 12)
                         .padding(.top, 8)
                         .padding(.bottom, 6)
                     }
-                    .onChange(of: chatVM.messages.count) { _ in
-                        if let last = chatVM.messages.last {
-                            withAnimation {
-                                proxy.scrollTo(last.id ?? UUID().uuidString, anchor: .bottom)
-                            }
-                        }
-                    }
+//                    .transaction { txn in
+//                            txn.disablesAnimations = true
+//                        }
+//                    .onChange(of: chatVM.messages.count) { _ in
+//                        if let last = chatVM.messages.last {
+//                                proxy.scrollTo(last.id ?? UUID().uuidString, anchor: .bottom)
+//                        }
+//                    }
                 }
 
                 // MARK: - Input
@@ -233,6 +243,22 @@ struct ChatView: View {
             return landlord?.name ?? "Landlord"
         }
     }
+    
+    private var isLandlord: Bool {
+        Auth.auth().currentUser?.uid == listing.landlordId
+    }
+
+    private var landlordBadge: some View {
+        Text("You are the landlord")
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                Capsule().fill(Color.hunterGreen.opacity(0.15))
+            )
+            .foregroundColor(.hunterGreen)
+    }
+
 
     // MARK: - Message bubble builder
 
@@ -312,46 +338,66 @@ struct ChatView: View {
     }
 
     // MARK: - Helpers
-
-    func groupMessagesByDate(_ messages: [ChatMessage]) -> [(String, [ChatMessage])] {
+    // Group messages into stable sections
+    func makeSections(from messages: [ChatMessage]) -> [MessageSection] {
         let calendar = Calendar.current
-        let grouped = Dictionary(grouping: messages) { message -> String in
-            guard let date = message.timestamp else { return "Unknown" }
 
-            if calendar.isDateInToday(date) {
-                return "Today"
-            } else if calendar.isDateInYesterday(date) {
-                return "Yesterday"
+        let weekdayFormatter = DateFormatter()
+        weekdayFormatter.dateFormat = "EEE"              // Sat, Sun, Mon...
+
+        let fullDateFormatter = DateFormatter()
+        fullDateFormatter.dateFormat = "MMM d, yyyy"     // Oct 5, 2024
+
+        // 1. Sort messages so ordering is consistent
+        let sortedMessages = messages.sorted {
+            ($0.timestamp ?? .distantPast) < ($1.timestamp ?? .distantPast)
+        }
+
+        // 2. Group by start-of-day Date (stable key)
+        let grouped = Dictionary(grouping: sortedMessages) { message -> Date in
+            let date = message.timestamp ?? Date()
+            return calendar.startOfDay(for: date)
+        }
+
+        // 3. Sort section days ascending (oldest → newest)
+        let sortedDays = grouped.keys.sorted()
+
+        // 4. Build MessageSection objects
+        return sortedDays.map { day in
+            let msgs = grouped[day] ?? []
+
+            // How many days ago is this section?
+            let daysAgo = calendar.dateComponents([.day], from: day, to: Date()).day ?? 0
+
+            let title: String
+            if calendar.isDateInToday(day) {
+                title = "Today"
+            } else if calendar.isDateInYesterday(day) {
+                title = "Yesterday"
+            } else if daysAgo < 7 {
+                // within last 7 days → weekday only: "Sat", "Sun", ...
+                title = weekdayFormatter.string(from: day)
             } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "d MMM yyyy"
-                return formatter.string(from: date)
+                // older than 7 days → full date
+                title = fullDateFormatter.string(from: day)
             }
-        }
 
-        let sortedKeys = grouped.keys.sorted { key1, key2 in
-            dateFromString(key1) ?? .distantPast < dateFromString(key2) ?? .distantPast
+            return MessageSection(
+                id: day,
+                date: day,
+                title: title,
+                messages: msgs
+            )
         }
-
-        return sortedKeys.map { ($0, grouped[$0] ?? []) }
     }
 
+    
     func formatTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
         return formatter.string(from: date)
     }
 
-    func dateFromString(_ string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy"
-
-        if string == "Today" { return Date() }
-        if string == "Yesterday" {
-            return Calendar.current.date(byAdding: .day, value: -1, to: Date())
-        }
-        return formatter.date(from: string)
-    }
 }
 
 // MARK: - Chat Info Sheet
@@ -490,4 +536,11 @@ struct UserRow: View {
                     .foregroundColor(.white)
             )
     }
+}
+
+struct MessageSection: Identifiable {
+    let id: Date          // start-of-day date
+    let date: Date
+    let title: String     // "Today", "Yesterday", "Sat", "Oct 5, 2024"
+    let messages: [ChatMessage]
 }
