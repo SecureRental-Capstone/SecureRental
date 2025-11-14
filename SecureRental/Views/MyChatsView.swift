@@ -5,19 +5,40 @@ import FirebaseFirestore
 struct MyChatsView: View {
     @StateObject private var viewModel = ConversationsViewModel()
 
-    // cache for related data
-    @State private var listings: [String: Listing] = [:]          // listingId -> Listing
-    @State private var users: [String: AppUser] = [:]              // userId -> AppUser
-    @State private var lastMessages: [String: ChatMessage] = [:]   // conversationId -> last ChatMessage
+    @State private var listings: [String: Listing] = [:]
+    @State private var users: [String: AppUser] = [:]
+    @State private var lastMessages: [String: ChatMessage] = [:]
+
+    @State private var isInitialLoading = true
 
     var body: some View {
         NavigationView {
-            Group {
-                if filteredConversations.isEmpty {   // 👈 use filtered list
+            ZStack {
+                // Nice subtle background
+                LinearGradient(
+                    colors: [Color(.systemGray6), Color(.systemBackground)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                if isInitialLoading {
+                    // ✨ Beautiful skeleton loading
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(0..<5, id: \.self) { _ in
+                                SkeletonChatRow()
+                                    .padding(.horizontal)
+                            }
+                        }
+                        .padding(.top, 16)
+                    }
+                    .transition(.opacity)
+                } else if filteredConversations.isEmpty {
                     VStack(spacing: 12) {
-                        Image(systemName: "bubble.left.and.bubble.right")
-                            .font(.system(size: 40))
-                            .foregroundColor(.gray.opacity(0.6))
+                        Image(systemName: "bubble.left.and.bubble.right.fill")
+                            .font(.system(size: 42))
+                            .foregroundColor(.gray.opacity(0.7))
                         Text("No conversations yet")
                             .font(.headline)
                         Text("Start chatting with a landlord from a listing to see your messages here.")
@@ -28,79 +49,38 @@ struct MyChatsView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(filteredConversations, id: \.id) { conversation in   // 👈 use filtered list
-                        if let listing = listings[conversation.listingId],
-                           let landlord = users[listing.landlordId],
-                           let lastMessage = lastMessages[conversation.id ?? ""] {
+                    ScrollView {
+                        LazyVStack(spacing: 12, pinnedViews: []) {
+                            ForEach(filteredConversations, id: \.id) { conversation in
+                                if let listing = listings[conversation.listingId],
+                                   let otherUserName = otherUserName(for: conversation, listing: listing),
+                                   let lastMessage = lastMessages[conversation.id ?? ""] {
 
-                            NavigationLink(
-                                destination: ChatView(
-                                    listing: listing,
-                                    conversationId: conversation.id ?? ""
-                                )
-                            ) {
-                                HStack(alignment: .top, spacing: 12) {
-
-                                    // listing image
-                                    if let firstURL = listing.imageURLs.first,
-                                       let url = URL(string: firstURL) {
-                                        AsyncImage(url: url) { phase in
-                                            switch phase {
-                                            case .empty:
-                                                ProgressView()
-                                                    .frame(width: 70, height: 70)
-                                            case .success(let image):
-                                                image
-                                                    .resizable()
-                                                    .scaledToFill()
-                                                    .frame(width: 70, height: 70)
-                                                    .clipped()
-                                                    .cornerRadius(8)
-                                            case .failure(_):
-                                                Image(systemName: "house")
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(width: 70, height: 70)
-                                                    .foregroundColor(.gray)
-                                            @unknown default:
-                                                EmptyView()
-                                            }
-                                        }
-                                    } else {
-                                        Image(systemName: "house")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 70, height: 70)
-                                            .foregroundColor(.gray)
+                                    NavigationLink {
+                                        ChatView(
+                                            listing: listing,
+                                            conversationId: conversation.id ?? ""
+                                        )
+                                    } label: {
+                                        ChatRowView(
+                                            listing: listing,
+                                            otherUserName: otherUserName,
+                                            lastMessage: lastMessage
+                                        )
+                                        .padding(.horizontal)
                                     }
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("\(landlord.name) – \(listing.title)")
-                                            .font(.headline)
-                                            .lineLimit(1)
-
-                                        Text(lastMessage.text)
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                            .lineLimit(1)
-
-                                        if let date = lastMessage.timestamp {
-                                            Text(formatDate(date))
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
-                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .padding(.vertical, 4)
                             }
-                        } else {
-                            Text("Loading...")
-                                .foregroundColor(.gray)
                         }
+                        .padding(.top, 12)
                     }
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.2), value: filteredConversations.count)
                 }
             }
             .navigationTitle("My Chats")
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 setupListeners()
             }
@@ -109,9 +89,7 @@ struct MyChatsView: View {
 
     // MARK: - Filter + Sort
 
-    /// conversations that actually have at least 1 message
     private var filteredConversations: [Conversation] {
-        // keep only conversations where we successfully loaded a last message
         let withMessages = viewModel.conversations.filter { conv in
             if let id = conv.id {
                 return lastMessages[id] != nil
@@ -119,7 +97,6 @@ struct MyChatsView: View {
             return false
         }
 
-        // sort those by last message time (or createdAt as fallback)
         return withMessages.sorted {
             let t1 = lastMessages[$0.id ?? ""]?.timestamp ?? $0.createdAt ?? .distantPast
             let t2 = lastMessages[$1.id ?? ""]?.timestamp ?? $1.createdAt ?? .distantPast
@@ -129,22 +106,19 @@ struct MyChatsView: View {
 
     // MARK: - Helpers
 
-    private func formatDate(_ date: Date) -> String {
-        let calendar = Calendar.current
-        let formatter = DateFormatter()
+    private func otherUserName(for conversation: Conversation, listing: Listing) -> String? {
+        guard let myId = Auth.auth().currentUser?.uid else { return nil }
 
-        if calendar.isDateInToday(date) {
-            formatter.dateFormat = "h:mm a"
-            return formatter.string(from: date)
-        } else if calendar.isDateInYesterday(date) {
-            return "Yesterday"
-        } else if let daysAgo = calendar.dateComponents([.day], from: date, to: Date()).day,
-                  daysAgo < 7 {
-            formatter.dateFormat = "EEEE"
-            return formatter.string(from: date)
+        // If I'm landlord, show tenant; else show landlord
+        if myId == listing.landlordId {
+            if let tenantId = conversation.participants.first(where: { $0 != myId }),
+               let tenant = users[tenantId] {
+                return tenant.name
+            } else {
+                return "Tenant"
+            }
         } else {
-            formatter.dateFormat = "MMM d, yyyy"
-            return formatter.string(from: date)
+            return users[listing.landlordId]?.name ?? "Landlord"
         }
     }
 
@@ -154,30 +128,56 @@ struct MyChatsView: View {
         viewModel.listenForMyConversations(userId: currentUserId) { convs in
             viewModel.conversations = convs
 
-            for conv in convs {
-                Task {
-                    // fetch listing (once)
-                    if listings[conv.listingId] == nil,
-                       let listing = try? await FireDBHelper.getInstance().fetchListing(byId: conv.listingId) {
-                        await MainActor.run {
-                            listings[conv.listingId] = listing
-                        }
+            Task {
+                await preloadMetadata(for: convs)
 
-                        // fetch landlord (once)
-                        if users[listing.landlordId] == nil,
-                           let landlord = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
-                            await MainActor.run {
-                                users[listing.landlordId] = landlord
-                            }
-                        }
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        isInitialLoading = false
                     }
+                }
+            }
+        }
+    }
 
-                    // fetch last message
-                    if let lastMsg = try? await fetchLastMessage(conversationId: conv.id ?? "") {
-                        await MainActor.run {
-                            lastMessages[conv.id ?? ""] = lastMsg
-                        }
+    private func preloadMetadata(for convs: [Conversation]) async {
+        for conv in convs {
+            guard let convId = conv.id else { continue }
+
+            // Listing + landlord/tenant
+            if listings[conv.listingId] == nil,
+               let listing = try? await FireDBHelper.getInstance().fetchListing(byId: conv.listingId) {
+
+                await MainActor.run {
+                    listings[conv.listingId] = listing
+                }
+
+                // landlord
+                if users[listing.landlordId] == nil,
+                   let landlord = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
+                    await MainActor.run {
+                        users[listing.landlordId] = landlord
                     }
+                }
+            }
+
+            // tenant (if I'm landlord)
+            if let myId = Auth.auth().currentUser?.uid,
+               let listing = listings[conv.listingId],
+               myId == listing.landlordId,
+               let tenantId = conv.participants.first(where: { $0 != myId }),
+               users[tenantId] == nil,
+               let tenant = await FireDBHelper.getInstance().getUser(byUID: tenantId) {
+                await MainActor.run {
+                    users[tenantId] = tenant
+                }
+            }
+
+            // Last message
+            if lastMessages[convId] == nil,
+               let lastMsg = try? await fetchLastMessage(conversationId: convId) {
+                await MainActor.run {
+                    lastMessages[convId] = lastMsg
                 }
             }
         }
@@ -193,5 +193,123 @@ struct MyChatsView: View {
             .getDocuments()
 
         return snapshot.documents.first.flatMap { try? $0.data(as: ChatMessage.self) }
+    }
+}
+
+struct ChatRowView: View {
+    let listing: Listing
+    let otherUserName: String
+    let lastMessage: ChatMessage
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            // Thumbnail
+            if let firstURL = listing.imageURLs.first,
+               let url = URL(string: firstURL) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 70, height: 70)
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 70, height: 70)
+                            .clipped()
+                            .cornerRadius(10)
+                    case .failure(_):
+                        Image(systemName: "house")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 70, height: 70)
+                            .foregroundColor(.gray)
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            } else {
+                Image(systemName: "house")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 70, height: 70)
+                    .foregroundColor(.gray)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(otherUserName)
+                        .font(.headline)
+                        .lineLimit(1)
+                    Spacer()
+                    if let date = lastMessage.timestamp {
+                        Text(formatDate(date))
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+
+                Text(listing.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+
+                Text(lastMessage.text)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .lineLimit(2)
+            }
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+        )
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let formatter = DateFormatter()
+
+        if calendar.isDateInToday(date) {
+            formatter.dateFormat = "h:mm a"
+            return formatter.string(from: date)
+        } else if calendar.isDateInYesterday(date) {
+            return "Yesterday"
+        } else if let daysAgo = calendar.dateComponents([.day], from: date, to: Date()).day,
+                  daysAgo < 7 {
+            formatter.dateFormat = "EEEE"
+            return formatter.string(from: date)
+        } else {
+            formatter.dateFormat = "MMM d"
+            return formatter.string(from: date)
+        }
+    }
+}
+
+struct SkeletonChatRow: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 70, height: 70)
+
+            VStack(alignment: .leading, spacing: 8) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 16)
+
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 14)
+
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 80, height: 12)
+            }
+        }
+        .padding(.vertical, 6)
+        .shimmer()
     }
 }

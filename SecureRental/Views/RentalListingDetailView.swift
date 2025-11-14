@@ -4,15 +4,18 @@ import CoreLocation
 import FirebaseAuth
 import Contacts
 
+// MARK: - Map Annotation Model
+
 struct MapLocation: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
 }
 
+// MARK: - Detail View
+
 struct RentalListingDetailView: View {
     var listing: Listing
     @State private var landlord: AppUser?
-
 
     // map
     @State private var region: MKCoordinateRegion = MKCoordinateRegion(
@@ -38,218 +41,136 @@ struct RentalListingDetailView: View {
     var body: some View {
         ZStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 18) {
 
-                    // images
+                    // MARK: - HERO IMAGES
                     if !listing.imageURLs.isEmpty {
                         CarouselView(imageURLs: listing.imageURLs)
-                            .frame(height: 300)
+                            .frame(height: 280)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
+                            .padding(.horizontal)
                     }
 
-                    Text(listing.title)
-                        .font(.largeTitle)
-                        .bold()
-                        .multilineTextAlignment(.center)
+                    // MARK: - TITLE + PRICE + STATUS
+                    SectionBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(listing.title)
+                                .font(.title3.weight(.semibold))
+                                .multilineTextAlignment(.leading)
 
-                    Text("$\(listing.price)/month")
-                        .font(.title)
-                        .foregroundColor(.green)
-                        .bold()
+                            HStack(alignment: .center, spacing: 8) {
+                                Text("$\(listing.price)/month")
+                                    .font(.title3.weight(.bold))
+                                    .foregroundColor(.hunterGreen)
 
-                    Divider()
+                                Spacer()
 
-                    // description
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Description:")
-                            .font(.headline)
-                        Text(listing.description)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal)
+                                if listing.isAvailable {
+                                    Text("Available")
+                                        .font(.caption.weight(.semibold))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.hunterGreen.opacity(0.12))
+                                        .foregroundColor(.hunterGreen)
+                                        .clipShape(Capsule())
+                                } else {
+                                    Text("Not available")
+                                        .font(.caption.weight(.semibold))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.red.opacity(0.10))
+                                        .foregroundColor(.red)
+                                        .clipShape(Capsule())
+                                }
+                            }
 
-                    Divider()
-
-                    // address
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Location:")
-                            .font(.headline)
-                        Text("\(listing.street), \(listing.city), \(listing.province)")
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal)
-
-                    Divider()
-
-                    // property details
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Property Details:")
-                            .font(.headline)
-
-                        HStack {
-                            Label("\(listing.numberOfBedrooms) Bedrooms", systemImage: "bed.double.fill")
-                                .foregroundColor(.blue)
-                            Label("\(listing.numberOfBathrooms) Bathrooms", systemImage: "drop.fill")
-                                .foregroundColor(.blue)
-                        }
-
-                        HStack {
-                            Label("\(listing.squareFootage) sq ft", systemImage: "ruler")
-                                .foregroundColor(.blue)
-                            if listing.isAvailable {
-                                Text("Available")
-                                    .foregroundColor(.green)
-                                    .padding(6)
-                                    .background(Color.green.opacity(0.1))
-                                    .cornerRadius(8)
-                            } else {
-                                Text("Not Available")
-                                    .foregroundColor(.red)
-                                    .padding(6)
-                                    .background(Color.red.opacity(0.1))
-                                    .cornerRadius(8)
+                            HStack(spacing: 4) {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text("\(listing.street), \(listing.city), \(listing.province)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
-                    .padding(.horizontal)
 
-                    Divider()
+                    // MARK: - PROPERTY DETAILS
+                    SectionBox(title: "Property Details") {
+                        HStack(spacing: 16) {
+                            Label("\(listing.numberOfBedrooms) bed", systemImage: "bed.double.fill")
+                            Label("\(listing.numberOfBathrooms) bath", systemImage: "drop.fill")
+                            Label("\(listing.squareFootage) sq ft", systemImage: "ruler")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.hunterGreen)
 
-                    Text("Map")
-                        .font(.headline)
+                        let trimmedDescription = listing.description
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                    Map(
-                        coordinateRegion: $region,
-                        annotationItems: [MapLocation(coordinate: region.center)]
-                    ) { location in
-                        MapMarker(coordinate: location.coordinate, tint: .red)
+                        if !trimmedDescription.isEmpty {
+                            Divider().padding(.vertical, 4)
+                            Text(trimmedDescription)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
-                    .frame(height: 200)
-                    .cornerRadius(12)
+
+                    // MARK: - AMENITIES
+                    if !listing.amenities.isEmpty {
+                        SectionBox(title: "Amenities") {
+                            FlexibleAmenityChips(amenities: listing.amenities)
+                        }
+                    }
+
+                    // MARK: - MAP + DIRECTIONS
+                    SectionBox(title: "Location on Map") {
+                        Map(
+                            coordinateRegion: $region,
+                            annotationItems: [MapLocation(coordinate: region.center)]
+                        ) { location in
+                            MapMarker(coordinate: location.coordinate, tint: .hunterGreen)
+                        }
+                        .frame(height: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+
+                        Button {
+                            if let user = dbHelper.currentUser, user.locationConsent == true {
+                                showMapPicker = true
+                            } else {
+                                shouldOpenDirectionsAfterConsent = true
+                                isConsentFlowLoading = true
+                                showLocationConsentAlert = true
+                            }
+                        } label: {
+                            Label("Open Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(Color.hunterGreen)
+                                .cornerRadius(10)
+                        }
+                    }
                     .onAppear {
                         geocodeAddressWithAnimation()
                     }
 
-                    // directions
-                    Button {
-                        if let user = dbHelper.currentUser, user.locationConsent == true {
-                            showMapPicker = true
-                        } else {
-                            shouldOpenDirectionsAfterConsent = true
-                            isConsentFlowLoading = true
-                            showLocationConsentAlert = true
+                    // MARK: - LANDLORD
+                    SectionBox {
+                        HStack {
+                            Text("Landlord")
+                                .font(.headline)
+                            Spacer()
+                            Text("Verified")
+                                .font(.caption2)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.hunterGreen.opacity(0.14))
+                                .foregroundColor(.hunterGreen)
+                                .clipShape(Capsule())
                         }
-                    } label: {
-                        Label("Open Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-
-                    Divider()
-
-                    // amenities
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Amenities:")
-                            .font(.headline)
-                        ForEach(listing.amenities, id: \.self) { amenity in
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.blue)
-                                Text(amenity)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    // actions
-                    if listing.landlordId != Auth.auth().currentUser?.uid {
-                        HStack(spacing: 48) {
-                            // MESSAGE
-                            VStack {
-                                Button {
-                                    Task {
-                                        await openOrCreateChat()
-                                    }
-                                } label: {
-                                    Image(systemName: "message.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(.blue)
-                                        .padding()
-                                        .background(Color(.systemGray6))
-                                        .clipShape(Circle())
-                                }
-                                Text("Message")
-                                    .font(.footnote)
-                            }
-
-                            // favourite
-                            VStack {
-                                Button {
-                                    withAnimation(.spring()) {
-                                        viewModel.toggleFavorite(for: listing)
-                                    }
-                                } label: {
-                                    Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
-                                        .padding()
-                                        .background(Color(.systemGray6))
-                                        .clipShape(Circle())
-                                }
-                                Text("Favourite")
-                                    .font(.footnote)
-                            }
-                        }
-                        .padding(.vertical, 20)
-
-                        Button {
-                            showCommentView = true
-                        } label: {
-                            Label("Rate / Review", systemImage: "star.circle.fill")
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                                .background(Color.orange)
-                                .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-
-                    } else {
-                        Text("You are the landlord for this listing")
-                            .foregroundColor(.gray)
-                            .italic()
-                            .padding()
-                    }
-
-                    Divider()
-
-                    // reviews
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Reviews")
-                            .font(.headline)
-
-                        if dbHelper.reviews.isEmpty {
-                            Text("No reviews yet. Be the first to review this listing!")
-                                .italic()
-                                .foregroundColor(.secondary)
-                        } else {
-                            ForEach(dbHelper.reviews) { review in
-                                ReviewRow(review: review)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                    .task {
-                        await dbHelper.fetchReviews(for: listing.id)
-                    }
-                    
-                    Divider()
-
-                    // 👇 Landlord section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Landlord")
-                            .font(.headline)
 
                         if let landlord {
                             NavigationLink {
@@ -263,13 +184,91 @@ struct RentalListingDetailView: View {
                                 .font(.subheadline)
                         }
                     }
-                    .padding(.horizontal)
 
-                    Divider()
+                    // MARK: - ACTIONS (MESSAGE / FAV / REVIEW)
+                    if listing.landlordId != Auth.auth().currentUser?.uid {
+                        SectionBox {
+                            VStack(spacing: 10) {
+                                HStack(spacing: 12) {
+                                    // Message – primary
+                                    Button {
+                                        Task {
+                                            await openOrCreateChat()
+                                        }
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "message.fill")
+                                            Text("Message Landlord")
+                                        }
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity, minHeight: 40)
+                                        .background(Color.hunterGreen)
+                                        .cornerRadius(10)
+                                    }
 
+                                    // Favourite – secondary
+                                    Button {
+                                        withAnimation(.spring()) {
+                                            viewModel.toggleFavorite(for: listing)
+                                        }
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
+                                            Text("Favourite")
+                                        }
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundColor(viewModel.isFavorite(listing) ? .red : .hunterGreen)
+                                        .frame(maxWidth: .infinity, minHeight: 40)
+                                        .background(Color.hunterGreen.opacity(0.08))
+                                        .cornerRadius(10)
+                                    }
+                                }
+
+                                Button {
+                                    showCommentView = true
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "star.circle.fill")
+                                        Text("Rate & Review this listing")
+                                    }
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, minHeight: 40)
+                                    .background(Color.orange)
+                                    .cornerRadius(10)
+                                }
+                            }
+                        }
+                    } else {
+                        SectionBox {
+                            Text("You are the landlord for this listing")
+                                .foregroundColor(.secondary)
+                                .font(.footnote.italic())
+                        }
+                    }
+
+                    // MARK: - REVIEWS
+                    SectionBox(title: "Reviews") {
+                        if dbHelper.reviews.isEmpty {
+                            Text("No reviews yet. Be the first to review this listing!")
+                                .italic()
+                                .foregroundColor(.secondary)
+                        } else {
+                            ForEach(dbHelper.reviews) { review in
+                                ReviewRow(review: review)
+                            }
+                        }
+                    }
+                    .task {
+                        await dbHelper.fetchReviews(for: listing.id)
+                    }
+
+                    Spacer(minLength: 16)
                 }
-                .padding()
-                .navigationTitle(listing.title)
+                .padding(.top, 10)
+                .navigationTitle("Listing details")
+                .navigationBarTitleDisplayMode(.inline)
                 .sheet(isPresented: $showCommentView) {
                     CommentView(listing: listing)
                         .environmentObject(dbHelper)
@@ -281,7 +280,7 @@ struct RentalListingDetailView: View {
                 }
             }
 
-            // loading overlay for location
+            // MARK: - Location loading overlay
             if isConsentFlowLoading {
                 Color.black.opacity(0.05)
                     .ignoresSafeArea()
@@ -291,7 +290,7 @@ struct RentalListingDetailView: View {
                     .cornerRadius(12)
             }
 
-            // 👇 hidden navigation link lives here, inside ZStack, not in .background
+            // MARK: - Hidden navigation to Chat
             NavigationLink(
                 isActive: $shouldNavigateToChat,
                 destination: {
@@ -309,7 +308,7 @@ struct RentalListingDetailView: View {
             )
             .hidden()
         }
-        // location alert
+        // MARK: - Location consent alert
         .alert("Allow SecureRental to access your location?", isPresented: $showLocationConsentAlert) {
             Button("No") {
                 Task {
@@ -329,7 +328,7 @@ struct RentalListingDetailView: View {
                 }
             }
         }
-        // map picker
+        // MARK: - Map picker
         .confirmationDialog("Open directions in…", isPresented: $showMapPicker, titleVisibility: .visible) {
             Button("Apple Maps") { openInAppleMaps() }
             Button("Google Maps") { openInGoogleMaps() }
@@ -408,5 +407,117 @@ struct RentalListingDetailView: View {
                 UIApplication.shared.open(webUrl)
             }
         }
+    }
+}
+
+// MARK: - Amenity chips (wrap layout)
+
+struct FlexibleAmenityChips: View {
+    let amenities: [String]
+
+    var body: some View {
+        FlexibleView(
+            data: amenities,
+            spacing: 8,
+            alignment: .leading
+        ) { amenity in
+            Text(amenity)
+                .font(.caption)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.hunterGreen.opacity(0.08))
+                .foregroundColor(.hunterGreen)
+                .clipShape(Capsule())
+        }
+    }
+}
+
+// MARK: - Generic flexible wrap view
+
+struct FlexibleView<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    let data: Data
+    let spacing: CGFloat
+    let alignment: HorizontalAlignment
+    let content: (Data.Element) -> Content
+
+    init(
+        data: Data,
+        spacing: CGFloat,
+        alignment: HorizontalAlignment,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) {
+        self.data = data
+        self.spacing = spacing
+        self.alignment = alignment
+        self.content = content
+    }
+
+    var body: some View {
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+
+        return GeometryReader { geometry in
+            ZStack(alignment: Alignment(horizontal: alignment, vertical: .top)) {
+                ForEach(Array(data), id: \.self) { item in
+                    content(item)
+                        .padding(.all, 4)
+                        .alignmentGuide(.leading) { d in
+                            if (abs(width - d.width) > geometry.size.width) {
+                                width = 0
+                                height -= d.height + spacing
+                            }
+                            let result = width
+                            if item == data.last {
+                                width = 0 // reset
+                            } else {
+                                width -= d.width + spacing
+                            }
+                            return result
+                        }
+                        .alignmentGuide(.top) { _ in
+                            let result = height
+                            if item == data.last {
+                                height = 0 // reset
+                            }
+                            return result
+                        }
+                }
+            }
+        }
+        .frame(height: intrinsicHeight)
+    }
+
+    // Fallback height; GeometryReader will expand as needed
+    private var intrinsicHeight: CGFloat { 100 }
+}
+
+// MARK: - Reusable Section Box
+
+struct SectionBox<Content: View>: View {
+    let title: String?
+    let content: Content
+
+    init(title: String? = nil,
+         @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let title {
+                Text(title)
+                    .font(.headline)
+            }
+
+            content
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
+        )
+        .padding(.horizontal)
     }
 }
