@@ -217,16 +217,13 @@ struct HomeView: View {
 
                                     Text("\(viewModel.locationListings.count)")
                                         .font(.caption.weight(.bold))
-                                        .foregroundColor(.black)
                                     Text(viewModel.locationListings.count == 1 ?
                                          "listing" :
                                          "listings")
                                         .font(.caption.weight(.bold))
-                                        .foregroundColor(.black)
 
                                     Text("based on your preferences")
                                         .font(.caption)
-                                        .foregroundColor(.black)
 
                                     Spacer()
                                 }
