@@ -29,34 +29,30 @@ class ChatViewModel: ObservableObject {
     }
 
     func sendMessage(to conversationId: String, text: String) async {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let db = Firestore.firestore()
-        let now = Date()
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
 
-        let msg = ChatMessage(
-            id: nil,
-            senderId: uid,
-            text: text,
-            timestamp: now
-        )
+        let db = Firestore.firestore()
+        let convRef = db.collection("conversations").document(conversationId)
 
         do {
-            // add message
-            _ = try db.collection("conversations")
-                .document(conversationId)
-                .collection("messages")
-                .addDocument(from: msg)
+            // 1) add message
+            let messageData: [String: Any] = [
+                "text": text,
+                "senderId": currentUserId,
+                "timestamp": FieldValue.serverTimestamp()
+            ]
 
-            // update parent doc
-            try await db.collection("conversations")
-                .document(conversationId)
-                .updateData([
-                    "lastMessage": text,
-                    "lastMessageAt": now
-                ])
+            try await convRef.collection("messages").addDocument(data: messageData)
+
+            // 2) update conversation metadata
+            try await convRef.updateData([
+                "lastMessageAt": FieldValue.serverTimestamp(),
+                "lastMessageText": text,
+                "lastSenderId": currentUserId
+            ])
 
         } catch {
-            print("❌ send failed: \(error)")
+            print("❌ Failed to send message: \(error)")
         }
     }
 
