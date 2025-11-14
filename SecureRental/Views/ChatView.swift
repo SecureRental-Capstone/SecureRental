@@ -160,9 +160,9 @@ struct ChatView: View {
                         .padding(.top, 8)
                         .padding(.bottom, 6)
                     }
-//                    .transaction { txn in
-//                            txn.disablesAnimations = true
-//                        }
+                    .transaction { txn in
+                            txn.disablesAnimations = true
+                        }
 //                    .onChange(of: chatVM.messages.count) { _ in
 //                        if let last = chatVM.messages.last {
 //                                proxy.scrollTo(last.id ?? UUID().uuidString, anchor: .bottom)
