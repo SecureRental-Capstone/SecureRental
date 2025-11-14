@@ -218,6 +218,18 @@ class FireDBHelper: ObservableObject {
        return listings
    }
     
+    func fetchListings(for landlordId: String) async throws -> [Listing] {
+        let snapshot = try await db.collection(COLLECTION_LISTINGS)
+            .whereField("landlordId", isEqualTo: landlordId)
+            .getDocuments()
+
+        let listings = snapshot.documents.compactMap { doc in
+            try? doc.data(as: Listing.self)
+        }
+        return listings
+    }
+
+    
     // Fetch listings only for the current landlord
     func fetchListingsForCurrentUser() async throws -> [Listing] {
         guard let uid = Auth.auth().currentUser?.uid else {

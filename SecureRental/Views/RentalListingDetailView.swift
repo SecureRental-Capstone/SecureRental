@@ -11,6 +11,8 @@ struct MapLocation: Identifiable {
 
 struct RentalListingDetailView: View {
     var listing: Listing
+    @State private var landlord: AppUser?
+
 
     // map
     @State private var region: MKCoordinateRegion = MKCoordinateRegion(
@@ -241,12 +243,41 @@ struct RentalListingDetailView: View {
                     .task {
                         await dbHelper.fetchReviews(for: listing.id)
                     }
+                    
+                    Divider()
+
+                    // 👇 Landlord section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Landlord")
+                            .font(.headline)
+
+                        if let landlord {
+                            NavigationLink {
+                                LandlordProfileView(landlord: landlord)
+                            } label: {
+                                UserRow(user: landlord, subtitle: "View profile & other listings")
+                            }
+                        } else {
+                            Text("Loading landlord info…")
+                                .foregroundColor(.secondary)
+                                .font(.subheadline)
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    Divider()
+
                 }
                 .padding()
                 .navigationTitle(listing.title)
                 .sheet(isPresented: $showCommentView) {
                     CommentView(listing: listing)
                         .environmentObject(dbHelper)
+                }
+                .task {
+                    if landlord == nil {
+                        landlord = await dbHelper.getUser(byUID: listing.landlordId)
+                    }
                 }
             }
 

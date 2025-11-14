@@ -1,6 +1,6 @@
 import SwiftUI
 import FirebaseAuth
-
+import FirebaseFirestore
 struct ChatView: View {
 //    @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject var chatVM = ChatViewModel()
@@ -209,17 +209,60 @@ struct ChatView: View {
 
     // MARK: - Load landlord / tenant
     private func loadPeople() async {
-        if landlord == nil {
-            if let user = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
-                await MainActor.run { landlord = user }
-            }
-        }
+        guard let myId = Auth.auth().currentUser?.uid else { return }
 
-        if let uid = Auth.auth().currentUser?.uid,
-           let user = await FireDBHelper.getInstance().getUser(byUID: uid) {
-            await MainActor.run { tenant = user }
+        let db = Firestore.firestore()
+
+        do {
+            // 1. Load the conversation to get participants
+            let convDoc = try await db.collection("conversations")
+                .document(conversationId)
+                .getDocument()
+
+            guard let data = convDoc.data(),
+                  let participants = data["participants"] as? [String] else {
+                print("❌ No participants for conversation")
+                return
+            }
+
+            // 2. Determine roles
+            if myId == listing.landlordId {
+                // 👉 I am the landlord
+                // landlord = me
+                if let meUser = await FireDBHelper.getInstance().getUser(byUID: myId) {
+                    await MainActor.run {
+                        self.landlord = meUser
+                    }
+                }
+
+                // tenant = other participant in array
+                if let tenantId = participants.first(where: { $0 != myId }),
+                   let tenantUser = await FireDBHelper.getInstance().getUser(byUID: tenantId) {
+                    await MainActor.run {
+                        self.tenant = tenantUser
+                    }
+                }
+            } else {
+                // 👉 I am the tenant
+                // tenant = me
+                if let meUser = await FireDBHelper.getInstance().getUser(byUID: myId) {
+                    await MainActor.run {
+                        self.tenant = meUser
+                    }
+                }
+
+                // landlord = listing.landlordId
+                if let landlordUser = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
+                    await MainActor.run {
+                        self.landlord = landlordUser
+                    }
+                }
+            }
+        } catch {
+            print("❌ Failed to load people: \(error.localizedDescription)")
         }
     }
+
 
     // MARK: - Helpers
     func groupMessagesByDate(_ messages: [ChatMessage]) -> [(String, [ChatMessage])] {
@@ -272,6 +315,18 @@ struct ChatInfoSheet: View {
     let landlord: AppUser?
     let tenant: AppUser?
     let dbHelper: FireDBHelper    // pass in explicitly
+    
+    
+    private var landlordSectionTitle: String {
+        guard let current = Auth.auth().currentUser?.uid else { return "Landlord" }
+        return current == listing.landlordId ? "Landlord (You)" : "Landlord"
+    }
+
+    private var tenantSectionTitle: String {
+        guard let current = Auth.auth().currentUser?.uid else { return "Tenant" }
+        return current == listing.landlordId ? "Tenant" : "Tenant (You)"
+    }
+
 
 
     var body: some View {
@@ -297,21 +352,28 @@ struct ChatInfoSheet: View {
                     }
                 }
 
-                Section("Landlord") {
+                Section(header: Text(landlordSectionTitle)) {
                     if let landlord {
-                        UserRow(user: landlord, subtitle: "Listing owner")
+                        NavigationLink {
+                            LandlordProfileView(landlord: landlord)
+                        } label: {
+                            UserRow(user: landlord)
+                        }
                     } else {
                         Text("Loading landlord…").foregroundColor(.secondary)
                     }
                 }
 
-                Section("Tenant") {
+
+                Section(header: Text(tenantSectionTitle)) {
                     if let tenant {
-                        UserRow(user: tenant, subtitle: "Renter / you")
+                        UserRow(user: tenant)
                     } else {
                         Text("Loading tenant…").foregroundColor(.secondary)
                     }
                 }
+
+
             }
             .navigationTitle("Chat Info")
             .navigationBarTitleDisplayMode(.inline)
