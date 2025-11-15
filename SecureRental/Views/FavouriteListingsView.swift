@@ -25,7 +25,6 @@ struct FavouriteListingsView: View {
                 )
                 .ignoresSafeArea()
                 
-                Divider()
                 
                 if viewModel.favouriteListings.isEmpty {
                     // MARK: - Empty state
@@ -47,6 +46,8 @@ struct FavouriteListingsView: View {
                     // MARK: - Favourites list (cards)
                     ScrollView {
                         VStack(alignment: .leading, spacing: 6) {
+                            Spacer()
+
                             LazyVStack(spacing: 10) {
                                 ForEach(viewModel.favouriteListings) { listing in
                                     
