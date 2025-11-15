@@ -13,68 +13,61 @@ struct FavouriteListingsView: View {
     
     var body: some View {
         NavigationView {
-            if viewModel.favouriteListings.isEmpty {
-                VStack {
-                    Text("No Favorites Yet")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    Text("Add some listings to your favorites to see them here.")
-                        .font(.subheadline)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                }
-            } else {
-                List(viewModel.favouriteListings) { listing in
-                    NavigationLink(destination: RentalListingDetailView(listing: listing)
-                        .environmentObject(dbHelper)) {
-                        HStack {
-
-                            if let firstURL = listing.imageURLs.first, let url = URL(string: firstURL) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .empty:
-                                        ProgressView()
-                                    case .success(let image):
-                                        image.resizable()
-                                            .scaledToFit()
-                                            .frame(width: 100, height: 100)
-                                            .cornerRadius(8)
-                                    case .failure:
-                                        Image(systemName: "photo")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 100, height: 100)
-                                            .foregroundColor(.gray)
-                                    @unknown default:
-                                        EmptyView()
+            ZStack {
+                // Background consistent with app
+                LinearGradient(
+                    colors: [
+                        Color.hunterGreen.opacity(0.06),
+                        Color(.systemBackground)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                if viewModel.favouriteListings.isEmpty {
+                    // MARK: - Empty state
+                    VStack(spacing: 10) {
+                        Image(systemName: "heart.slash")
+                            .font(.system(size: 32))
+                            .foregroundColor(.gray.opacity(0.7))
+                        
+                        Text("No favourites yet")
+                            .font(.headline)
+                        
+                        Text("Tap the heart icon on a listing to save it here.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
+                } else {
+                    // MARK: - Favourites list (cards)
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 6) {
+                            
+                            LazyVStack(spacing: 10) {
+                                ForEach(viewModel.favouriteListings) { listing in
+                                    NavigationLink {
+                                        RentalListingDetailView(listing: listing)
+                                            .environmentObject(dbHelper)
+                                    } label: {
+                                        ListingCardView(listing: listing)
                                     }
+                                    .buttonStyle(.plain)
                                 }
                             }
-                            
-                            VStack(alignment: .leading) {
-                                Text(listing.title)
-                                    .font(.headline)
-                                    .lineLimit(1)
-                                Text("\(listing.city), \(listing.province)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                Text("$\(listing.price)/month")
-                                    .font(.footnote)
-                                    .foregroundColor(.blue)
-                            }
-                            Spacer()
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
                         }
-                        .padding(.vertical, 5)
                     }
                 }
-                .navigationTitle("Favorites")
-                .onAppear{
-                     viewModel.fetchFavoriteListings()
-
-                }
             }
+            .navigationTitle("Favourites")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear {
+            viewModel.fetchFavoriteListings()
         }
     }
 }
-
-
