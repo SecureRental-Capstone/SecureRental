@@ -9,12 +9,9 @@ import Foundation
 import FirebaseFirestore
 
 
-struct Conversation: Identifiable, Codable {
+struct Conversation: Identifiable, Codable, Equatable {
     @DocumentID var id: String?
-    var listingId: String
     var participants: [String]
+    var listingId: String
     var createdAt: Date?
-    var lastMessageAt: Date?      // 👈 NEW
-    var lastMessageText: String?  // optional
-    var lastSenderId: String?     // optional
 }

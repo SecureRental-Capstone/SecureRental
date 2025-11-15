@@ -20,7 +20,7 @@ class ConversationsViewModel: ObservableObject {
         listener?.remove()
         listener = db.collection("conversations")
             .whereField("participants", arrayContains: userId)
-//            .order(by: "lastMessageAt", descending: true)   // 👈 important
+            .order(by: "createdAt", descending: true)
             .addSnapshotListener { snapshot, error in
                 guard let documents = snapshot?.documents else { return }
                 let convs = documents.compactMap { doc -> Conversation? in

@@ -586,8 +586,8 @@ class FireDBHelper: ObservableObject {
            // 2) if not found, create new
            let newConv = Conversation(
                id: nil,
-               listingId: listingId,
                participants: [landlordId, tenantId],
+               listingId: listingId,
                createdAt: Date()
            )
 
