@@ -340,6 +340,8 @@ struct ChatInfoSheet: View {
     let landlord: AppUser?
     let tenant: AppUser?
     let dbHelper: FireDBHelper
+    @Environment(\.dismiss) private var dismiss
+
 
     private var landlordSectionTitle: String {
         guard let current = Auth.auth().currentUser?.uid else { return "Landlord" }
@@ -521,6 +523,19 @@ struct ChatInfoSheet: View {
             }
             .navigationTitle("Chat Info")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.backward")
+                            Text("Back")
+                        }
+                    }
+                }
+            }
+
         }
     }
 
