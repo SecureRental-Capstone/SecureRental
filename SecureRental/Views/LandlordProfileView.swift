@@ -6,8 +6,6 @@
 //
 import SwiftUI
 
-import SwiftUI
-
 struct LandlordProfileView: View {
     let landlord: AppUser
 
@@ -16,87 +14,132 @@ struct LandlordProfileView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        List {
-            // Top profile section
-            Section {
-                UserRow(user: landlord)
-            } header: {
-                Text("Profile")
-            }
+        ZStack {
+            // Background matches rest of app
+            LinearGradient(
+                colors: [
+                    Color.hunterGreen.opacity(0.06),
+                    Color(.systemBackground)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            // Listings section
-            Section(header: Text("Listings by \(landlord.name)")) {
-                if let errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
+            VStack(spacing: 12) {
+                // MARK: - Profile Card
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .center, spacing: 12) {
+                        UserRow(user: landlord)   // already styled avatar + name + rating
+                        Spacer()
+                    }
+
+                    Text(profileSubtitle)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(.systemBackground))
+                        .shadow(color: Color.black.opacity(0.06),
+                                radius: 4, x: 0, y: 2)
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
 
-                ForEach(listings, id: \.id) { listing in
-                    NavigationLink {
-                        RentalListingDetailView(listing: listing)
-                            .environmentObject(FireDBHelper.getInstance())
-                    } label: {
-                        HStack(spacing: 12) {
-                            if let firstURL = listing.imageURLs.first,
-                               let url = URL(string: firstURL) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .empty:
-                                        ProgressView()
-                                            .frame(width: 60, height: 60)
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 60, height: 60)
-                                            .clipped()
-                                            .cornerRadius(8)
-                                    case .failure:
-                                        Image(systemName: "house")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 60, height: 60)
-                                            .foregroundColor(.gray)
-                                    @unknown default:
-                                        EmptyView()
-                                    }
+                // MARK: - Listings Section
+                if let errorMessage {
+                    // Error card
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                        Text(errorMessage)
+                            .font(.subheadline)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.systemBackground))
+                            .shadow(color: Color.black.opacity(0.05),
+                                    radius: 3, x: 0, y: 1)
+                    )
+                    .padding(.horizontal, 16)
+
+                    Spacer()
+                } else if isLoading {
+                    // Skeletons
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Listings by \(landlord.name)")
+                                .font(.subheadline.weight(.semibold))
+                                .padding(.horizontal, 16)
+                                .padding(.top, 4)
+
+                            LazyVStack(spacing: 10) {
+                                ForEach(0..<4, id: \.self) { _ in
+                                    SkeletonListingCardView()
                                 }
-                            } else {
-                                Image(systemName: "house")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 60, height: 60)
-                                    .foregroundColor(.gray)
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                        }
+                    }
+                } else if listings.isEmpty {
+                    // Empty state
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Listings by \(landlord.name)")
+                                .font(.subheadline.weight(.semibold))
+                                .padding(.horizontal, 16)
+                                .padding(.top, 4)
 
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(listing.title)
-                                    .font(.headline)
-                                    .lineLimit(1)
+                            Spacer(minLength: 40)
 
-                                Text("$\(listing.price)/month")
-                                    .font(.subheadline)
+                            VStack(spacing: 8) {
+                                Image(systemName: "tray")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.gray.opacity(0.6))
 
-                                Text("\(listing.city), \(listing.province)")
+                                Text("No other listings from this landlord.")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+
+                                Text("This landlord currently has no additional active listings.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 32)
                             }
+
+                            Spacer()
                         }
-                        .padding(.vertical, 4)
                     }
-                }
+                } else {
+                    // Actual listings
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Listings by \(landlord.name)")
+                                .font(.subheadline.weight(.semibold))
+                                .padding(.horizontal, 16)
+                                .padding(.top, 4)
 
-                if isLoading && listings.isEmpty && errorMessage == nil {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
+                            LazyVStack(spacing: 10) {
+                                ForEach(listings, id: \.id) { listing in
+                                    NavigationLink {
+                                        RentalListingDetailView(listing: listing)
+                                            .environmentObject(FireDBHelper.getInstance())
+                                    } label: {
+                                        ListingCardView(listing: listing)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                        }
                     }
-                }
-
-                if !isLoading && listings.isEmpty && errorMessage == nil {
-                    Text("No other listings from this landlord.")
-                        .foregroundColor(.secondary)
                 }
             }
         }
@@ -106,6 +149,18 @@ struct LandlordProfileView: View {
             Task { await loadListings() }
         }
     }
+
+    // MARK: - Derived text
+
+    private var profileSubtitle: String {
+        if isLoading { return "Loading listings…" }
+        let count = listings.count
+        if count == 0 { return "This landlord has no other active listings yet." }
+        if count == 1 { return "This landlord has 1 other active listing." }
+        return "This landlord has \(count) other active listings."
+    }
+
+    // MARK: - Data
 
     private func loadListings() async {
         isLoading = true
@@ -125,4 +180,3 @@ struct LandlordProfileView: View {
         }
     }
 }
-

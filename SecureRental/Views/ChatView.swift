@@ -1,8 +1,8 @@
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
+
 struct ChatView: View {
-//    @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject var chatVM = ChatViewModel()
 
     // passed in
@@ -17,167 +17,175 @@ struct ChatView: View {
     @State private var tenant: AppUser?
 
     var body: some View {
-        // use the live listing if we have it, otherwise fallback to the passed one
         let listingToShow = liveListing ?? listing
         let isSoldOut = listingToShow.isAvailable == false
 
-        VStack(spacing: 0) {
+        ZStack {
+            // Background matches HomeView / MyChatsView
+            LinearGradient(
+                colors: [
+                    Color.hunterGreen.opacity(0.06),
+                    Color(.systemBackground)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            // MARK: - Top bar
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(listingToShow.title)
-                        .font(.headline)
-                        .lineLimit(1)
+            VStack(spacing: 0) {
 
-                    Text("With: \(otherPartyName)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                // MARK: - Top bar (card style)
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(listingToShow.title)
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
 
-                Spacer()
-
-                if isSoldOut {
-                    Text("SOLD OUT")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(999)
-                }
-
-                Button {
-                    showInfoSheet = true
-                } label: {
-                    Image(systemName: "info.circle")
-                        .font(.title3)
-                        .padding(.leading, 4)
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-
-            Divider()
-
-            // MARK: - Availability banner
-            if isSoldOut {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                    Text("This listing is SOLD OUT / no longer available.")
-                        .font(.subheadline)
-                }
-                .foregroundColor(.white)
-                .padding(.vertical, 6)
-                .frame(maxWidth: .infinity)
-                .background(Color.red.opacity(0.9))
-            }
-
-            // MARK: - Messages
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        ForEach(groupMessagesByDate(chatVM.messages), id: \.0) { (dateString, messagesForDate) in
-                            HStack {
-                                Spacer()
-                                Text(dateString)
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                    .padding(.vertical, 6)
-                                Spacer()
-                            }
-
-                            ForEach(messagesForDate) { message in
-                                HStack(alignment: .bottom) {
-                                    if message.senderId == Auth.auth().currentUser?.uid {
-                                        Spacer()
-                                        VStack(alignment: .trailing, spacing: 2) {
-                                            Text(message.text)
-                                                .padding(10)
-                                                .background(Color.blue.opacity(0.3))
-                                                .foregroundColor(.black)
-                                                .cornerRadius(12)
-
-                                            if let timestamp = message.timestamp {
-                                                Text(formatTime(timestamp))
-                                                    .font(.caption2)
-                                                    .foregroundColor(.gray)
-                                            }
-                                        }
-                                    } else {
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(message.text)
-                                                .padding(10)
-                                                .background(Color.gray.opacity(0.4))
-                                                .foregroundColor(.black)
-                                                .cornerRadius(12)
-
-                                            if let timestamp = message.timestamp {
-                                                Text(formatTime(timestamp))
-                                                    .font(.caption2)
-                                                    .foregroundColor(.gray)
-                                            }
-                                        }
-                                        Spacer()
-                                    }
-                                }
-                                .id(message.id ?? UUID().uuidString)
-                            }
-                        }
+                        Text("Chat with \(otherPartyName)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 4)
-                }
-                .onChange(of: chatVM.messages.count) { _ in
-                    if let last = chatVM.messages.last {
-                        withAnimation {
-                            proxy.scrollTo(last.id ?? UUID().uuidString, anchor: .bottom)
-                        }
+
+                    Spacer()
+
+                    if isSoldOut {
+                        Text("SOLD OUT")
+                            .font(.caption2.weight(.bold))
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+                            .background(Color.red.opacity(0.9))
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                    }
+
+                    Button {
+                        showInfoSheet = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.title3)
+                            .foregroundColor(.hunterGreen)
                     }
                 }
-            }
-
-            // MARK: - Input
-            HStack {
-                TextField(
-                    isSoldOut ? "Listing is SOLD OUT" : "Type a message...",
-                    text: $chatVM.newMessage
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 0)
+                        .fill(Color(.systemBackground))
+                        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                 )
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .disabled(isSoldOut)
 
-                Button {
-                    Task {
-                        let text = chatVM.newMessage.trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard !text.isEmpty else { return }
-                        await chatVM.sendMessage(to: conversationId, text: text)
-                        chatVM.newMessage = ""
+                // MARK: - Availability banner
+                if isSoldOut {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                        Text("This listing is SOLD OUT / no longer available.")
+                            .font(.caption)
+                            .lineLimit(2)
                     }
-                } label: {
-                    Image(systemName: "paperplane.fill")
-                        .foregroundColor(isSoldOut ? .gray : .blue)
+                    .foregroundColor(.white)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.gray.opacity(0.95))
                 }
-                .disabled(isSoldOut)
+
+                // MARK: - Messages
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 10) {
+                            ForEach(groupMessagesByDate(chatVM.messages), id: \.0) { (dateString, messagesForDate) in
+                                // Date chip
+                                HStack {
+                                    Spacer()
+                                    Text(dateString)
+                                        .font(.caption2.weight(.semibold))
+                                        .foregroundColor(.secondary)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            Capsule()
+                                                .fill(Color(.systemBackground).opacity(0.9))
+                                                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                                        )
+                                    Spacer()
+                                }
+                                .padding(.top, 4)
+
+                                ForEach(messagesForDate) { message in
+                                    messageBubble(message)
+                                        .id(message.id ?? UUID().uuidString)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                    }
+                    .onChange(of: chatVM.messages.count) { _ in
+                        if let last = chatVM.messages.last {
+                            withAnimation {
+                                proxy.scrollTo(last.id ?? UUID().uuidString, anchor: .bottom)
+                            }
+                        }
+                    }
+                }
+
+                // MARK: - Input bar
+                VStack(spacing: 0) {
+                    Divider()
+
+                    HStack(spacing: 8) {
+                        TextField(
+                            isSoldOut ? "Listing is SOLD OUT" : "Type a message...",
+                            text: $chatVM.newMessage
+                        )
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18)
+                                .fill(Color(.systemGray6))
+                        )
+                        .font(.subheadline)
+                        .disabled(isSoldOut)
+
+                        Button {
+                            Task {
+                                let text = chatVM.newMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !text.isEmpty else { return }
+                                await chatVM.sendMessage(to: conversationId, text: text)
+                                chatVM.newMessage = ""
+                            }
+                        } label: {
+                            Image(systemName: "paperplane.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(
+                                    Circle()
+                                        .fill(isSoldOut ? Color.gray.opacity(0.4) : Color.hunterGreen)
+                                )
+                        }
+                        .disabled(isSoldOut)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        Color(.systemBackground)
+                            .ignoresSafeArea(edges: .bottom)
+                    )
+                }
+
             }
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(Color(.systemBackground))
         }
         .navigationTitle("Chat")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             Task {
-                // messages
                 await chatVM.listenToMessages(conversationId: conversationId)
             }
             Task {
-                // people
                 await loadPeople()
             }
             Task {
-                // 🔁 refresh listing so isAvailable is up-to-date
                 if let fresh = try? await FireDBHelper.getInstance().fetchListing(byId: listing.id) {
                     await MainActor.run {
                         self.liveListing = fresh
@@ -187,17 +195,50 @@ struct ChatView: View {
         }
         .sheet(isPresented: $showInfoSheet) {
             ChatInfoSheet(
-                listing: liveListing ?? listing,   // pass the fresh one
+                listing: liveListing ?? listing,
                 landlord: landlord,
                 tenant: tenant,
                 dbHelper: FireDBHelper.getInstance()
-//                dbHelper: dbHelper
             )
-//            .environmentObject(dbHelper)
         }
     }
 
+    // MARK: - Bubble builder
+
+    @ViewBuilder
+    private func messageBubble(_ message: ChatMessage) -> some View {
+        let isMe = message.senderId == Auth.auth().currentUser?.uid
+
+        HStack(alignment: .bottom, spacing: 6) {
+            if isMe { Spacer() }
+
+            VStack(alignment: isMe ? .trailing : .leading, spacing: 3) {
+                Text(message.text)
+                    .font(.subheadline)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(isMe
+                                  ? Color.hunterGreen.opacity(0.90)
+                                  : Color(.systemGray5))
+                    )
+                    .foregroundColor(isMe ? .white : .primary)
+
+                if let timestamp = message.timestamp {
+                    Text(formatTime(timestamp))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            if !isMe { Spacer() }
+        }
+        .transition(.opacity.combined(with: .move(edge: isMe ? .trailing : .leading)))
+    }
+
     // MARK: - Derived
+
     private var otherPartyName: String {
         let myId = Auth.auth().currentUser?.uid
         if myId == listing.landlordId {
@@ -208,13 +249,13 @@ struct ChatView: View {
     }
 
     // MARK: - Load landlord / tenant
+
     private func loadPeople() async {
         guard let myId = Auth.auth().currentUser?.uid else { return }
 
         let db = Firestore.firestore()
 
         do {
-            // 1. Load the conversation to get participants
             let convDoc = try await db.collection("conversations")
                 .document(conversationId)
                 .getDocument()
@@ -225,37 +266,24 @@ struct ChatView: View {
                 return
             }
 
-            // 2. Determine roles
             if myId == listing.landlordId {
-                // 👉 I am the landlord
-                // landlord = me
+                // I am landlord
                 if let meUser = await FireDBHelper.getInstance().getUser(byUID: myId) {
-                    await MainActor.run {
-                        self.landlord = meUser
-                    }
+                    await MainActor.run { self.landlord = meUser }
                 }
 
-                // tenant = other participant in array
                 if let tenantId = participants.first(where: { $0 != myId }),
                    let tenantUser = await FireDBHelper.getInstance().getUser(byUID: tenantId) {
-                    await MainActor.run {
-                        self.tenant = tenantUser
-                    }
+                    await MainActor.run { self.tenant = tenantUser }
                 }
             } else {
-                // 👉 I am the tenant
-                // tenant = me
+                // I am tenant
                 if let meUser = await FireDBHelper.getInstance().getUser(byUID: myId) {
-                    await MainActor.run {
-                        self.tenant = meUser
-                    }
+                    await MainActor.run { self.tenant = meUser }
                 }
 
-                // landlord = listing.landlordId
                 if let landlordUser = await FireDBHelper.getInstance().getUser(byUID: listing.landlordId) {
-                    await MainActor.run {
-                        self.landlord = landlordUser
-                    }
+                    await MainActor.run { self.landlord = landlordUser }
                 }
             }
         } catch {
@@ -263,10 +291,11 @@ struct ChatView: View {
         }
     }
 
+    // MARK: - Helpers (same logic, just grouped)
 
-    // MARK: - Helpers
     func groupMessagesByDate(_ messages: [ChatMessage]) -> [(String, [ChatMessage])] {
         let calendar = Calendar.current
+
         let grouped = Dictionary(grouping: messages) { message -> String in
             guard let date = message.timestamp else { return "Unknown" }
 
@@ -306,17 +335,12 @@ struct ChatView: View {
     }
 }
 
-
-// MARK: - Sheet
-
 struct ChatInfoSheet: View {
-//    @EnvironmentObject var dbHelper: FireDBHelper
     let listing: Listing
     let landlord: AppUser?
     let tenant: AppUser?
-    let dbHelper: FireDBHelper    // pass in explicitly
-    
-    
+    let dbHelper: FireDBHelper
+
     private var landlordSectionTitle: String {
         guard let current = Auth.auth().currentUser?.uid else { return "Landlord" }
         return current == listing.landlordId ? "Landlord (You)" : "Landlord"
@@ -326,8 +350,6 @@ struct ChatInfoSheet: View {
         guard let current = Auth.auth().currentUser?.uid else { return "Tenant" }
         return current == listing.landlordId ? "Tenant" : "Tenant (You)"
     }
-
-
 
     var body: some View {
         NavigationView {
@@ -340,11 +362,15 @@ struct ChatInfoSheet: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(listing.title)
                                 .font(.headline)
+
                             Text("$\(listing.price)/month")
-                            // 👇 availability indicator
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.hunterGreen)
+
                             Text(listing.isAvailable ? "Available" : "Not available / Sold out")
                                 .font(.caption)
                                 .foregroundColor(listing.isAvailable ? .green : .red)
+
                             Text("\(listing.street), \(listing.city), \(listing.province)")
                                 .foregroundColor(.secondary)
                                 .font(.caption)
@@ -360,26 +386,26 @@ struct ChatInfoSheet: View {
                             UserRow(user: landlord)
                         }
                     } else {
-                        Text("Loading landlord…").foregroundColor(.secondary)
+                        Text("Loading landlord…")
+                            .foregroundColor(.secondary)
                     }
                 }
-
 
                 Section(header: Text(tenantSectionTitle)) {
                     if let tenant {
                         UserRow(user: tenant)
                     } else {
-                        Text("Loading tenant…").foregroundColor(.secondary)
+                        Text("Loading tenant…")
+                            .foregroundColor(.secondary)
                     }
                 }
-
-
             }
             .navigationTitle("Chat Info")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
+
 
 struct UserRow: View {
     let user: AppUser
