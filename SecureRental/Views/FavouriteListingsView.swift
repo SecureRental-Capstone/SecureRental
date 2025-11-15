@@ -45,16 +45,36 @@ struct FavouriteListingsView: View {
                     // MARK: - Favourites list (cards)
                     ScrollView {
                         VStack(alignment: .leading, spacing: 6) {
-                            
                             LazyVStack(spacing: 10) {
                                 ForEach(viewModel.favouriteListings) { listing in
-                                    NavigationLink {
-                                        RentalListingDetailView(listing: listing)
-                                            .environmentObject(dbHelper)
-                                    } label: {
-                                        ListingCardView(listing: listing)
+                                    
+                                    ZStack(alignment: .topTrailing) {
+                                        // Main navigation to detail
+                                        NavigationLink {
+                                            RentalListingDetailView(listing: listing)
+                                                .environmentObject(dbHelper)
+                                        } label: {
+                                            ListingCardView(listing: listing)
+                                        }
+                                        .buttonStyle(.plain)
+                                        
+                                        // Heart toggle
+                                        Button {
+                                            viewModel.toggleFavorite(for: listing)
+                                        } label: {
+                                            Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .padding(8)
+                                                .background(
+                                                    Circle()
+                                                        .fill(Color.white.opacity(0.9))
+                                                        .shadow(color: .black.opacity(0.15),
+                                                                radius: 3, x: 0, y: 1)
+                                                )
+                                                .foregroundColor(.red)
+                                        }
+                                        .padding(10)
                                     }
-                                    .buttonStyle(.plain)
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -68,6 +88,9 @@ struct FavouriteListingsView: View {
         }
         .onAppear {
             viewModel.fetchFavoriteListings()
+            // Optional: also refresh listings, if you want this page to be independent
+            // viewModel.fetchListings()
         }
     }
 }
+
