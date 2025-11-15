@@ -174,7 +174,7 @@ struct MyChatsView: View {
             }
 
             // Last message
-            if lastMessages[convId] == nil,
+            if
                let lastMsg = try? await fetchLastMessage(conversationId: convId) {
                 await MainActor.run {
                     lastMessages[convId] = lastMsg
