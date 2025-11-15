@@ -4,13 +4,19 @@
 //
 //  Created by Anchal  Sharma  on 2025-10-21.
 //
-
 import SwiftUI
 import MapKit
 
 struct MapViewRepresentable: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var selectedCoordinate: IdentifiableCoordinate?
+    
+    let nearbyListings: [Listing]    // 👈 NEW
+    let radiusKm: Double             // 👈 NEW
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
     
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapViewRepresentable
@@ -34,19 +40,34 @@ struct MapViewRepresentable: UIViewRepresentable {
                 return nil
             }
             
-            let identifier = "DraggablePin"
-            var view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKPinAnnotationView
-            
-            if view == nil {
-                view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-                view?.isDraggable = true
-                view?.canShowCallout = true
-                view?.pinTintColor = .systemBlue
+            // main draggable pin (our selected location)
+            if annotation.title ?? "" == "Drag to adjust" {
+                let identifier = "DraggablePin"
+                var view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKPinAnnotationView
+                
+                if view == nil {
+                    view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                    view?.isDraggable = true
+                    view?.canShowCallout = true
+                    view?.pinTintColor = .systemBlue
+                } else {
+                    view?.annotation = annotation
+                }
+                
+                return view
             } else {
-                view?.annotation = annotation
+                // listing pins = non-draggable
+                let identifier = "ListingPin"
+                var view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
+                if view == nil {
+                    view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                    view?.canShowCallout = true
+                    view?.markerTintColor = .systemGreen
+                } else {
+                    view?.annotation = annotation
+                }
+                return view
             }
-            
-            return view
         }
         
         // Update coordinate when dragged
@@ -58,10 +79,18 @@ struct MapViewRepresentable: UIViewRepresentable {
                 parent.region.center = annotation.coordinate
             }
         }
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        
+        // Radius circle renderer
+        func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let circle = overlay as? MKCircle {
+                let renderer = MKCircleRenderer(circle: circle)
+                renderer.fillColor = UIColor.systemGreen.withAlphaComponent(0.15)
+                renderer.strokeColor = UIColor.systemGreen.withAlphaComponent(0.7)
+                renderer.lineWidth = 1.5
+                return renderer
+            }
+            return MKOverlayRenderer(overlay: overlay)
+        }
     }
     
     func makeUIView(context: Context) -> MKMapView {
@@ -77,17 +106,41 @@ struct MapViewRepresentable: UIViewRepresentable {
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
         mapView.setRegion(region, animated: true)
+        
+        // remove everything first
         mapView.removeAnnotations(mapView.annotations)
+        mapView.removeOverlays(mapView.overlays)
+        
+        // main selected pin
         if let selected = selectedCoordinate {
             let annotation = MKPointAnnotation()
             annotation.coordinate = selected.coordinate
             annotation.title = "Drag to adjust"
+            mapView.addAnnotation(annotation)
+            
+            // add radius circle
+            let circle = MKCircle(center: selected.coordinate,
+                                  radius: radiusKm * 1000) // km -> meters
+            mapView.addOverlay(circle)
+        }
+        
+        // nearby listing pins
+        for listing in nearbyListings {
+            guard let lat = listing.latitude,
+                  let lon = listing.longitude else { continue }
+            
+            let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coord
+            annotation.title = listing.title
+            annotation.subtitle = "$\(listing.price)/month"
             mapView.addAnnotation(annotation)
         }
     }
     
     func updateAnnotation(on mapView: MKMapView, coordinate: CLLocationCoordinate2D) {
         mapView.removeAnnotations(mapView.annotations)
+        
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         annotation.title = "Drag to adjust"
@@ -99,4 +152,3 @@ struct MapViewRepresentable: UIViewRepresentable {
         }
     }
 }
-

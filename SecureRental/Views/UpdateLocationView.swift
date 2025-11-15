@@ -8,6 +8,7 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
+
 struct IdentifiableCoordinate: Identifiable {
     let id = UUID()
     var coordinate: CLLocationCoordinate2D
@@ -27,6 +28,14 @@ struct UpdateLocationView: View {
     @State private var isUpdating = false
     @State private var alertMessage: String?
     @State private var isFetchingLocation = false
+    
+    // 👇 NEW: listings to show as pins on the map
+    @State private var nearbyListings: [Listing] = []
+    
+    /// The radius used for displaying map pins (max 25 km)
+    private var effectiveMapRadius: Double {
+        return min(radius, 25)
+    }
     
     var body: some View {
         ZStack {
@@ -61,7 +70,9 @@ struct UpdateLocationView: View {
                         // Map
                         MapViewRepresentable(
                             region: $region,
-                            selectedCoordinate: $selectedCoordinate
+                            selectedCoordinate: $selectedCoordinate,
+                            nearbyListings: nearbyListings,   // 👈 NEW
+                            radiusKm: radius                  // 👈 NEW
                         )
                         .frame(height: 300)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -81,10 +92,10 @@ struct UpdateLocationView: View {
                             }
                             
                             Slider(value: $radius, in: 1...400, step: 1)
-//                                .onChange(of: radius) { newValue in
-//                                        updateMapSpan(for: newValue)
-//                                    }
-                            
+                                .onChange(of: radius) { newValue in
+                                    updateMapSpan(for: newValue)
+                                    Task { await refreshNearbyListings() }   // 👈 NEW
+                                }
                         }
                     }
                     .padding(12)
@@ -156,6 +167,7 @@ struct UpdateLocationView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadUserData()
+            Task { await refreshNearbyListings() }   // 👈 NEW
         }
         .alert(
             alertMessage ?? "",
@@ -215,6 +227,55 @@ struct UpdateLocationView: View {
         }
     }
     
+    // MARK: - Nearby listings refresh
+    
+    func refreshNearbyListings() async {
+        guard let coord = selectedCoordinate?.coordinate else {
+            await MainActor.run { nearbyListings = [] }
+            return
+        }
+        
+        do {
+            let all = try await FireDBHelper.getInstance().fetchListings()
+            
+            let filtered = all.filter { listing in
+                guard let lat = listing.latitude,
+                      let lon = listing.longitude else { return false }
+                
+                let distance = distanceKm(
+                    from: coord,
+                    to: CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                )
+                return distance <= effectiveMapRadius
+            }
+            
+            await MainActor.run {
+                self.nearbyListings = filtered
+            }
+        } catch {
+            print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
+            await MainActor.run {
+                self.nearbyListings = []
+            }
+        }
+    }
+    
+    /// Simple Haversine distance in km
+    private func distanceKm(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
+        let earthRadius = 6371.0
+        
+        let dLat = (to.latitude - from.latitude) * .pi / 180
+        let dLon = (to.longitude - from.longitude) * .pi / 180
+        
+        let a = sin(dLat / 2) * sin(dLat / 2) +
+            cos(from.latitude * .pi / 180) *
+            cos(to.latitude * .pi / 180) *
+            sin(dLon / 2) * sin(dLon / 2)
+        
+        let c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return earthRadius * c
+    }
+    
     // MARK: - Save Updated Location
     
     @MainActor
@@ -260,6 +321,10 @@ struct UpdateLocationView: View {
         )
         
         alertMessage = "Location set to your current position!"
+        
+        await refreshNearbyListings()   // 👈 NEW
+        
         isFetchingLocation = false
     }
 }
+
