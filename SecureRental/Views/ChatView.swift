@@ -353,58 +353,192 @@ struct ChatInfoSheet: View {
 
     var body: some View {
         NavigationView {
-            List {
-                Section("Listing") {
-                    NavigationLink {
-                        RentalListingDetailView(listing: listing)
-                            .environmentObject(dbHelper)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(listing.title)
-                                .font(.headline)
+            ZStack {
+                // Match app background
+                LinearGradient(
+                    colors: [
+                        Color.hunterGreen.opacity(0.06),
+                        Color(.systemBackground)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
 
-                            Text("$\(listing.price)/month")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.hunterGreen)
-
-                            Text(listing.isAvailable ? "Available" : "Not available / Sold out")
-                                .font(.caption)
-                                .foregroundColor(listing.isAvailable ? .green : .red)
-
-                            Text("\(listing.street), \(listing.city), \(listing.province)")
-                                .foregroundColor(.secondary)
-                                .font(.caption)
-                        }
-                    }
-                }
-
-                Section(header: Text(landlordSectionTitle)) {
-                    if let landlord {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // MARK: - Listing Card
                         NavigationLink {
-                            LandlordProfileView(landlord: landlord)
+                            RentalListingDetailView(listing: listing)
+                                .environmentObject(dbHelper)
                         } label: {
-                            UserRow(user: landlord)
-                        }
-                    } else {
-                        Text("Loading landlord…")
-                            .foregroundColor(.secondary)
-                    }
-                }
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 12) {
+                                    // Thumbnail (similar to ListingCardView)
+                                    ZStack {
+                                        if let firstURL = listing.imageURLs.first,
+                                           let url = URL(string: firstURL) {
+                                            AsyncImage(url: url) { phase in
+                                                switch phase {
+                                                case .empty:
+                                                    ProgressView()
+                                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                case .success(let image):
+                                                    image
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                case .failure:
+                                                    Image(systemName: "house.fill")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .foregroundColor(.gray.opacity(0.7))
+                                                        .padding(12)
+                                                @unknown default:
+                                                    EmptyView()
+                                                }
+                                            }
+                                        } else {
+                                            Image(systemName: "house.fill")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundColor(.gray.opacity(0.7))
+                                                .padding(12)
+                                        }
+                                    }
+                                    .frame(width: 90, height: 72)
+                                    .background(Color(.systemGray6))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                Section(header: Text(tenantSectionTitle)) {
-                    if let tenant {
-                        UserRow(user: tenant)
-                    } else {
-                        Text("Loading tenant…")
-                            .foregroundColor(.secondary)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(listing.title)
+                                            .font(.subheadline.weight(.semibold))
+                                            .lineLimit(2)
+
+                                        Text("$\(listing.price)/month")
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundColor(.hunterGreen)
+
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "mappin.and.ellipse")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                            Text("\(listing.city), \(listing.province)")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                                .lineLimit(1)
+                                        }
+                                    }
+
+                                    Spacer()
+                                }
+
+                                HStack {
+                                    Text(listing.isAvailable ? "Available" : "Not available / Sold out")
+                                        .font(.caption.weight(.semibold))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            Capsule()
+                                                .fill(
+                                                    listing.isAvailable
+                                                    ? Color.hunterGreen.opacity(0.12)
+                                                    : Color.red.opacity(0.12)
+                                                )
+                                        )
+                                        .foregroundColor(
+                                            listing.isAvailable
+                                            ? .hunterGreen
+                                            : .red
+                                        )
+
+                                    Spacer()
+                                }
+                            }
+                            .padding(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(.systemBackground))
+                                    .shadow(color: Color.black.opacity(0.06),
+                                            radius: 4, x: 0, y: 2)
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        // MARK: - Landlord Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(landlordSectionTitle)
+                                .font(.subheadline.weight(.semibold))
+
+                            if let landlord {
+                                NavigationLink {
+                                    LandlordProfileView(landlord: landlord)
+                                } label: {
+                                    cardWrapper {
+                                        UserRow(user: landlord)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            } else {
+                                cardWrapper {
+                                    HStack {
+                                        ProgressView()
+                                        Text("Loading landlord…")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+
+                        // MARK: - Tenant Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(tenantSectionTitle)
+                                .font(.subheadline.weight(.semibold))
+
+                            if let tenant {
+                                cardWrapper {
+                                    UserRow(user: tenant)
+                                }
+                            } else {
+                                cardWrapper {
+                                    HStack {
+                                        ProgressView()
+                                        Text("Loading tenant…")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+
+                        Spacer(minLength: 8)
                     }
+                    .padding(.top, 12)
+                    .padding(.bottom, 16)
                 }
             }
             .navigationTitle("Chat Info")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
+
+    // MARK: - Small helper for consistent cards
+    @ViewBuilder
+    private func cardWrapper<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: Color.black.opacity(0.05),
+                            radius: 3, x: 0, y: 1)
+            )
+    }
 }
+
 
 
 struct UserRow: View {
