@@ -25,6 +25,8 @@ struct FavouriteListingsView: View {
                 )
                 .ignoresSafeArea()
                 
+                Divider()
+                
                 if viewModel.favouriteListings.isEmpty {
                     // MARK: - Empty state
                     VStack(spacing: 10) {
