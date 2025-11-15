@@ -7,12 +7,20 @@
 import SwiftUI
 import MapKit
 
+class ListingAnnotation: MKPointAnnotation {
+    var listingId: String?
+}
+
 struct MapViewRepresentable: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var selectedCoordinate: IdentifiableCoordinate?
     
+    
     let nearbyListings: [Listing]    // 👈 NEW
     let radiusKm: Double             // 👈 NEW
+    
+    @Binding var selectedListing: Listing?      // 👈 NEW
+
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -68,8 +76,24 @@ struct MapViewRepresentable: UIViewRepresentable {
                 }
                 return view
             }
+            
         }
         
+        // When a pin is tapped
+        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            guard
+                let annotation = view.annotation as? ListingAnnotation,
+                let listingId = annotation.listingId
+            else { return }
+            
+            if let listing = parent.nearbyListings.first(where: { $0.id == listingId }) {
+                // update binding on main thread
+                DispatchQueue.main.async {
+                    self.parent.selectedListing = listing
+                }
+            }
+        }
+
         // Update coordinate when dragged
         func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView,
                      didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {
@@ -130,12 +154,14 @@ struct MapViewRepresentable: UIViewRepresentable {
                   let lon = listing.longitude else { continue }
             
             let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-            let annotation = MKPointAnnotation()
+            let annotation = ListingAnnotation()
+            annotation.listingId = listing.id              // 👈 store ID
             annotation.coordinate = coord
             annotation.title = listing.title
             annotation.subtitle = "$\(listing.price)/month"
             mapView.addAnnotation(annotation)
         }
+
     }
     
     func updateAnnotation(on mapView: MKMapView, coordinate: CLLocationCoordinate2D) {

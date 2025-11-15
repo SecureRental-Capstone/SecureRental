@@ -476,7 +476,7 @@ struct ChatInfoSheet: View {
                                     LandlordProfileView(landlord: landlord)
                                 } label: {
                                     cardWrapper {
-                                        UserRow(user: landlord)
+                                        UserRow(user: landlord, subtitle: "View profile & other listings")
                                     }
                                 }
                                 .buttonStyle(.plain)

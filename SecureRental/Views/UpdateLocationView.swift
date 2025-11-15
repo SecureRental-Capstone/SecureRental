@@ -24,7 +24,7 @@ struct UpdateLocationView: View {
     )
     
     @State private var selectedCoordinate: IdentifiableCoordinate?
-    @State private var radius: Double = 5.0       // will be loaded from user
+    @State private var sliderPosition: Double = 0.0   // 0...1, controls radius
     @State private var isUpdating = false
     @State private var alertMessage: String?
     @State private var isFetchingLocation = false
@@ -32,10 +32,18 @@ struct UpdateLocationView: View {
     // 👇 NEW: listings to show as pins on the map
     @State private var nearbyListings: [Listing] = []
     
-    /// The radius used for displaying map pins (max 25 km)
+    // Logical radius in km derived from sliderPosition (0...1)
+    private var radius: Double {
+        radiusForSlider(sliderPosition)
+    }
+
+    // The radius used for displaying map pins (max 25 km)
     private var effectiveMapRadius: Double {
         return min(radius, 25)
     }
+    
+    @State private var selectedListing: Listing?    // 👈 NEW
+
     
     var body: some View {
         ZStack {
@@ -71,8 +79,9 @@ struct UpdateLocationView: View {
                         MapViewRepresentable(
                             region: $region,
                             selectedCoordinate: $selectedCoordinate,
-                            nearbyListings: nearbyListings,   // 👈 NEW
-                            radiusKm: radius                  // 👈 NEW
+                            nearbyListings: nearbyListings,
+                            radiusKm: radius,
+                            selectedListing: $selectedListing          // 👈 NEW
                         )
                         .frame(height: 300)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -91,11 +100,13 @@ struct UpdateLocationView: View {
                                     .foregroundColor(.hunterGreen)
                             }
                             
-                            Slider(value: $radius, in: 1...400, step: 1)
-                                .onChange(of: radius) { newValue in
-                                    updateMapSpan(for: newValue)
-                                    Task { await refreshNearbyListings() }   // 👈 NEW
+                            Slider(value: $sliderPosition, in: 0...1)
+                                .onChange(of: sliderPosition) { newPos in
+                                    let newRadius = radiusForSlider(newPos)
+                                    updateMapSpan(for: newRadius)
+                                    Task { await refreshNearbyListings() }
                                 }
+
                         }
                     }
                     .padding(12)
@@ -180,6 +191,14 @@ struct UpdateLocationView: View {
         ) {
             Button("OK", role: .cancel) { }
         }
+        .sheet(item: $selectedListing) { listing in
+            NavigationView {
+                RentalListingDetailView(listing: listing)
+                    .environmentObject(dbHelper)
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+
     }
     
     // MARK: - Derived
@@ -205,6 +224,42 @@ struct UpdateLocationView: View {
             )
         }
     }
+    
+    // MARK: - Slider <-> Radius mapping
+
+    // Given slider position t in [0, 1], return radius in [1, 300]
+    // - 0.0  -> ~1 km
+    // - 0.5  -> 25 km
+    // - 1.0  -> 300 km
+    private func radiusForSlider(_ t: Double) -> Double {
+        let clampedT = min(max(t, 0), 1)
+
+        if clampedT <= 0.5 {
+            // Linear from 1 to 25 over [0, 0.5]
+            // r = 1 + (25 - 1) * (t / 0.5) = 1 + 48t
+            return 1.0 + 48.0 * clampedT
+        } else {
+            // Quadratic from 25 to 300 over (0.5, 1]
+            // r = 25 + 275 * u^2, where u in [0, 1]
+            let u = (clampedT - 0.5) / 0.5
+            return 25.0 + 275.0 * (u * u)
+        }
+    }
+
+    /// Inverse: given a radius in [1, 300], return slider position in [0, 1]
+    private func sliderForRadius(_ r: Double) -> Double {
+        let clampedR = min(max(r, 1), 300)
+
+        if clampedR <= 25 {
+            // r = 1 + 48t  =>  t = (r - 1) / 48
+            return (clampedR - 1.0) / 48.0
+        } else {
+            // r = 25 + 275u^2, t = 0.5 + 0.5u
+            let u = sqrt((clampedR - 25.0) / 275.0)
+            return 0.5 + 0.5 * u
+        }
+    }
+
 
     
     // MARK: - Load User Data
@@ -219,12 +274,10 @@ struct UpdateLocationView: View {
             selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
         }
         
-        // Set radius to user's saved radius (default 5 if not found), clamped 0–400
-        if let userRadius = user.radius {
-            radius = min(max(userRadius, 0), 400)
-        } else {
-            radius = 5.0
-        }
+        // Set radius from user's saved radius (default 5)
+        let savedRadius = user.radius ?? 5.0
+        let clamped = min(max(savedRadius, 1), 300)
+        sliderPosition = sliderForRadius(clamped)   // 👈 derive slider position
     }
     
     // MARK: - Nearby listings refresh
