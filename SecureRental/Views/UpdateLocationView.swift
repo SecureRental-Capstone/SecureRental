@@ -4,7 +4,6 @@
 //
 //  Created by Anchal Sharma on 2025-10-20.
 //
-
 import SwiftUI
 import MapKit
 import CoreLocation
@@ -24,79 +23,180 @@ struct UpdateLocationView: View {
     )
     
     @State private var selectedCoordinate: IdentifiableCoordinate?
-    @State private var radius: Double = 5.0
+    @State private var radius: Double = 5.0       // will be loaded from user
     @State private var isUpdating = false
     @State private var alertMessage: String?
     @State private var isFetchingLocation = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Update Your Location")
-                .font(.headline)
-            
-            // Map with draggable annotation
-            MapViewRepresentable(
-                region: $region,
-                selectedCoordinate: $selectedCoordinate
+        ZStack {
+            // Background consistent with rest of app
+            LinearGradient(
+                colors: [
+                    Color.hunterGreen.opacity(0.06),
+                    Color(.systemBackground)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
-            .frame(height: 350)
-            .cornerRadius(12)
+            .ignoresSafeArea()
             
-            // Radius slider
-            HStack {
-                Text("Search Radius: \(Int(radius)) km")
-                Slider(value: $radius, in: 1...50, step: 1)
-            }
-            .padding(.horizontal)
-            
-            // Set current location
-            Button(action: {
-                Task { await setCurrentLocation() }
-            }) {
-                HStack {
-                    if isFetchingLocation {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    } else {
-                        Image(systemName: "location.fill")
-                        Text("Set Current Location")
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Title + subtitle
+                    VStack(spacing: 4) {
+                        Text("Update Your Location")
+                            .font(.title3.weight(.semibold))
+                        
+                        Text("Choose where to search for listings and how far around it.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
                     }
+                    .padding(.top, 8)
+                    
+                    // Card: Map + radius
+                    VStack(spacing: 12) {
+                        // Map
+                        MapViewRepresentable(
+                            region: $region,
+                            selectedCoordinate: $selectedCoordinate
+                        )
+                        .frame(height: 300)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+                        
+                        // Radius slider (1–400 km)
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text("Search radius")
+                                    .font(.subheadline.weight(.semibold))
+                                
+                                Spacer()
+                                
+                                Text(radiusLabel)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundColor(.hunterGreen)
+                            }
+                            
+                            Slider(value: $radius, in: 1...400, step: 1)
+//                                .onChange(of: radius) { newValue in
+//                                        updateMapSpan(for: newValue)
+//                                    }
+                            
+                        }
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(.systemBackground))
+                            .shadow(color: Color.black.opacity(0.06),
+                                    radius: 4, x: 0, y: 2)
+                    )
+                    .padding(.horizontal, 16)
+                    
+                    // Set current location button
+                    Button(action: {
+                        Task { await setCurrentLocation() }
+                    }) {
+                        HStack {
+                            if isFetchingLocation {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            } else {
+                                Image(systemName: "location.fill")
+                                Text("Use My Current Location")
+                            }
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(isFetchingLocation
+                                      ? Color.hunterGreen.opacity(0.6)
+                                      : Color.hunterGreen)
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .disabled(isFetchingLocation)
+                    .padding(.horizontal, 16)
+                    
+                    // Save button
+                    Button(action: {
+                        Task { await updateUserLocation() }
+                    }) {
+                        HStack {
+                            if isUpdating {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            } else {
+                                Text("Save Location & Radius")
+                                    .font(.subheadline.weight(.semibold))
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.blue)
+                        )
+                        .foregroundColor(.white)
+                    }
+                    .disabled(isUpdating)
+                    .padding(.horizontal, 16)
+                    
+                    Spacer(minLength: 12)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(isFetchingLocation ? Color.green.opacity(0.6) : Color.green)
-                .foregroundColor(.white)
-                .cornerRadius(10)
+                .padding(.bottom, 12)
             }
-            .disabled(isFetchingLocation)   // 👈 disable while loading
-            .padding(.horizontal)
-            
-            // Save button
-            Button(action: {
-                Task { await updateUserLocation() }
-            }) {
-                if isUpdating {
-                    ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white))
-                } else {
-                    Text("Save Location").bold()
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(12)
-            .padding(.horizontal)
-            .disabled(isUpdating)
         }
-        .padding()
         .navigationTitle("Update Location")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadUserData()
         }
+        .alert(
+            alertMessage ?? "",
+            isPresented: Binding(
+                get: { alertMessage != nil },
+                set: { newValue in
+                    if !newValue { alertMessage = nil }
+                }
+            )
+        ) {
+            Button("OK", role: .cancel) { }
+        }
     }
     
+    // MARK: - Derived
+    
+    private var radiusLabel: String {
+        if radius <= 0 {
+            return "Off"
+        } else {
+            return "\(Int(radius)) km"
+        }
+    }
+    
+    // Adjusts zoom level based on radius (km)
+    private func updateMapSpan(for radius: Double) {
+        // Convert km to degrees roughly (1 degree ~ 111 km)
+        let degrees = max(0.01, radius / 111.0)
+
+        // Smooth zooming animation
+        withAnimation(.easeInOut(duration: 0.35)) {
+            region.span = MKCoordinateSpan(
+                latitudeDelta: degrees * 2.0,   // small multiplier for comfortable view
+                longitudeDelta: degrees * 2.0
+            )
+        }
+    }
+
+    
     // MARK: - Load User Data
+    
     func loadUserData() {
         guard let user = dbHelper.currentUser else { return }
         
@@ -107,19 +207,20 @@ struct UpdateLocationView: View {
             selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
         }
         
-        // ✅ Set radius to user's saved radius (default 5 if not found)
+        // Set radius to user's saved radius (default 5 if not found), clamped 0–400
         if let userRadius = user.radius {
-            radius = userRadius
+            radius = min(max(userRadius, 0), 400)
         } else {
             radius = 5.0
         }
     }
     
     // MARK: - Save Updated Location
+    
     @MainActor
     func updateUserLocation() async {
         guard let coord = selectedCoordinate?.coordinate else {
-            alertMessage = "Please set or drag the pin to your location."
+            alertMessage = "Please tap or drag the pin to set your location."
             return
         }
         
@@ -130,46 +231,35 @@ struct UpdateLocationView: View {
             radius: radius
         )
         isUpdating = false
-        alertMessage = "Location updated successfully!"
+        alertMessage = "Location and radius updated successfully!"
     }
+    
+    // MARK: - Use Device Location
     
     @MainActor
     func setCurrentLocation() async {
-        // start loading
         isFetchingLocation = true
-       
-        // try to get device location
+        
         guard let currentLocation = await viewModel.getDeviceLocation() else {
             alertMessage = "Unable to get your current location."
+            isFetchingLocation = false
             return
         }
-
-        let userlatitude = currentLocation.latitude
+        
+        let userLatitude = currentLocation.latitude
         let userLongitude = currentLocation.longitude
         
-//        // Hardcoded current location
-//        let userlatitude = 43.7791987
-//        let userLongitude = -79.4172125
-      
-        // Update map pin and region
-        let coord = CLLocationCoordinate2D(latitude: userlatitude, longitude: userLongitude)
+        let coord = CLLocationCoordinate2D(latitude: userLatitude, longitude: userLongitude)
         selectedCoordinate = IdentifiableCoordinate(coordinate: coord)
         region.center = coord
         
-        // Update city from coordinates
-        await viewModel.updateCityFromStoredCoordinates(latitude: userlatitude, longitude: userLongitude)
+        // Update city name based on new coordinates
+        await viewModel.updateCityFromStoredCoordinates(
+            latitude: userLatitude,
+            longitude: userLongitude
+        )
         
-        //        // Save user location to Firestore and local user object
-        //        await viewModel.updateUserLocation(latitude: userlatitude,
-        //                                           longitude: userLongitude,
-        //                                           radius: hardcodedRadius)
-        
-        alertMessage = "Location set to predefined coordinates!"
-        
-        // stop loading
+        alertMessage = "Location set to your current position!"
         isFetchingLocation = false
-        
     }
-
-
 }
