@@ -10,76 +10,112 @@ struct MyChatsView: View {
     @State private var lastMessages: [String: ChatMessage] = [:]
 
     @State private var isInitialLoading = true
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationView {
             ZStack {
-                // Nice subtle background
+                // Same style as HomeView background
                 LinearGradient(
-                    colors: [Color(.systemGray6), Color(.systemBackground)],
+                    colors: [
+                        Color.hunterGreen.opacity(0.06),
+                        Color(.systemBackground)
+                    ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
 
-                if isInitialLoading {
-                    // ✨ Beautiful skeleton loading
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(0..<5, id: \.self) { _ in
-                                SkeletonChatRow()
-                                    .padding(.horizontal)
-                            }
-                        }
-                        .padding(.top, 16)
-                    }
-                    .transition(.opacity)
-                } else if filteredConversations.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "bubble.left.and.bubble.right.fill")
-                            .font(.system(size: 42))
-                            .foregroundColor(.gray.opacity(0.7))
-                        Text("No conversations yet")
-                            .font(.headline)
-                        Text("Start chatting with a landlord from a listing to see your messages here.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12, pinnedViews: []) {
-                            ForEach(filteredConversations, id: \.id) { conversation in
-                                if let listing = listings[conversation.listingId],
-                                   let otherUserName = otherUserName(for: conversation, listing: listing),
-                                   let lastMessage = lastMessages[conversation.id ?? ""] {
+                VStack(spacing: 12) {
+                    // HEADER
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Messages")
+                            .font(.title3.weight(.semibold))
 
-                                    NavigationLink {
-                                        ChatView(
-                                            listing: listing,
-                                            conversationId: conversation.id ?? ""
-                                        )
-                                    } label: {
-                                        ChatRowView(
-                                            listing: listing,
-                                            otherUserName: otherUserName,
-                                            lastMessage: lastMessage
-                                        )
-                                        .padding(.horizontal)
-                                    }
-                                    .buttonStyle(.plain)
+                        Text(subtitleText)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+
+                    // SEARCH BAR (same style as Home search)
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.hunterGreen)
+                        TextField("Search by name or listing…", text: $searchText)
+                            .font(.subheadline)
+                            .textInputAutocapitalization(.never)
+                            .disableAutocorrection(true)
+                    }
+                    .padding(10)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(10)
+                    .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+                    .padding(.horizontal, 16)
+
+                    if isInitialLoading {
+                        // Skeletons styled like listing cards
+                        ScrollView {
+                            LazyVStack(spacing: 10) {
+                                ForEach(0..<6, id: \.self) { _ in
+                                    SkeletonChatRow()
                                 }
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 4)
+                            .padding(.bottom, 10)
                         }
-                        .padding(.top, 12)
+                    } else if filteredConversations.isEmpty {
+                        Spacer()
+                        VStack(spacing: 8) {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.gray.opacity(0.7))
+                            Text("No conversations yet.")
+                                .font(.body)
+                                .foregroundColor(.primary)
+                            Text("Start a chat from a listing to see your messages here.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 32)
+                        }
+                        Spacer()
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 10) {   // 1 card per row
+                                ForEach(filteredConversations, id: \.id) { conversation in
+                                    if let listing = listings[conversation.listingId],
+                                       let otherUserName = otherUserName(for: conversation, listing: listing),
+                                       let lastMessage = lastMessages[conversation.id ?? ""] {
+
+                                        NavigationLink {
+                                            ChatView(
+                                                listing: listing,
+                                                conversationId: conversation.id ?? ""
+                                            )
+                                        } label: {
+                                            ChatRowView(
+                                                listing: listing,
+                                                otherUserName: otherUserName,
+                                                lastMessage: lastMessage
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 4)
+                            .padding(.bottom, 10)
+                        }
+                        .animation(.easeInOut(duration: 0.2), value: filteredConversations.count)
                     }
-                    .transition(.opacity)
-                    .animation(.easeInOut(duration: 0.2), value: filteredConversations.count)
                 }
             }
-            .navigationTitle("My Chats")
+            .navigationTitle("Messages")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 setupListeners()
@@ -97,11 +133,30 @@ struct MyChatsView: View {
             return false
         }
 
-        return withMessages.sorted {
+        let sorted = withMessages.sorted {
             let t1 = lastMessages[$0.id ?? ""]?.timestamp ?? $0.createdAt ?? .distantPast
             let t2 = lastMessages[$1.id ?? ""]?.timestamp ?? $1.createdAt ?? .distantPast
             return t1 > t2
         }
+
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return sorted }
+
+        let query = trimmed.lowercased()
+        return sorted.filter { conv in
+            guard let listing = listings[conv.listingId] else { return false }
+            let titleMatch = listing.title.lowercased().contains(query)
+            let otherName = otherUserName(for: conv, listing: listing)?.lowercased() ?? ""
+            let nameMatch = otherName.contains(query)
+            return titleMatch || nameMatch
+        }
+    }
+
+    private var subtitleText: String {
+        let count = filteredConversations.count
+        if count == 0 { return "You don’t have any chats yet." }
+        if count == 1 { return "You have 1 active conversation." }
+        return "You have \(count) active conversations."
     }
 
     // MARK: - Helpers
@@ -174,8 +229,7 @@ struct MyChatsView: View {
             }
 
             // Last message
-            if
-               let lastMsg = try? await fetchLastMessage(conversationId: convId) {
+            if let lastMsg = try? await fetchLastMessage(conversationId: convId) {
                 await MainActor.run {
                     lastMessages[convId] = lastMsg
                 }
@@ -196,76 +250,117 @@ struct MyChatsView: View {
     }
 }
 
+
 struct ChatRowView: View {
     let listing: Listing
     let otherUserName: String
     let lastMessage: ChatMessage
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Thumbnail
-            if let firstURL = listing.imageURLs.first,
-               let url = URL(string: firstURL) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                            .frame(width: 70, height: 70)
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 70, height: 70)
-                            .clipped()
-                            .cornerRadius(10)
-                    case .failure(_):
-                        Image(systemName: "house")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 70, height: 70)
-                            .foregroundColor(.gray)
-                    @unknown default:
-                        EmptyView()
+        HStack(spacing: 12) {
+            // Thumbnail matching ListingCardView
+            ZStack {
+                if let firstURL = listing.imageURLs.first,
+                   let url = URL(string: firstURL) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            Image(systemName: "house.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundColor(.gray.opacity(0.7))
+                                .padding(12)
+                        @unknown default:
+                            EmptyView()
+                        }
                     }
+                } else {
+                    Image(systemName: "house.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(.gray.opacity(0.7))
+                        .padding(12)
                 }
-            } else {
-                Image(systemName: "house")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 70, height: 70)
-                    .foregroundColor(.gray)
             }
+            .frame(width: 110, height: 90)
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
 
+            // Text block
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
+                HStack(alignment: .firstTextBaseline) {
                     Text(otherUserName)
-                        .font(.headline)
+                        .font(.footnote.weight(.semibold))
                         .lineLimit(1)
+
                     Spacer()
+
                     if let date = lastMessage.timestamp {
                         Text(formatDate(date))
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
                     }
                 }
 
                 Text(listing.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
+                    .font(.footnote.weight(.semibold))
+                    .lineLimit(2)
+
+                // Location + price row
+                HStack(spacing: 4) {
+                    if !listing.city.isEmpty {
+                        Image(systemName: "mappin.and.ellipse")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Text("\(listing.city), \(listing.province)")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    // ✅ works whether price is Int, Double, or String
+                    if let priceText = formattedPrice(listing.price) {
+                        Text(priceText)
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.hunterGreen)
+                    }
+                }
 
                 Text(lastMessage.text)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                     .lineLimit(2)
             }
+
+            Spacer()
         }
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 14)
                 .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
         )
+    }
+
+    private func formattedPrice(_ price: Any?) -> String? {
+        // Adjust depending on your model type
+        if let p = price as? Double {
+            return "$\(Int(p))/month"
+        } else if let p = price as? Int {
+            return "$\(p)/month"
+        } else if let p = price as? String, !p.isEmpty {
+            return "$\(p)/month"
+        }
+        return nil
     }
 
     private func formatDate(_ date: Date) -> String {
@@ -290,26 +385,37 @@ struct ChatRowView: View {
 
 struct SkeletonChatRow: View {
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 70, height: 70)
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.hunterGreen.opacity(0.12))
+                .frame(width: 110, height: 90)
 
-            VStack(alignment: .leading, spacing: 8) {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 16)
-
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.gray.opacity(0.3))
+            VStack(alignment: .leading, spacing: 6) {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.25))
                     .frame(height: 14)
 
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 80, height: 12)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 80, height: 10)
+
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.18))
+                    .frame(width: 110, height: 8)
+
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.16))
+                    .frame(width: 140, height: 8)
             }
+
+            Spacer()
         }
-        .padding(.vertical, 6)
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
+        )
         .shimmer()
     }
 }
