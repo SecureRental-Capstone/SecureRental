@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 extension UIApplication {
     func topViewController(
@@ -24,5 +25,24 @@ extension UIApplication {
             return topViewController(base: presented)
         }
         return base
+    }
+}
+
+/// Extension to make using the custom corner radius simpler.
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners) )
+    }
+}
+
+/// A custom shape for applying corner radius to specific corners.
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        // Uses UIKit's UIBezierPath to calculate the path for specific corners
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }
