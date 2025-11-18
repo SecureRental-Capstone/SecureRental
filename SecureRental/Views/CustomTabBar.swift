@@ -47,3 +47,20 @@ struct CustomTabBar: View {
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: -2)
     }
 }
+/// A persistent, custom-styled tab bar with rounded corners and shadow.
+
+enum Tab: String, CaseIterable {
+    case explore = "Explore"
+    case search = "Search"
+    case inbox = "Inbox"
+    case profile = "Profile"
+    
+    var iconName: String {
+        switch self {
+        case .explore: return "house.fill"
+        case .search: return "magnifyingglass"
+        case .inbox: return "message.fill"
+        case .profile: return "person.fill"
+        }
+    }
+}
