@@ -72,7 +72,7 @@ struct RentalListingCardView: View {
                     Spacer()
                     
                     // Converted Price - uses the logic from CurrencyViewModel
-                    Text(vm.convertedPrice() + "/mo")
+                    Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
                         .font(.headline.weight(.semibold))
                         .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                 }

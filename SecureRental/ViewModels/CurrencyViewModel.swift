@@ -56,8 +56,29 @@ class CurrencyViewModel: ObservableObject {
         }
     }
 
-    func convertedPrice() -> String {
-        let value = basePrice * selectedCurrency.rate
-        return String(format: "%@%.2f", selectedCurrency.symbol, value)
+//    func convertedPrice() -> String {
+//        let value = basePrice * selectedCurrency.rate
+//        return String(format: "%@%.2f", selectedCurrency.symbol, value)
+//    }
+    func convertedPrice(basePriceString: String) -> String {
+        // Ensure the price string can be converted to a Double.
+        guard let basePriceInUSD = Double(basePriceString) else {
+            return "N/A"
+        }
+        
+        // Find the rate for the selected currency. Use 1.0 if somehow missing.
+        let rate = selectedCurrency.rate
+        
+        // Calculate the converted price
+        let convertedValue = basePriceInUSD * rate
+        
+        // Format the output string
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = selectedCurrency.code
+        formatter.currencySymbol = selectedCurrency.symbol
+        formatter.maximumFractionDigits = 0 // Show whole numbers for rent
+        
+        return formatter.string(from: NSNumber(value: convertedValue)) ?? "\(selectedCurrency.symbol)\(Int(convertedValue))"
     }
 }

@@ -73,28 +73,28 @@ struct StudyStayAppUI: View {
                     .padding(.top, 8)
                     
                     // MARK: Verified Housing Banner
-                    HStack(alignment: .top) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.white)
-                            .font(.title2)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Verified Student Housing")
-                                .font(.callout.weight(.bold))
-                                .foregroundColor(.white)
-                            
-                            Text("7 verified listings near universities")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                                .underline()
-                        }
-                        Spacer()
-                    }
-                    .padding(16)
-                    .background(Color.blue)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 20)
+//                    HStack(alignment: .top) {
+//                        Image(systemName: "checkmark.circle.fill")
+//                            .foregroundColor(.white)
+//                            .font(.title2)
+//                        
+//                        VStack(alignment: .leading, spacing: 4) {
+//                            Text("Verified Student Housing")
+//                                .font(.callout.weight(.bold))
+//                                .foregroundColor(.white)
+//                            
+//                            Text("7 verified listings near universities")
+//                                .font(.subheadline)
+//                                .foregroundColor(.white.opacity(0.8))
+//                                .underline()
+//                        }
+//                        Spacer()
+//                    }
+//                    .padding(16)
+//                    .background(Color.blue)
+//                    .cornerRadius(12)
+//                    .padding(.horizontal)
+//                    .padding(.top, 20)
                     
                     // MARK: Results Count
                     Text("\(mockListings.count) properties found")
