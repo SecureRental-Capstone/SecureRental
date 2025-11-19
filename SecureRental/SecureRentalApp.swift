@@ -24,8 +24,8 @@ struct SecureRentalApp: App {
     
     var body: some Scene {
         WindowGroup {
-            //LaunchView()
-            StudyStayAppUI()
+            LaunchView()
+            //SecureRentalHomePage()
         }
     }
 }

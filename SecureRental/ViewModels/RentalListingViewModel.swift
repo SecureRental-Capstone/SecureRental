@@ -24,6 +24,8 @@ import CoreLocation
 class RentalListingsViewModel: ObservableObject {
     @Published var listings: [Listing] = []
     @Published var locationListings: [Listing] = []
+    @Published var allListings: [Listing] = []
+
     let dbHelper = FireDBHelper.getInstance()
     
     @Published var searchText: String = ""
@@ -137,6 +139,36 @@ class RentalListingsViewModel: ObservableObject {
                 }
         }
     }
+    
+    func filterListingsNew(searchTerm: String, amenities: [String], showOnlyAvailable: Bool = true) {
+        // Always start filtering from the original unfiltered list
+        var filtered = locationListings
+
+        // Search text
+        if !searchTerm.isEmpty {
+            let lower = searchTerm.lowercased()
+            filtered = filtered.filter { listing in
+                listing.title.lowercased().contains(lower) ||
+                listing.description.lowercased().contains(lower)
+            }
+        }
+
+        // Amenities
+        if !amenities.isEmpty {
+            filtered = filtered.filter { listing in
+                amenities.allSatisfy { listing.amenities.contains($0) }
+            }
+        }
+
+        // Availability
+        if showOnlyAvailable {
+            filtered = filtered.filter { $0.isAvailable }
+        }
+
+        // Push filtered results to UI array
+        self.locationListings = filtered
+    }
+
 
     func deleteListing(_ listing: Listing) {
             // Remove locally first
@@ -180,8 +212,6 @@ class RentalListingsViewModel: ObservableObject {
         
     }
     
-    
-
     // Fetch device location
     @MainActor
     func getDeviceLocation() async -> CLLocationCoordinate2D? {

@@ -13,6 +13,10 @@ struct RentalListingCardView: View {
     let listing: Listing
     @ObservedObject var vm: CurrencyViewModel
     
+    @EnvironmentObject var viewModel: RentalListingsViewModel
+
+//    @StateObject var viewModel = RentalListingsViewModel()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // MARK: Image and Overlays
@@ -46,15 +50,27 @@ struct RentalListingCardView: View {
                     Spacer()
                     
                     // Heart Icon
+//                    Button {
+//                        // Action to favorite
+//                    } label: {
+//                        Image(systemName: "heart.fill")
+//                            .padding(8)
+//                            .background(Color.white)
+//                            .clipShape(Circle())
+//                            .foregroundColor(.red) // Red for favorited, gray for unfavorited
+//                    }
                     Button {
-                        // Action to favorite
+                        withAnimation(.spring()) {
+                            viewModel.toggleFavorite(for: listing) // listing is the item you want to favorite
+                        }
                     } label: {
-                        Image(systemName: "heart.fill")
+                        Image(systemName: viewModel.isFavorite(listing) ? "heart.fill" : "heart")
                             .padding(8)
                             .background(Color.white)
                             .clipShape(Circle())
-                            .foregroundColor(.red) // Red for favorited, gray for unfavorited
+                            .foregroundColor(viewModel.isFavorite(listing) ? .red : .gray)
                     }
+
                 }
                 .padding(12)
             }

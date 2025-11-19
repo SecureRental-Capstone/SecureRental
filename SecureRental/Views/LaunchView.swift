@@ -35,8 +35,8 @@ struct LaunchView: View {
                 SignInView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
                 
             case .main:
-//                HomeView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
-                SecureRentalHomePage().environmentObject(self.fireDBHelper)
+                //HomeView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+                SecureRentalHomePage(rootView: self.$rootView).environmentObject(self.fireDBHelper)
 
                 
 //            case .signUp:
