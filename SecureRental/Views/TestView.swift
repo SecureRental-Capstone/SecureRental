@@ -413,6 +413,11 @@ struct SecureRentalHomePage: View {
     @State private var showAddListing = false
     @State private var showChatbot = false
     @State private var showUpdateLocationSheet = false
+    @State private var float = false
+//    @State private var showTooltip = false
+
+    @State private var showHint = true
+
 
 
     var body: some View {
@@ -624,19 +629,177 @@ struct SecureRentalHomePage: View {
             }
             .environmentObject(viewModel)
             .zIndex(0)
+//            .overlay(alignment: .bottomTrailing) {
+//                Button(action: { showChatbot = true }) {
+//                    
+//                    Image("Chatbot")
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 68, height: 66)
+//                        .padding(14)
+//                        .background(Color.white)
+//                        .clipShape(Circle())
+//                        .shadow(color: .black.opacity(0.3), radius: 6, y: 3)
+//                    
+//                        // ⭐ Floating animation
+//                        .offset(y: float ? -8 : 0)        // moves up + down softly
+//                        .animation(
+//                            Animation.easeInOut(duration: 2.0)
+//                                .repeatForever(autoreverses: true),
+//                            value: float
+//                        )
+//                        .onAppear { float = true }
+//                    
+//                }
+//                .padding(.trailing, 16)
+//                .padding(.bottom, 5)
+//            }
             .overlay(alignment: .bottomTrailing) {
-                Button(action: { showChatbot = true }) {
-                    Image(systemName: "message.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.blue)
-                        .clipShape(Circle())
-                        .shadow(radius: 4)
+                
+                VStack(spacing: 6) {
+                    
+                        // HINT BUBBLE
+                    if showHint {
+                        Text("Ask a question")
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.black.opacity(0.75))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .transition(.opacity)
+                    }
+                    
+                        // CHATBOT BUTTON
+                    Button(action: { showChatbot = true }) {
+                        Image("Chatbot")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 68, height: 66)
+                            .padding(14)
+                            .background(Color.white.opacity(0.97))
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(Color(.systemGray5), lineWidth: 2)
+                            )
+                            // Soft iOS shadow
+                            .shadow(color: Color.blue.opacity(0.15), radius: 12, y: 6)
+                            // Floating animation
+                            .offset(y: float ? -8 : 0)
+                            .animation(
+                                Animation.easeInOut(duration: 1.8)
+                                    .repeatCount(4, autoreverses: true),
+                                value: float
+                            )
+                    }
                 }
-                .padding(.trailing, 20)
-                .padding(.bottom, 30) // adjust up/down
+                .padding(.trailing, 16)
+                .padding(.bottom, 8)
             }
+            .onAppear {
+                float = true
+                showHint = true
+                
+                    // Hide hint after 2 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    withAnimation { showHint = false }
+                }
+            }
+
+//            .overlay(alignment: .bottomTrailing) {
+//                
+//                ZStack(alignment: .bottomTrailing) {
+//                    
+//                        // ✨ Tooltip bubble
+//                    if showTooltip {
+//                        Text("Ask a question")
+//                            .font(.caption)
+//                            .padding(.horizontal, 10)
+//                            .padding(.vertical, 6)
+//                            .background(Color.black.opacity(0.8))
+//                            .foregroundColor(.white)
+//                            .cornerRadius(8)
+//                            .offset(y: -100)  // position above chatbot
+//                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+//                    }
+//                    
+//                        // 🤖 Chatbot Button
+//                    Button(action: {
+//                        showChatbot = true
+//                    }) {
+//                        Image("Chatbot")
+//                            .resizable()
+//                            .scaledToFit()
+//                            .frame(width: 68, height: 66)
+//                            .padding(14)
+//                            .background(Color.white.opacity(0.95))
+//
+//                            .clipShape(Circle())
+//                            .shadow(color: Color.blue.opacity(0.25), radius: 12, x: 0, y: 6)
+//
+//                            .overlay(
+//                                Circle()
+//                                    .stroke(Color(.systemGray5), lineWidth: 2)
+//                                    .blur(radius: 4)
+//                            )
+//                        
+//                            // ⭐ Floating animation
+//                            .offset(y: float ? -8 : 0)
+//                            .animation(
+//                                Animation.easeInOut(duration: 2.0)
+//                                    .repeatForever(autoreverses: true),
+//                                value: float
+//                            )
+//                            .onAppear { float = true }
+//                        
+//                    }
+//                        // 👇 long press triggers tooltip
+//                    .simultaneousGesture(
+//                        LongPressGesture(minimumDuration: 0.25)
+//                            .onEnded { _ in
+//                                withAnimation {
+//                                    showTooltip = true
+//                                }
+//                                    // Hide automatically after 1.5 sec
+//                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+//                                    withAnimation {
+//                                        showTooltip = false
+//                                    }
+//                                }
+//                            }
+//                    )
+//                    .padding(.trailing, 10)
+//                    .padding(.bottom, 5)
+//                }
+//            }
+
+
+//            .overlay(alignment: .bottomTrailing) {
+//                Button(action: { showChatbot = true }) {
+////                    Image(systemName: "message.fill")
+//                    Image("Chatbot")   // feels like AI, not messaging
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 68, height: 66)
+//                        .padding(14)
+//                        .background(Color.white)
+//                        .clipShape(Circle())
+//                        .shadow(color: .black.opacity(0.2), radius: 6, y: 3)
+//                        .padding(.trailing, 16)
+//                        .padding(.bottom, 5)
+////                        .resizable()
+////                        .renderingMode(.original)
+////                        .scaledToFit()
+////                        .frame(width: 75, height: 75)   // larger for testing
+//////                        .padding(5)
+//////                        .background(Color.white)
+////                        .clipShape(Circle())
+////                        .shadow(radius: 4)
+//                }
+//                .padding(.trailing, 5)
+//                .padding(.bottom, 5) // adjust up/down
+//            }
 
         }
     }
