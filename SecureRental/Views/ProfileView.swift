@@ -161,9 +161,7 @@ struct NotificationPreferencesView: View {
 //    var body: some View { Text("Terms of Use") }
 //}
 
-struct PrivacyPolicyView: View {
-    var body: some View { Text("Privacy Policy") }
-}
+
 
 struct HelpView: View {
     var body: some View { Text("Help") }
