@@ -389,6 +389,7 @@
 //        }
 //    }
 //}
+
 import SwiftUI
 
 struct SecureRentalHomePage: View {
@@ -411,6 +412,7 @@ struct SecureRentalHomePage: View {
     @State private var selectedTab: String = "Search"
     @State private var showAddListing = false
     @State private var showChatbot = false
+    @State private var showUpdateLocationSheet = false
 
 
     var body: some View {
@@ -503,6 +505,9 @@ struct SecureRentalHomePage: View {
                         hasParking = false
                         isPetFriendly = false
                         hasGym = false
+                    },
+                    onLocationClick: {
+                        showUpdateLocationSheet = true   // << NAVIGATE!
                     }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -510,7 +515,23 @@ struct SecureRentalHomePage: View {
             }
             // -------------------------------------------------------------
         }
-    }
+        .sheet(isPresented: $showUpdateLocationSheet) {
+            NavigationStack {
+                UpdateLocationView(
+                    viewModel: viewModel,
+                    onBack: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                            showFilterCard = true
+                        }
+                    }
+                )
+                .environmentObject(fireDBHelper)
+            }
+        }
+
+        }
+
+    
 
     // -------------------------------------------------------------
     // MARK: Explore (original listing feed) extracted as a View

@@ -410,6 +410,7 @@ struct FilterCardView: View {
     // 2. Updated applyAction signature to include the new Booleans
     var applyAction: (Double, Int?, Bool, Bool, Bool, Bool, Bool) -> Void
     var resetAction: () -> Void
+    var onLocationClick: () -> Void
 
     // Initializer to load parent values into temp
     init(isVisible: Binding<Bool>,
@@ -423,11 +424,13 @@ struct FilterCardView: View {
          hasGym: Bool,
          // 4. Updated applyAction type
          applyAction: @escaping (Double, Int?, Bool, Bool, Bool, Bool, Bool) -> Void,
-         resetAction: @escaping () -> Void) {
+         resetAction: @escaping () -> Void,
+    onLocationClick: @escaping () -> Void  ){
 
         _isVisible = isVisible
         self.applyAction = applyAction
         self.resetAction = resetAction
+        self.onLocationClick = onLocationClick
 
         _tempMaxPrice = State(initialValue: maxPrice)
         _tempSelectedBedrooms = State(initialValue: selectedBedrooms)
@@ -477,7 +480,26 @@ struct FilterCardView: View {
                     step: 50
                 )
             }
-            
+            Divider()
+            Button(action: {
+                isVisible = false   // close filter card first
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    onLocationClick()   // trigger navigation
+                }
+            }) {
+                HStack {
+                    Image(systemName: "location.fill")
+                    Text("Set My Location")
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(12)
+            }
+            .padding(.horizontal)
+
             Divider()
 
             // --- Bedrooms ---

@@ -28,7 +28,8 @@ struct UpdateLocationView: View {
     @State private var isUpdating = false
     @State private var alertMessage: String?
     @State private var isFetchingLocation = false
-    
+    @Environment(\.dismiss) var dismiss
+    var onBack: () -> Void
     // 👇 NEW: listings to show as pins on the map
     @State private var nearbyListings: [Listing] = []
     
@@ -44,7 +45,15 @@ struct UpdateLocationView: View {
     
     @State private var selectedListing: Listing?    // 👈 NEW
 
-    
+        // 👇 ADD THIS INITIALIZER
+    init(
+        viewModel: RentalListingsViewModel,
+        onBack: @escaping () -> Void
+    ) {
+        _viewModel = StateObject(wrappedValue: viewModel)   // pass in ViewModel
+        self.onBack = onBack
+    }
+
     var body: some View {
         ZStack {
             // Background consistent with rest of app
@@ -62,8 +71,8 @@ struct UpdateLocationView: View {
                 VStack(spacing: 16) {
                     // Title + subtitle
                     VStack(spacing: 4) {
-                        Text("Update Your Location")
-                            .font(.title3.weight(.semibold))
+//                        Text("Update Your Location")
+//                            .font(.title3.weight(.semibold))
                         
                         Text("Choose where to search for listings and how far around it.")
                             .font(.caption)
@@ -174,7 +183,20 @@ struct UpdateLocationView: View {
                 .padding(.bottom, 12)
             }
         }
-        .navigationTitle("Update Location")
+        .navigationTitle("Update Your Location")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                    onBack()    
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadUserData()
@@ -189,7 +211,12 @@ struct UpdateLocationView: View {
                 }
             )
         ) {
-            Button("OK", role: .cancel) { }
+//            Button("OK", role: .cancel) { }
+            Button("OK") {
+                    // User tapped OK → now close sheet + reopen filter card
+                dismiss()
+                onBack()
+            }
         }
         .sheet(item: $selectedListing) { listing in
             NavigationView {
@@ -346,6 +373,7 @@ struct UpdateLocationView: View {
         )
         isUpdating = false
         alertMessage = "Location and radius updated successfully!"
+       
     }
     
     // MARK: - Use Device Location
