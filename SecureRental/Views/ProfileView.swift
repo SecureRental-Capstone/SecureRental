@@ -287,6 +287,9 @@ struct ProfileView: View {
                         
                             // Account Settings
                         Section(header: Text("Account Settings").font(.headline)) {
+                            NavigationLink(destination: ManagePasswordView()) {
+                                Label("Password and Security", systemImage: "lock.shield")
+                            }
                             NavigationLink(destination: ManageAccountView()) {
                                 Label("Manage Account", systemImage: "gearshape.fill")
                             }
