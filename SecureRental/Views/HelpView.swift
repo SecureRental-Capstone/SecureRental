@@ -1,0 +1,185 @@
+//
+//  HelpView.swift
+//  SecureRental
+//
+//  Created by Shehnazdeep Kaur on 2025-11-22.
+//
+
+
+import SwiftUI
+
+struct HelpView: View {
+    @State private var showFAQ = false
+    @State private var showContactSupport = false
+    @State private var showTroubleshooting = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                
+                // MARK: – Header
+                VStack(spacing: 8) {
+                    Text("Help & Support")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    
+                    Text("Find answers to common questions or contact our team for more support.")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                .padding(.top)
+              
+                
+                // MARK: – Quick Options
+                VStack(spacing: 16) {
+                    
+                    HelpCard(
+                        title: "Frequently Asked Questions",
+                        subtitle: "View answers to common app questions.",
+                        systemImage: "questionmark.circle.fill",
+                        tint: .blue
+                    ) {
+                        showFAQ = true
+                    }
+                    Divider()
+                    HelpCard(
+                        title: "Troubleshooting",
+                        subtitle: "Fix login, listing, or notification issues.",
+                        systemImage: "wrench.and.screwdriver.fill",
+                        tint: .orange
+                    ) {
+                        showTroubleshooting = true
+                    }
+                    Divider()
+                    HelpCard(
+                        title: "Contact Support",
+                        subtitle: "Reach out to our team for personal assistance.",
+                        systemImage: "envelope.fill",
+                        tint: .green
+                    ) {
+                        showContactSupport = true
+                    }
+                }
+                .padding(.horizontal)
+                
+                
+                // MARK: – App Info
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("App Information")
+                        .font(.headline)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Version: 1.0.0")
+                        Text("Updated: November 2025")
+                        Text("SecureRental © 2025")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            }
+        }
+        .navigationTitle("Help")
+        .sheet(isPresented: $showFAQ) {
+            FAQView()
+        }
+        .sheet(isPresented: $showTroubleshooting) {
+            TroubleshootView()
+        }
+        .sheet(isPresented: $showContactSupport) {
+            ContactSupportView()
+        }
+    }
+}
+
+
+// MARK: – Reusable Help Card Component
+struct HelpCard: View {
+    var title: String
+    var subtitle: String
+    var systemImage: String
+    var tint: Color
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: systemImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 32, height: 32)
+                    .foregroundColor(tint)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(14)
+        }
+    }
+}
+
+
+// MARK: – Placeholder Subviews (for now)
+struct FAQView: View {
+    var body: some View {
+        NavigationView {
+            List {
+                Section(header: Text("General")) {
+                    Text("How do I edit my listings?")
+                    Text("How do I update my profile?")
+                    Text("How do I reset my password?")
+                }
+                
+             
+            }
+            .navigationTitle("FAQs")
+        }
+    }
+}
+
+struct TroubleshootView: View {
+    var body: some View {
+        NavigationView {
+            Text("Troubleshooting Tips Coming Soon")
+                .padding()
+                .navigationTitle("Troubleshooting")
+        }
+    }
+}
+
+struct ContactSupportView: View {
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("Contact Support")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                Text("Email us at:")
+                Text("securerentalcapston@gmail.com")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Support")
+        }
+    }
+}

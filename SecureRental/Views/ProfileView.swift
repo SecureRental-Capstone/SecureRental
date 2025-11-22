@@ -351,4 +351,4 @@ struct ProfileView: View {
 
 struct ManageAccountView: View { var body: some View { Text("Manage Account") } }
 struct NotificationPreferencesView: View { var body: some View { Text("Notification Preferences") } }
-struct HelpView: View { var body: some View { Text("Help") } }
+
