@@ -55,7 +55,7 @@ struct ManagePasswordView: View {
         }
         .navigationTitle("Password & Security")
         .sheet(isPresented: $showReset) {
-            ResetPasswordPage()
+            ResetPasswordView()
         }
         .sheet(isPresented: $showTwoFactor) {
             TwoFactorAuthPage()
@@ -108,28 +108,6 @@ struct SecurityOptionCard: View {
 
 
 
-    // MARK: – Placeholder Screens (You can replace later)
-
-struct ResetPasswordPage: View {
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text("Reset Password")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
-                Text("This screen will allow the user to reset their password using email.")
-                    .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-                    .padding()
-                
-                Spacer()
-            }
-            .navigationTitle("Reset Password")
-            .padding()
-        }
-    }
-}
 
 struct TwoFactorAuthPage: View {
     var body: some View {
