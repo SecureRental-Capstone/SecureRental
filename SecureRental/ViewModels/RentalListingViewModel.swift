@@ -205,6 +205,7 @@ class RentalListingsViewModel: ObservableObject {
         favoriteListingIDs.contains(listing.id)
     }
     
+    
     @MainActor
     func fetchFavoriteListings() {
         guard let currentUser = dbHelper.currentUser else { return }
@@ -364,6 +365,15 @@ class RentalListingsViewModel: ObservableObject {
                 self.currentCity = "Unknown"
             }
         }
+    }
+    @MainActor
+    func addReview(for listing: Listing, rating: Double, comment: String) async {
+        guard let user = dbHelper.currentUser else { return }
+        
+        dbHelper.addReview(to: listing, rating: rating, comment: comment, user: user)
+        
+            // Refresh reviews after adding
+        await dbHelper.fetchReviews(for: listing.id)
     }
 
 }

@@ -616,7 +616,7 @@ struct SecureRentalHomePage: View {
                     LazyVStack(spacing: 20) {
                         ForEach(filteredListings) { listing in
                             NavigationLink {
-                                ListingDetailView(listing: listing, vm: currencyManager)
+                                ListingDetailView(listing: listing, vm: currencyManager).environmentObject(viewModel)
                             } label: {
                                 RentalListingCardView(listing: listing, vm: currencyManager)
                             }

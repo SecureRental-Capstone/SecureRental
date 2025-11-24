@@ -3,7 +3,9 @@ import SwiftUI
 
 struct CommentView: View {
     var listing: Listing
-    @EnvironmentObject var dbHelper: FireDBHelper
+//    @EnvironmentObject var dbHelper: FireDBHelper
+    @EnvironmentObject var rentalVM: RentalListingsViewModel
+
     @Environment(\.dismiss) private var dismiss
     
     @State private var comment: String = ""
@@ -122,9 +124,11 @@ struct CommentView: View {
             return
         }
         
-        guard let user = dbHelper.currentUser else { return }
+        Task {
+            await rentalVM.addReview(for: listing, rating: rating, comment: comment)
+        }
         
-        dbHelper.addReview(to: listing, rating: rating, comment: comment, user: user)
         dismiss()
     }
+
 }

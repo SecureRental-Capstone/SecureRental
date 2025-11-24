@@ -10,6 +10,8 @@ import MapKit
 /// The detailed view displayed when a user taps on a rental listing card.
 struct ListingDetailView: View {
     @State private var showMapPicker = false
+    @EnvironmentObject var viewModel: RentalListingsViewModel
+
     let listing: Listing
     @ObservedObject var vm: CurrencyViewModel
     // Environment property to dismiss the view (used for the custom back button)
@@ -19,23 +21,25 @@ struct ListingDetailView: View {
         center: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+    @State private var showReviewSheet = false
+
     // Helper structure for Review data based on screenshots
-    struct MockReview: Identifiable {
-        let id = UUID()
-        let initial: String
-        let name: String
-        let date: String
-        let rating: Double // 1.0 to 5.0
-        let comment: String
-        let isVerified: Bool
-    }
+//    struct MockReview: Identifiable {
+//        let id = UUID()
+//        let initial: String
+//        let name: String
+//        let date: String
+//        let rating: Double // 1.0 to 5.0
+//        let comment: String
+//        let isVerified: Bool
+//    }
     
     // Mock Review Data for the screenshot
-    private let mockReviews: [MockReview] = [
-        .init(initial: "E", name: "Emma Zhang", date: "Oct 2024", rating: 5.0, comment: "Great apartment! Perfect location near campus. The landlord is very responsive and the place was exactly as described. Highly recommend for international students.", isVerified: true),
-        .init(initial: "C", name: "Carlos Rodriguez", date: "Sep 2024", rating: 4.0, comment: "Nice place, good amenities. Only minor issue was the heating in winter, but landlord fixed it quickly. Would definitely recommend.", isVerified: true),
-        .init(initial: "P", name: "Priya Sharma", date: "Aug 2024", rating: 5.0, comment: "Absolutely loved living here! Safe neighborhood, close to university, and great value for money. Perfect for students.", isVerified: false)
-    ]
+//    private let mockReviews: [MockReview] = [
+//        .init(initial: "E", name: "Emma Zhang", date: "Oct 2024", rating: 5.0, comment: "Great apartment! Perfect location near campus. The landlord is very responsive and the place was exactly as described. Highly recommend for international students.", isVerified: true),
+//        .init(initial: "C", name: "Carlos Rodriguez", date: "Sep 2024", rating: 4.0, comment: "Nice place, good amenities. Only minor issue was the heating in winter, but landlord fixed it quickly. Would definitely recommend.", isVerified: true),
+//        .init(initial: "P", name: "Priya Sharma", date: "Aug 2024", rating: 5.0, comment: "Absolutely loved living here! Safe neighborhood, close to university, and great value for money. Perfect for students.", isVerified: false)
+//    ]
     
     // Maps listing amenity strings to a system icon
     private func iconForAmenity(_ amenity: String) -> String {
@@ -224,6 +228,10 @@ struct ListingDetailView: View {
                         }
                         .onAppear {
                             //geocodeAddressWithAnimation()
+                            Task {
+                                await viewModel.dbHelper.fetchReviews(for: listing.id)
+                            }
+
                         }
                         
                         // MARK: Landlord Section (New Section from Screenshot)
@@ -345,16 +353,18 @@ struct ListingDetailView: View {
                                 Spacer()
                                 
                                 Button("Write Review") {
-                                    // Action to write a review
+                                    showReviewSheet = true
                                 }
                                 .font(.headline)
                                 .foregroundColor(.blue)
+
                             }
                             
                             // Individual Review Cards
-                            ForEach(mockReviews) { review in
-                                ReviewCardView(review: review)
+                            ForEach(viewModel.dbHelper.reviews) { review in
+                                RealReviewCardView(review: review)
                             }
+
                         }
                         
                         // Add extra padding to ensure content scrolls above the sticky footer
@@ -365,6 +375,11 @@ struct ListingDetailView: View {
                     .padding(.top, 20)
                 }
             }
+            .sheet(isPresented: $showReviewSheet) {
+                CommentView(listing: listing)
+                    .environmentObject(viewModel.dbHelper)
+            }
+
             .edgesIgnoringSafeArea(.top)
             .navigationBarHidden(true)
             
@@ -424,62 +439,62 @@ struct ListingDetailView: View {
         }
     }
            //  MARK: - Review Card Subview (Helper to keep main body clean)
-            struct ReviewCardView: View {
-                let review: ListingDetailView.MockReview
-                
-                var body: some View {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            // Initial Circle
-                            Text(review.initial)
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 40)
-                                .background(Color.purple.opacity(0.8)) // Use a distinct color for initials
-                                .clipShape(Circle())
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                // Name and Date
-                                HStack {
-                                    Text(review.name)
-                                        .font(.headline)
-                                    
-                                    if review.isVerified {
-                                        Text("Verified")
-                                            .font(.caption2.bold())
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.green)
-                                            .cornerRadius(5)
-                                    }
-                                    
-                                    Spacer()
-                                }
-                                Text(review.date)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Spacer()
-                            
-                            // Rating Stars
-                            HStack(spacing: 2) {
-                                ForEach(0..<5) { index in
-                                    Image(systemName: index < Int(review.rating.rounded(.down)) ? "star.fill" : "star")
-                                        .foregroundColor(.yellow)
-                                }
-                            }
-                        }
-                        
-                        // Comment
-                        Text(review.comment)
-                            .font(.body)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.vertical, 10)
-                }
-            }
+//            struct ReviewCardView: View {
+//                let review: ListingDetailView.MockReview
+//                
+//                var body: some View {
+//                    VStack(alignment: .leading, spacing: 10) {
+//                        HStack(alignment: .top) {
+//                            // Initial Circle
+//                            Text(review.initial)
+//                                .font(.title2)
+//                                .foregroundColor(.white)
+//                                .frame(width: 40, height: 40)
+//                                .background(Color.purple.opacity(0.8)) // Use a distinct color for initials
+//                                .clipShape(Circle())
+//                            
+//                            VStack(alignment: .leading, spacing: 4) {
+//                                // Name and Date
+//                                HStack {
+//                                    Text(review.name)
+//                                        .font(.headline)
+//                                    
+//                                    if review.isVerified {
+//                                        Text("Verified")
+//                                            .font(.caption2.bold())
+//                                            .foregroundColor(.white)
+//                                            .padding(.horizontal, 6)
+//                                            .padding(.vertical, 2)
+//                                            .background(Color.green)
+//                                            .cornerRadius(5)
+//                                    }
+//                                    
+//                                    Spacer()
+//                                }
+//                                Text(review.date)
+//                                    .font(.subheadline)
+//                                    .foregroundColor(.gray)
+//                            }
+//                            
+//                            Spacer()
+//                            
+//                            // Rating Stars
+//                            HStack(spacing: 2) {
+//                                ForEach(0..<5) { index in
+//                                    Image(systemName: index < Int(review.rating.rounded(.down)) ? "star.fill" : "star")
+//                                        .foregroundColor(.yellow)
+//                                }
+//                            }
+//                        }
+//                        
+//                        // Comment
+//                        Text(review.comment)
+//                            .font(.body)
+//                            .foregroundColor(.gray)
+//                    }
+//                    .padding(.vertical, 10)
+//                }
+//            }
             
         }
     //}
