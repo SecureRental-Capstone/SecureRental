@@ -390,6 +390,7 @@ import SwiftUI
 //}
 
 //
+
 import SwiftUI
 
 struct FilterCardView: View {
@@ -476,7 +477,7 @@ struct FilterCardView: View {
 
                 Slider(
                     value: $tempMaxPrice,
-                    in: 600...5000,
+                    in: 0...5000,
                     step: 50
                 )
             }

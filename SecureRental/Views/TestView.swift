@@ -854,32 +854,84 @@ struct SecureRentalHomePage: View {
         }
     }
 
+//    func applyLocalFilters(to listings: [Listing]) -> [Listing] {
+//        var filtered = listings
+//
+//        let numberOnly = listing.price
+//            .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
+//            .joined()
+//        
+//        let priceValue = Double(numberOnly) ?? 0
+//        return priceValue <= maxPrice
+//
+//        }
+//        filtered = converted
+//
+//        if let beds = selectedBedrooms {
+//            if beds == 3 {
+//                filtered = filtered.filter { $0.numberOfBedrooms >= 3 }
+//            } else {
+//                filtered = filtered.filter { $0.numberOfBedrooms == beds }
+//            }
+//        }
+//
+//        if showVerifiedOnly {
+//            filtered = filtered.filter { $0.isAvailable }
+//        }
+//
+//        return filtered
+//    }
     func applyLocalFilters(to listings: [Listing]) -> [Listing] {
-        var filtered = listings
-
-        let converted = listings.filter { listing in
-            let cleaned = listing.price
-                .replacingOccurrences(of: ",", with: "")
-                .replacingOccurrences(of: "$", with: "")
-                .trimmingCharacters(in: .whitespaces)
-            return Double(cleaned) ?? 0 <= maxPrice
+        print("📦 LOADED LISTINGS COUNT:", viewModel.locationListings.count)
+        for l in viewModel.locationListings {
+            print(" -", l.price)
         }
-        filtered = converted
 
+        var filtered = listings
+        
+            // PRICE FILTER (with debug)
+        filtered = filtered.filter { listing in
+            let cleaned = listing.price
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .components(separatedBy: CharacterSet(charactersIn: "0123456789").inverted)
+                .joined()
+            
+            let priceValue = Double(cleaned) ?? 0
+            
+            print("🔎 PRICE FILTER -> id:\(listing.id) raw:\(listing.price) cleaned:\(cleaned) priceValue:\(priceValue)   maxPrice:\(maxPrice)")
+            
+            return priceValue <= maxPrice
+        }
+        
+            // BEDROOM FILTER
         if let beds = selectedBedrooms {
-            if beds == 3 {
-                filtered = filtered.filter { $0.numberOfBedrooms >= 3 }
-            } else {
-                filtered = filtered.filter { $0.numberOfBedrooms == beds }
+            filtered = filtered.filter { listing in
+                let pass: Bool
+                if beds == 3 {
+                    pass = listing.numberOfBedrooms >= 3
+                } else {
+                    pass = listing.numberOfBedrooms == beds
+                }
+                print("🛏 BED FILTER -> id:\(listing.id) beds:\(listing.numberOfBedrooms) selected:\(beds) pass:\(pass)")
+                return pass
             }
         }
-
+        
+            // VERIFIED FILTER
         if showVerifiedOnly {
-            filtered = filtered.filter { $0.isAvailable }
+            filtered = filtered.filter { listing in
+                print("✅ VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
+                return listing.isAvailable
+            }
         }
-
+        
+        print("✅ FINAL FILTERED COUNT: \(filtered.count) (maxPrice=\(maxPrice), selectedBedrooms=\(String(describing: selectedBedrooms)), verifiedOnly=\(showVerifiedOnly))")
+        
         return filtered
     }
+
+
+
 
     func resetFilters() {
         maxPrice = 5000
