@@ -16,7 +16,8 @@ struct SignInView: View {
     @State private var password : String = ""
     @State private var errorMessage: String?
     @State private var showAlert: Bool = false
-    
+    @State private var showResetPassword = false
+
     var body: some View {
         VStack {
             Spacer()
@@ -47,6 +48,15 @@ struct SignInView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
                 )
+            Button(action: {
+                showResetPassword = true
+            }) {
+                Text("Forgot Password?")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                    .padding(.top, 6)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
             
             Button(action: {
                 Task {
@@ -63,14 +73,25 @@ struct SignInView: View {
             .cornerRadius(10)
             .padding(.top, 24)
             
+//            Button(action: {
+//                self.rootView = .signUp
+//            }) {
+//                Text("Don't have an account? Sign Up")
+//                    .foregroundColor(.blue)
+//            }
+                // ⭐ Sign Up stays UNDER the Login button
             Button(action: {
                 self.rootView = .signUp
             }) {
                 Text("Don't have an account? Sign Up")
                     .foregroundColor(.blue)
+                    .padding(.top, 6)
             }
-            
+
             Spacer()
+        }
+        .sheet(isPresented: $showResetPassword) {
+            ResetPasswordView()
         }
         .padding()
         .alert("Error", isPresented: $showAlert) {
