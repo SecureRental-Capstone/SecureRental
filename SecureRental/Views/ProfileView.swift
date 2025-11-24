@@ -327,6 +327,8 @@ struct ProfileView: View {
                                 Label("My Listings", systemImage: "house.fill")
                             }
                         }
+//                        Divider()
+//                            .padding(.top, 20)
                         
                             // Logout
                         Section {
@@ -342,6 +344,22 @@ struct ProfileView: View {
                                     Spacer()
                                 }
                             }
+//                            .padding()
+//                            .background(
+//                                .ultraThinMaterial
+//                                    .opacity(0.5)
+//                            ) // ⭐ stronger blur
+//                            .cornerRadius(14)
+//                          .padding(.horizontal)
+//
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                            .padding(.top, 16)
                         }
                     }
                     .scrollContentBackground(.hidden)

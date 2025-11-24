@@ -672,13 +672,21 @@ struct SecureRentalHomePage: View {
                     
                         // CHATBOT BUTTON
                     Button(action: { showChatbot = true }) {
-                        Image("Chatbot")
+                        Image("chatbot2")
+                       
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 68, height: 66)
+                            .frame(width: 58, height: 56)
                             .padding(14)
                             .background(Color.white.opacity(0.97))
                             .clipShape(Circle())
+//                        Image(systemName: "message.fill")
+//                                         .font(.system(size: 24))
+//                                                .foregroundColor(.white)
+//                                .padding()
+//                            .background(Color.blue)
+//                          .clipShape(Circle())
+//                                                     .shadow(radius: 4)
                             .overlay(
                                 Circle()
                                     .stroke(Color(.systemGray5), lineWidth: 2)
