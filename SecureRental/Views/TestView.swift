@@ -882,50 +882,79 @@ struct SecureRentalHomePage: View {
 //        return filtered
 //    }
     func applyLocalFilters(to listings: [Listing]) -> [Listing] {
-        print("📦 LOADED LISTINGS COUNT:", viewModel.locationListings.count)
-        for l in viewModel.locationListings {
-            print(" -", l.price)
+        print("📦 LOADED LISTINGS COUNT:", listings.count)
+        for l in listings {
+            print(" - RAW PRICE:", l.price)
         }
-
+        
         var filtered = listings
         
-            // PRICE FILTER (with debug)
+            // ---------------------------------------------------------
+            // 🔥 PRICE FILTER (now converts CAD → selected currency!)
+            // ---------------------------------------------------------
         filtered = filtered.filter { listing in
+            
+                // 1. Clean the price string (Firestore stores strings)
             let cleaned = listing.price
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-                .components(separatedBy: CharacterSet(charactersIn: "0123456789").inverted)
+                .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
                 .joined()
             
-            let priceValue = Double(cleaned) ?? 0
+            let cadValue = Double(cleaned) ?? 0
             
-            print("🔎 PRICE FILTER -> id:\(listing.id) raw:\(listing.price) cleaned:\(cleaned) priceValue:\(priceValue)   maxPrice:\(maxPrice)")
+                // 2. Convert CAD → selected currency (USD/EUR/etc.)
+            let convertedValue = currencyManager.convertToSelectedCurrency(cadValue)
             
-            return priceValue <= maxPrice
+                // Debug print
+            print("""
+        🔎 PRICE FILTER ->
+        id: \(listing.id)
+        raw: \(listing.price)
+        cleaned: \(cleaned)
+        cadValue: \(cadValue)
+        convertedValue: \(convertedValue)
+        maxPrice(selected currency): \(maxPrice)
+        """)
+            
+            return convertedValue <= maxPrice
         }
         
-            // BEDROOM FILTER
+            // ---------------------------------------------------------
+            //  BEDROOM FILTER
+            // ---------------------------------------------------------
         if let beds = selectedBedrooms {
             filtered = filtered.filter { listing in
                 let pass: Bool
+                
                 if beds == 3 {
                     pass = listing.numberOfBedrooms >= 3
                 } else {
                     pass = listing.numberOfBedrooms == beds
                 }
-                print("🛏 BED FILTER -> id:\(listing.id) beds:\(listing.numberOfBedrooms) selected:\(beds) pass:\(pass)")
+                
+                print("🛏 BED FILTER -> id: \(listing.id) actualBeds: \(listing.numberOfBedrooms) selected: \(beds) pass: \(pass)")
                 return pass
             }
         }
         
-            // VERIFIED FILTER
+            // ---------------------------------------------------------
+            //  VERIFIED PROPERTIES FILTER
+            // ---------------------------------------------------------
         if showVerifiedOnly {
             filtered = filtered.filter { listing in
-                print("✅ VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
+                print("🔐 VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
                 return listing.isAvailable
             }
         }
         
-        print("✅ FINAL FILTERED COUNT: \(filtered.count) (maxPrice=\(maxPrice), selectedBedrooms=\(String(describing: selectedBedrooms)), verifiedOnly=\(showVerifiedOnly))")
+        print("""
+    ---------------------------------------------------------
+    FINAL FILTERED COUNT: \(filtered.count)
+    maxPrice(\(currencyManager.selectedCurrency.code)) = \(maxPrice)
+    selectedBedrooms = \(String(describing: selectedBedrooms))
+    verifiedOnly = \(showVerifiedOnly)
+    ---------------------------------------------------------
+    """)
         
         return filtered
     }

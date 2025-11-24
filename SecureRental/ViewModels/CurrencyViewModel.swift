@@ -81,4 +81,8 @@ class CurrencyViewModel: ObservableObject {
         
         return formatter.string(from: NSNumber(value: convertedValue)) ?? "\(selectedCurrency.symbol)\(Int(convertedValue))"
     }
+    func convertToSelectedCurrency(_ cadValue: Double) -> Double {
+        return cadValue * selectedCurrency.rate
+    }
+
 }
