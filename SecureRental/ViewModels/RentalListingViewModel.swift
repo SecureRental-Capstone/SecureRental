@@ -39,6 +39,8 @@ class RentalListingsViewModel: ObservableObject {
     
     @Published var showUpdateLocationSheet = false
     @Published var currentCity: String?
+    @Published var listingReviews: [Review] = []
+
 //    @Published var radiusInKm: Double? = self.dbHelper.currentUser?.radius ?? 6.0
     
     // Derived property for favorite listings
@@ -375,5 +377,17 @@ class RentalListingsViewModel: ObservableObject {
             // Refresh reviews after adding
         await dbHelper.fetchReviews(for: listing.id)
     }
+    @MainActor
+    func fetchReviews(for listingId: String) async {
+        print("🔎 [VM] fetchReviews called for listing:", listingId)
+        listingReviews = []      // clear previous reviews
+        
+        await dbHelper.fetchReviews(for: listingId)
+        print("📥 [VM] dbHelper.reviews after fetch =", dbHelper.reviews.count)
+            // Sync from FireDBHelper into your VM
+        listingReviews = dbHelper.reviews
+        print("📤 [VM] listingReviews stored =", listingReviews.count)
+    }
+
 
 }

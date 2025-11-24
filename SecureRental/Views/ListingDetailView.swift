@@ -228,8 +228,10 @@ struct ListingDetailView: View {
                         }
                         .onAppear {
                             //geocodeAddressWithAnimation()
+                            
                             Task {
-                                await viewModel.dbHelper.fetchReviews(for: listing.id)
+                                await viewModel.fetchReviews(for: listing.id)
+                                print("🎯 UI: viewModel.listingReviews loaded =", viewModel.listingReviews.count)
                             }
 
                         }
@@ -341,13 +343,17 @@ struct ListingDetailView: View {
                         
                         // MARK: Reviews (New Section from Screenshot)
                         VStack(alignment: .leading, spacing: 15) {
+                            let avgRating = viewModel.listingReviews.map { $0.rating }.reduce(0, +) /
+                            max(1, Double(viewModel.listingReviews.count))
+                            
+                            let reviewCount = viewModel.listingReviews.count
                             // Review Header
                             HStack {
                                 Text("Reviews")
                                     .font(.title2.bold())
                                 Image(systemName: "star.fill")
                                     .foregroundColor(.yellow)
-                                Text("\(String(format: "%.1f", 4.7)) (\(3))") // Mocked summary rating
+                                Text("\(String(format: "%.1f", avgRating)) (\(reviewCount))")
                                     .font(.title3)
                                 
                                 Spacer()
@@ -361,7 +367,7 @@ struct ListingDetailView: View {
                             }
                             
                             // Individual Review Cards
-                            ForEach(viewModel.dbHelper.reviews) { review in
+                            ForEach(viewModel.listingReviews) { review in
                                 RealReviewCardView(review: review)
                             }
 
