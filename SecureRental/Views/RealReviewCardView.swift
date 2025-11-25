@@ -29,15 +29,15 @@ struct RealReviewCardView: View {
                         Text(review.userName)
                             .font(.headline)
                         
-                        if review.isVerified {
-                            Text("Verified")
-                                .font(.caption2.bold())
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.green)
-                                .cornerRadius(5)
-                        }
+//                        if review.isVerified {
+//                            Text("Verified")
+//                                .font(.caption2.bold())
+//                                .foregroundColor(.white)
+//                                .padding(.horizontal, 6)
+//                                .padding(.vertical, 2)
+//                                .background(Color.green)
+//                                .cornerRadius(5)
+//                        }
                         
                         Spacer()
                     }

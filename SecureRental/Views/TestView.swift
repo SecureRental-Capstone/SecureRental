@@ -22,6 +22,10 @@ struct SecureRentalHomePage: View {
 
     @StateObject var currencyManager = CurrencyViewModel()
     @StateObject var viewModel = RentalListingsViewModel()
+    
+    @EnvironmentObject var dbHelper: FireDBHelper
+
+
 
     @State private var selectedTab: String = "Search"
     @State private var showAddListing = false
@@ -57,7 +61,7 @@ struct SecureRentalHomePage: View {
                     case "Search":
                         exploreContent
                     case "Messages":
-                        MessageView()
+                        MyChatsView()
                     case "Favourites":
                         FavouriteListingsView(viewModel: viewModel).environmentObject(fireDBHelper).environmentObject(viewModel)
                     case "Profile":
@@ -117,6 +121,7 @@ struct SecureRentalHomePage: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .zIndex(11)
                 .environmentObject(currencyManager)
+                .environmentObject(viewModel)
             }
             // -------------------------------------------------------------
         }
@@ -216,7 +221,9 @@ struct SecureRentalHomePage: View {
                     LazyVStack(spacing: 20) {
                         ForEach(filteredListings) { listing in
                             NavigationLink {
-                                ListingDetailView(listing: listing, vm: currencyManager).environmentObject(viewModel)
+//                                ListingDetailView(vm: currencyManager, listing: listing).environmentObject(viewModel).environmentObject(fireDBHelper)
+                                RentalListingDetailView(listing: listing)
+                                    .environmentObject(dbHelper)
                             } label: {
                                 RentalListingCardView(listing: listing, vm: currencyManager)
                             }
@@ -339,31 +346,48 @@ struct SecureRentalHomePage: View {
             // ---------------------------------------------------------
             // 🔥 PRICE FILTER (now converts CAD → selected currency!)
             // ---------------------------------------------------------
+//        filtered = filtered.filter { listing in
+//            
+//                // 1. Clean the price string (Firestore stores strings)
+//            let cleaned = listing.price
+//                .trimmingCharacters(in: .whitespacesAndNewlines)
+//                .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
+//                .joined()
+//            
+//            let cadValue = Double(cleaned) ?? 0
+//            
+//                // 2. Convert CAD → selected currency (USD/EUR/etc.)
+//            let convertedValue = currencyManager.convertToSelectedCurrency(cadValue)
+//            
+//                // Debug print
+//            print("""
+//        🔎 PRICE FILTER ->
+//        id: \(listing.id)
+//        raw: \(listing.price)
+//        cleaned: \(cleaned)
+//        cadValue: \(cadValue)
+//        convertedValue: \(convertedValue)
+//        maxPrice(selected currency): \(maxPrice)
+//        """)
+//            
+//            return convertedValue <= maxPrice
+//        }
         filtered = filtered.filter { listing in
-            
-                // 1. Clean the price string (Firestore stores strings)
+            // Clean Firestore price string
             let cleaned = listing.price
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
                 .joined()
-            
+
             let cadValue = Double(cleaned) ?? 0
-            
-                // 2. Convert CAD → selected currency (USD/EUR/etc.)
-            let convertedValue = currencyManager.convertToSelectedCurrency(cadValue)
-            
-                // Debug print
-            print("""
-        🔎 PRICE FILTER ->
-        id: \(listing.id)
-        raw: \(listing.price)
-        cleaned: \(cleaned)
-        cadValue: \(cadValue)
-        convertedValue: \(convertedValue)
-        maxPrice(selected currency): \(maxPrice)
-        """)
-            
-            return convertedValue <= maxPrice
+
+            // Convert listing price to selected currency
+            let listingInSelectedCurrency = currencyManager.convertToSelectedCurrency(cadValue)
+
+            // Convert slider value to selected currency
+            let maxPriceInSelectedCurrency = currencyManager.convertToSelectedCurrency(maxPrice)
+
+            return listingInSelectedCurrency <= maxPriceInSelectedCurrency
         }
         
             // ---------------------------------------------------------

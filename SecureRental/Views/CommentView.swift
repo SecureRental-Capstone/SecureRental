@@ -3,7 +3,7 @@ import SwiftUI
 
 struct CommentView: View {
     var listing: Listing
-//    @EnvironmentObject var dbHelper: FireDBHelper
+    @EnvironmentObject var dbHelper: FireDBHelper
     @EnvironmentObject var rentalVM: RentalListingsViewModel
 
     @Environment(\.dismiss) private var dismiss
@@ -12,6 +12,7 @@ struct CommentView: View {
     @State private var rating: Double = 0.0
     @State private var showAlert = false
     @State private var alertMessage = ""
+    
     
     var body: some View {
         NavigationView {
@@ -124,9 +125,12 @@ struct CommentView: View {
             return
         }
         
-        Task {
-            await rentalVM.addReview(for: listing, rating: rating, comment: comment)
-        }
+        guard let user = dbHelper.currentUser else { return }
+        
+//        Task {
+//            await rentalVM.addReview(for: listing, rating: rating, comment: comment)
+//        }
+        dbHelper.addReview(to: listing, rating: rating, comment: comment, user: user)
         
         dismiss()
     }

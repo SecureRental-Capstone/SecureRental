@@ -15,5 +15,5 @@ struct Review: Codable, Identifiable {
     var rating: Double
     var comment: String
     var timestamp: Date
-    var isVerified: Bool
+//    var isVerified: Bool
 }

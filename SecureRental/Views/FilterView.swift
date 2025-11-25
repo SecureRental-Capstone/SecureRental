@@ -21,6 +21,7 @@ struct FilterCardView: View {
     @State private var tempHasGym: Bool
 
     @EnvironmentObject var currencyManager: CurrencyViewModel
+    @EnvironmentObject var viewModel: RentalListingsViewModel
 
     // Parent closures
     // 2. Updated applyAction signature to include the new Booleans
@@ -96,6 +97,7 @@ struct FilterCardView: View {
                     step: 50
                 )
             }
+
             Divider()
             Button(action: {
                 isVisible = false   // close filter card first
@@ -263,4 +265,14 @@ struct FilterCardView: View {
             .cornerRadius(20) // Use a higher corner radius for a pill-style button
         }
     }
+    
+    private var maxListingCAD: Double {
+        viewModel.locationListings
+            .compactMap { Double($0.price.filter("0123456789.".contains)) }
+            .max() ?? 5000
+    }
+    
+
 }
+
+
