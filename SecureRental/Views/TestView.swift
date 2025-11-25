@@ -460,7 +460,7 @@ struct SecureRentalHomePage: View {
                     case "Messages":
                         MessageView()
                     case "Favourites":
-                        FavouriteListingsView(viewModel: viewModel).environmentObject(fireDBHelper)
+                        FavouriteListingsView(viewModel: viewModel).environmentObject(fireDBHelper).environmentObject(viewModel)
                     case "Profile":
                         ProfileView(rootView: $rootView)
                     default: // Explore
