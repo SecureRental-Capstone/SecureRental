@@ -47,8 +47,8 @@ class CurrencyViewModel: ObservableObject {
             }
 
             // Update selectedCurrency to real fetched USD model
-            if let usd = currencies.first(where: { $0.code == "USD" }) {
-                selectedCurrency = usd
+            if let cad = currencies.first(where: { $0.code == "CAD" }) {
+                selectedCurrency = cad
             }
 
         } catch {
