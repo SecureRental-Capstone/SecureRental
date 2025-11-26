@@ -236,16 +236,16 @@ struct SecureRentalHomePage: View {
 
 //                            .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(.hunterGreen)
+                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
 
                         if let user = dbHelper.currentUser {
                             Text("Hi, \(user.name)")
 //                                .font(.headline)
                                 .font(.caption)
                                 .fontWeight(.bold)
-//                            Text("Verified landlords. Safer rentals.")
-//                                .font(.caption2)
-//                                .foregroundColor(.secondary)
+                            Text("Verified landlords. Safer rentals.")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
                         } else {
                             Text("Find your next rental.")
                                 .font(.headline)
@@ -264,7 +264,7 @@ struct SecureRentalHomePage: View {
                             AddListingButton {
                                 showAddListing = true
                             }
-                            .foregroundColor(.hunterGreen)
+                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
 
                             CurrencyPickerButton(
                                 selected: $currencyManager.selectedCurrency,
@@ -457,7 +457,7 @@ struct SecureRentalHomePage: View {
         var body: some View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(.hunterGreen)
+                    .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
                 TextField("Search rentals...", text: $text)
                     .font(.subheadline)
                     .textInputAutocapitalization(.never)
