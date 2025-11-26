@@ -354,11 +354,11 @@ struct ChatRowView: View {
     private func formattedPrice(_ price: Any?) -> String? {
         // Adjust depending on your model type
         if let p = price as? Double {
-            return "$\(Int(p))/month"
+            return "$\(Int(p))/mo"
         } else if let p = price as? Int {
-            return "$\(p)/month"
+            return "$\(p)/mo"
         } else if let p = price as? String, !p.isEmpty {
-            return "$\(p)/month"
+            return "$\(p)/mo"
         }
         return nil
     }

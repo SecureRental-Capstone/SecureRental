@@ -145,8 +145,8 @@ struct SecureRentalHomePage: View {
         .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
             NavigationStack {
                 UpdateLocationView(
-                    viewModel: viewModel
-                    , onBack: {
+                    viewModel: viewModel,
+                    onBack: {
                         // Only reopen filter if user came from FilterCard
                         if reopenFilterAfterLocation {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -183,212 +183,244 @@ struct SecureRentalHomePage: View {
 
                     isConsentFlowLoading = false
                     shouldOpenLocationSheetAfterConsent = false
-                    // keep reopenFilterAfterLocation (we still want to reopen filter after sheet)
                 }
             }
         } message: {
             Text("SecureRental uses your location to show nearby rentals and improve your search experience.")
         }
+        // 🔹 onAppear — SAME PATTERN AS HomeView
         .onAppear {
             Task {
+                if let uid = Auth.auth().currentUser?.uid,
+                   let fetchedUser = await dbHelper.getUser(byUID: uid) {
+                    dbHelper.currentUser = fetchedUser
 
-                // Load / refresh current user
-                if dbHelper.currentUser == nil {
-                    if let uid = Auth.auth().currentUser?.uid,
-                       let fetchedUser = await dbHelper.getUser(byUID: uid) {
-                        await MainActor.run {
-                            dbHelper.currentUser = fetchedUser
-                        }
-
-                        // If they already have coordinates AND consent → update city label
-                        if fetchedUser.locationConsent == true,
-                           let lat = fetchedUser.latitude,
-                           let lon = fetchedUser.longitude {
-                            await viewModel.updateCityFromStoredCoordinates(
-                                latitude: lat,
-                                longitude: lon
-                            )
-                        }
+                    if let lat = fetchedUser.latitude,
+                       let lon = fetchedUser.longitude {
+                        await viewModel.updateCityFromStoredCoordinates(
+                            latitude: lat,
+                            longitude: lon
+                        )
                     }
                 }
 
-                // Always load listings on first appear
                 await viewModel.loadHomePageListings()
             }
         }
-
-
     }
 
-    // -------------------------------------------------------------
-    // MARK: Explore (original listing feed)
+    /// -------------------------------------------------------------
+    // MARK: Explore (original listing feed) – Home-style UI
     // -------------------------------------------------------------
     private var exploreContent: some View {
-        VStack(spacing: 0) {
+        ZStack {
+            // Background like HomeView / MyChatsView
+            LinearGradient(
+                colors: [
+                    Color.hunterGreen.opacity(0.06),
+                    Color(.systemBackground)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            // HEADER ROW
-            HStack {
-                Text("SecureRental")
-                    .font(.title3).bold()
+            VStack(spacing: 12) {
 
-                Spacer()
-
-                // 🔹 Location chip
-                Button {
-                    handleLocationButtonTapped(fromFilter: false)
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "mappin.and.ellipse")
-                        if let city = viewModel.currentCity {
-                            Text(city)
-                                .font(.caption)
-                        } else {
-                            Text("Set Location")
-                                .font(.caption)
-                        }
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.blue.opacity(0.10))   // or Color.hunterGreen.opacity(0.12) if defined
-                    .foregroundColor(.blue)
-                    .clipShape(Capsule())
-                }
-
-                AddListingButton {
-                    showAddListing = true
-                }
-
-                CurrencyPickerButton(
-                    selected: $currencyManager.selectedCurrency,
-                    options: currencyManager.currencies
-                )
-            }
-            .padding(.horizontal)
-            .padding(.top, 10)
-            .padding(.bottom, 10)
-
-            // SEARCH + FILTER ROW
-            HStack(spacing: 12) {
-                SearchBar().environmentObject(viewModel)
-
-                FilterButton {
-                    withAnimation { showFilterCard = true }
-                }
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 10)
-
-            // LISTING FEED
-            ScrollView(.vertical, showsIndicators: false) {
-
-                let filteredListings = applyLocalFilters(to: viewModel.locationListings)
-
-                // --- LOADING ---
-                if viewModel.isLoading {
-                    LazyVStack(spacing: 20) {
-                        ForEach(0..<6, id: \.self) { _ in
-                            SkeletonListingCardView()
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 10)
-
-                // --- EMPTY ---
-                } else if filteredListings.isEmpty {
-
-                    VStack(spacing: 10) {
-                        Image(systemName: "tray")
-                            .font(.system(size: 40))
-                            .foregroundColor(.gray.opacity(0.7))
-
-                        Text("No listings found in your area.")
+                // HEADER ROW – brand + greeting on the left, controls on the right
+                HStack(alignment: .top) {
+                    // LEFT: brand + greeting
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("SecureRental")
                             .font(.headline)
 
-                        Text("Try expanding your radius or updating your location.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 300)
+//                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.hunterGreen)
 
-                // --- SUCCESS ---
-                } else {
-
-                    Text("\(filteredListings.count) properties found")
-                        .font(.callout)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
-                        .padding(.top, 20)
-
-                    LazyVStack(spacing: 20) {
-                        ForEach(filteredListings) { listing in
-                            NavigationLink {
-                                RentalListingDetailView(listing: listing)
-                                    .environmentObject(dbHelper)
-                            } label: {
-                                RentalListingCardView(listing: listing, vm: currencyManager)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                        if let user = dbHelper.currentUser {
+                            Text("Hi, \(user.name)")
+//                                .font(.headline)
+                                .font(.caption)
+                                .fontWeight(.bold)
+//                            Text("Verified landlords. Safer rentals.")
+//                                .font(.caption2)
+//                                .foregroundColor(.secondary)
+                        } else {
+                            Text("Find your next rental.")
+                                .font(.headline)
+                            Text("Verified landlords. Safer rentals.")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
                         }
                     }
-                    .padding(.vertical, 10)
-                    .padding(.bottom, 100)
-                }
-            }
-            .environmentObject(viewModel)
-            .zIndex(0)
-            .overlay(alignment: .bottomTrailing) {
 
-                VStack(spacing: 6) {
+                    Spacer()
 
-                    // HINT BUBBLE
-                    if showHint {
-                        Text("Ask a question")
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.black.opacity(0.75))
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .transition(.opacity)
-                    }
+                    // RIGHT: + & currency on top, location under them
+                    VStack(alignment: .trailing, spacing: 6) {
+                        // Top row: + and currency together
+                        HStack(spacing: 8) {
+                            AddListingButton {
+                                showAddListing = true
+                            }
+                            .foregroundColor(.hunterGreen)
 
-                    // CHATBOT BUTTON
-                    Button(action: { showChatbot = true }) {
-                        Image("chatbot2")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 58, height: 56)
-                            .padding(14)
-                            .background(Color.white.opacity(0.97))
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(Color(.systemGray5), lineWidth: 2)
+                            CurrencyPickerButton(
+                                selected: $currencyManager.selectedCurrency,
+                                options: currencyManager.currencies
                             )
-                            .shadow(color: Color.blue.opacity(0.15), radius: 12, y: 6)
-                            .offset(y: float ? -8 : 0)
-                            .animation(
-                                Animation.easeInOut(duration: 1.8)
-                                    .repeatCount(4, autoreverses: true),
-                                value: float
-                            )
+                        }
+
+                        // Bottom: location chip under them
+                        Button {
+                            handleLocationButtonTapped(fromFilter: false)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "mappin.and.ellipse")
+                                if let city = viewModel.currentCity {
+                                    Text(city)
+                                        .font(.caption)
+                                } else {
+                                    Text("Set Location")
+                                        .font(.caption)
+                                }
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.hunterGreen.opacity(0.12))
+                            .foregroundColor(.hunterGreen)
+                            .clipShape(Capsule())
+                        }
                     }
                 }
-                .padding(.trailing, 16)
-                .padding(.bottom, 8)
-            }
-            .onAppear {
-                float = true
-                showHint = true
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
 
-                // Hide hint after 5 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                    withAnimation { showHint = false }
+                // SEARCH + FILTER ROW – styled like Home/MyChats search
+                HStack(spacing: 12) {
+                    SearchBar()
+                        .environmentObject(viewModel)
+
+                    FilterButton {
+                        withAnimation { showFilterCard = true }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 4)
+
+                // LISTING FEED
+                ScrollView(.vertical, showsIndicators: false) {
+
+                    let filteredListings = applyLocalFilters(to: viewModel.locationListings)
+
+                    // --- LOADING (match HomeView) ---
+                    if viewModel.isLoading {
+                        LazyVStack(spacing: 20) {
+                            ForEach(0..<6, id: \.self) { _ in
+                                SkeletonListingCardView()
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+
+                    // --- EMPTY ---
+                    } else if filteredListings.isEmpty {
+                        VStack(spacing: 10) {
+                            Image(systemName: "tray")
+                                .font(.system(size: 40))
+                                .foregroundColor(.gray.opacity(0.7))
+
+                            Text("No listings found in your area.")
+                                .font(.headline)
+
+                            Text("Try expanding your radius or updating your location.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 300)
+
+                    // --- SUCCESS ---
+                    } else {
+
+                        Text("\(filteredListings.count) properties found")
+                            .font(.callout)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+
+                        LazyVStack(spacing: 20) {
+                            ForEach(filteredListings) { listing in
+                                NavigationLink {
+                                    RentalListingDetailView(listing: listing)
+                                        .environmentObject(dbHelper)
+                                } label: {
+                                    RentalListingCardView(listing: listing, vm: currencyManager)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .padding(.bottom, 100)
+                    }
+                }
+                .environmentObject(viewModel)
+                .zIndex(0)
+                .overlay(alignment: .bottomTrailing) {
+
+                    VStack(spacing: 6) {
+
+                        // HINT BUBBLE
+                        if showHint {
+                            Text("Ask a question")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.75))
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                                .transition(.opacity)
+                        }
+
+                        // CHATBOT BUTTON – green-tinted
+                        Button(action: { showChatbot = true }) {
+                            Image("chatbot2")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 58, height: 56)
+                                .padding(14)
+                                .background(Color(.systemBackground))
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.hunterGreen.opacity(0.25), lineWidth: 2)
+                                )
+                                .shadow(color: Color.hunterGreen.opacity(0.18), radius: 12, y: 6)
+                                .offset(y: float ? -8 : 0)
+                                .animation(
+                                    Animation.easeInOut(duration: 1.8)
+                                        .repeatCount(4, autoreverses: true),
+                                    value: float
+                                )
+                        }
+                    }
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 8)
+                }
+                .onAppear {
+                    float = true
+                    showHint = true
+
+                    // Hide hint after 5 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        withAnimation { showHint = false }
+                    }
                 }
             }
-
         }
     }
+
 
     // -------------------------------------------------------------
     // MARK: Location button handler (header + filter)
@@ -416,16 +448,20 @@ struct SecureRentalHomePage: View {
     }
 
     // -------------------------------------------------------------
-    // MARK: SEARCH BAR
+    // MARK: SEARCH BAR (UI updated, logic same)
     // -------------------------------------------------------------
     struct SearchBar: View {
         @State private var text = ""
         @EnvironmentObject var viewModel: RentalListingsViewModel
 
         var body: some View {
-            HStack {
+            HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
+                    .foregroundColor(.hunterGreen)
                 TextField("Search rentals...", text: $text)
+                    .font(.subheadline)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
                     .onChange(of: text) { newValue in
                         viewModel.filterListingsNew(
                             searchTerm: newValue,
@@ -434,8 +470,9 @@ struct SecureRentalHomePage: View {
                     }
             }
             .padding(10)
-            .background(Color(.systemGray6))
+            .background(Color(.systemBackground))
             .cornerRadius(10)
+            .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
         }
     }
 
@@ -449,9 +486,11 @@ struct SecureRentalHomePage: View {
             Button(action: action) {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 20))
+                    .foregroundColor(.hunterGreen)        // accent color
                     .padding(10)
-                    .background(Color(.systemGray6))
+                    .background(Color(.systemBackground))
                     .cornerRadius(10)
+                    .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
             }
         }
     }
@@ -596,13 +635,17 @@ struct SecureRentalHomePage: View {
                                 .font(.caption2)
                         }
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(selectedTab == item.0 ? .blue : .gray)
+                        .foregroundColor(
+                            selectedTab == item.0
+                            ? .hunterGreen      // brand color for selected
+                            : .gray.opacity(0.7)
+                        )
                     }
                 }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 12)
-            .background(.white)
+            .background(Color(.systemBackground))
             .shadow(color: Color.black.opacity(0.08), radius: 5, y: -2)
         }
     }

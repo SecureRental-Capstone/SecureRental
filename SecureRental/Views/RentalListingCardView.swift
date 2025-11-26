@@ -33,19 +33,19 @@ struct RentalListingCardView: View {
                 // Badges (Top Left & Top Right)
                 HStack {
                     // Verified Badge
-                    if listing.isAvailable { //should be is verified
-                        Text("Verified")
-                            .font(.caption2.bold())
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.green)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white, lineWidth: 1)
-                            )
-                    }
+//                    if listing.isAvailable { //should be is verified
+//                        Text("Verified")
+//                            .font(.caption2.bold())
+//                            .foregroundColor(.white)
+//                            .padding(.horizontal, 8)
+//                            .padding(.vertical, 4)
+//                            .background(Color.green)
+//                            .cornerRadius(10)
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 10)
+//                                    .stroke(Color.white, lineWidth: 1)
+//                            )
+//                    }
                     
                     Spacer()
                     
@@ -93,15 +93,15 @@ struct RentalListingCardView: View {
                         .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                 }
                 
-                // Location
-                HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(listing.location)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+//                // Location
+//                HStack(spacing: 4) {
+//                    Image(systemName: "location.fill")
+//                        .font(.caption)
+//                        .foregroundColor(.secondary)
+//                    Text(listing.location)
+//                        .font(.subheadline)
+//                        .foregroundColor(.secondary)
+//                }
                 
                 // Proximity Pill
                 Text(listing.location)
