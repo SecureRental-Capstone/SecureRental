@@ -9,9 +9,8 @@ import Persona2
 
 func createPersonaInquiry(firstName: String, lastName: String, birthdate: String, completion: @escaping (Result<String, Error>) -> Void) {
 
-    // ⚠️ REPLACE THESE WITH YOUR ACTUAL KEYS/IDs ⚠️
-    let personaApiKey = "persona_sandbox_a218346a-edf5-455e-a4ee-449ebc19f9f3" // The secret key you MUST NOT expose
-    let inquiryTemplateId = "itmpl_MEFkovTE7L4UG6LLGrg2H8wrHWsC"
+    let personaApiKey = "persona_sandbox_523fab99-f012-46f9-83bd-7e6a670d37a4" // The secret key you MUST NOT expose
+    let inquiryTemplateId = "itmpl_nvQHE8ZVjUwbZNKB899ert8acgEC"
 
     guard let url = URL(string: "https://api.withpersona.com/api/v1/inquiries") else {
         completion(.failure(NSError(domain: "PersonaAPI", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
