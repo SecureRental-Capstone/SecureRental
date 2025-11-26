@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct SecureRentalHomePage: View {
 
@@ -144,8 +145,8 @@ struct SecureRentalHomePage: View {
         .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
             NavigationStack {
                 UpdateLocationView(
-                    viewModel: viewModel,
-                    onBack: {
+                    viewModel: viewModel
+                    , onBack: {
                         // Only reopen filter if user came from FilterCard
                         if reopenFilterAfterLocation {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -188,6 +189,35 @@ struct SecureRentalHomePage: View {
         } message: {
             Text("SecureRental uses your location to show nearby rentals and improve your search experience.")
         }
+        .onAppear {
+            Task {
+
+                // Load / refresh current user
+                if dbHelper.currentUser == nil {
+                    if let uid = Auth.auth().currentUser?.uid,
+                       let fetchedUser = await dbHelper.getUser(byUID: uid) {
+                        await MainActor.run {
+                            dbHelper.currentUser = fetchedUser
+                        }
+
+                        // If they already have coordinates AND consent → update city label
+                        if fetchedUser.locationConsent == true,
+                           let lat = fetchedUser.latitude,
+                           let lon = fetchedUser.longitude {
+                            await viewModel.updateCityFromStoredCoordinates(
+                                latitude: lat,
+                                longitude: lon
+                            )
+                        }
+                    }
+                }
+
+                // Always load listings on first appear
+                await viewModel.loadHomePageListings()
+            }
+        }
+
+
     }
 
     // -------------------------------------------------------------

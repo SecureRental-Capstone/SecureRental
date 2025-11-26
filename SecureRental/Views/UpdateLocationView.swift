@@ -211,12 +211,7 @@ struct UpdateLocationView: View {
                 }
             )
         ) {
-//            Button("OK", role: .cancel) { }
-            Button("OK") {
-                    // User tapped OK → now close sheet + reopen filter card
-                dismiss()
-                onBack()
-            }
+            Button("OK", role: .cancel) { }
         }
         .sheet(item: $selectedListing) { listing in
             NavigationView {
@@ -373,7 +368,6 @@ struct UpdateLocationView: View {
         )
         isUpdating = false
         alertMessage = "Location and radius updated successfully!"
-       
     }
     
     // MARK: - Use Device Location
