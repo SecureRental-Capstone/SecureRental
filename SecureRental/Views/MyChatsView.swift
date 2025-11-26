@@ -331,7 +331,7 @@ struct ChatRowView: View {
                     if let priceText = formattedPrice(listing.price) {
                         Text(priceText)
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(.hunterGreen)
+                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
                     }
                 }
 

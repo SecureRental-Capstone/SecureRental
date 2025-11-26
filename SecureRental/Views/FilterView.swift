@@ -14,7 +14,7 @@ struct FilterCardView: View {
     @State private var tempSelectedBedrooms: Int?
     @State private var tempShowVerifiedOnly: Bool
     
-    // 1. Amenity State Variables
+    // Amenity State Variables
     @State private var tempHasWifi: Bool
     @State private var tempHasParking: Bool
     @State private var tempIsPetFriendly: Bool
@@ -24,26 +24,24 @@ struct FilterCardView: View {
     @EnvironmentObject var viewModel: RentalListingsViewModel
 
     // Parent closures
-    // 2. Updated applyAction signature to include the new Booleans
     var applyAction: (Double, Int?, Bool, Bool, Bool, Bool, Bool) -> Void
     var resetAction: () -> Void
     var onLocationClick: () -> Void
 
     // Initializer to load parent values into temp
-    init(isVisible: Binding<Bool>,
-         maxPrice: Double,
-         selectedBedrooms: Int?,
-         showVerifiedOnly: Bool,
-         // 3. Initializer now accepts the new amenity states
-         hasWifi: Bool,
-         hasParking: Bool,
-         isPetFriendly: Bool,
-         hasGym: Bool,
-         // 4. Updated applyAction type
-         applyAction: @escaping (Double, Int?, Bool, Bool, Bool, Bool, Bool) -> Void,
-         resetAction: @escaping () -> Void,
-    onLocationClick: @escaping () -> Void  ){
-
+    init(
+        isVisible: Binding<Bool>,
+        maxPrice: Double,
+        selectedBedrooms: Int?,
+        showVerifiedOnly: Bool,
+        hasWifi: Bool,
+        hasParking: Bool,
+        isPetFriendly: Bool,
+        hasGym: Bool,
+        applyAction: @escaping (Double, Int?, Bool, Bool, Bool, Bool, Bool) -> Void,
+        resetAction: @escaping () -> Void,
+        onLocationClick: @escaping () -> Void
+    ) {
         _isVisible = isVisible
         self.applyAction = applyAction
         self.resetAction = resetAction
@@ -53,7 +51,6 @@ struct FilterCardView: View {
         _tempSelectedBedrooms = State(initialValue: selectedBedrooms)
         _tempShowVerifiedOnly = State(initialValue: showVerifiedOnly)
         
-        // 5. Initialize the new temporary states
         _tempHasWifi = State(initialValue: hasWifi)
         _tempHasParking = State(initialValue: hasParking)
         _tempIsPetFriendly = State(initialValue: isPetFriendly)
@@ -66,29 +63,34 @@ struct FilterCardView: View {
             // HEADER
             HStack {
                 Text("Filters")
-                    .font(.title2.weight(.bold))
+                    .font(.title3.weight(.semibold))
                 Spacer()
                 Button {
                     withAnimation { isVisible = false }
                 } label: {
                     Image(systemName: "xmark")
+                        .font(.subheadline.weight(.semibold))
                         .foregroundColor(.primary)
                         .padding(8)
-                        .background(Color(.systemGray5))
+                        .background(Color(.systemGray6))
                         .clipShape(Circle())
                 }
             }
-            .padding(.bottom, 10)
+            .padding(.bottom, 4)
 
             // --- Price Slider ---
             VStack(alignment: .leading, spacing: 8) {
                 Text("Max Price")
-                    .font(.headline)
+                    .font(.subheadline.weight(.semibold))
 
                 HStack {
                     Text(currencyManager.convertedPrice(basePriceString: "0"))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text(currencyManager.convertedPrice(basePriceString: "\(Int(tempMaxPrice))"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                 }
 
                 Slider(
@@ -96,9 +98,12 @@ struct FilterCardView: View {
                     in: 0...5000,
                     step: 50
                 )
+                .tint(Color(red: 0.1, green: 0.5, blue: 0.2))
             }
 
             Divider()
+
+            // Location button (same logic, green UI)
             Button(action: {
                 isVisible = false   // close filter card first
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -109,21 +114,21 @@ struct FilterCardView: View {
                     Image(systemName: "location.fill")
                     Text("Set My Location")
                 }
-                .font(.headline)
+                .font(.subheadline.weight(.semibold))
                 .foregroundColor(.white)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.blue)
+                .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                 .cornerRadius(12)
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 4)
 
             Divider()
 
             // --- Bedrooms ---
             VStack(alignment: .leading, spacing: 8) {
                 Text("Bedrooms")
-                    .font(.headline)
+                    .font(.subheadline.weight(.semibold))
                 HStack {
                     filterButton(title: "Any", isSelected: tempSelectedBedrooms == nil) {
                         tempSelectedBedrooms = nil
@@ -142,43 +147,37 @@ struct FilterCardView: View {
 
             Divider()
             
-            // --- Amenities (New Button-Style Filters) ---
+            // --- Amenities ---
             VStack(alignment: .leading, spacing: 8) {
                 Text("Amenities")
-                    .font(.headline)
+                    .font(.subheadline.weight(.semibold))
                 
-                // Use a single line for the HStacks for cleaner layout
                 HStack {
-                    // Wi-Fi
                     amenityButton(title: "Wi-Fi", icon: "wifi", isSelected: tempHasWifi) {
                         tempHasWifi.toggle()
                     }
                     
-                    // Parking
                     amenityButton(title: "Parking", icon: "car.fill", isSelected: tempHasParking) {
                         tempHasParking.toggle()
                     }
                 }
                 
                 HStack {
-                    // Pet-Friendly
                     amenityButton(title: "Pet-Friendly", icon: "pawprint.fill", isSelected: tempIsPetFriendly) {
                         tempIsPetFriendly.toggle()
                     }
                     
-                    // Gym
                     amenityButton(title: "Gym", icon: "figure.strengthtraining.traditional", isSelected: tempHasGym) {
                         tempHasGym.toggle()
                     }
-                    Spacer() // Pushes the buttons to the left
+                    Spacer()
                 }
             }
-            // ---------------------------------------------
             
             Divider()
 
             // ACTION BUTTONS
-            HStack(spacing: 20) {
+            HStack(spacing: 16) {
 
                 // RESET
                 Button {
@@ -186,7 +185,6 @@ struct FilterCardView: View {
                     tempSelectedBedrooms = nil
                     tempShowVerifiedOnly = false
                     
-                    // Reset new amenity states
                     tempHasWifi = false
                     tempHasParking = false
                     tempIsPetFriendly = false
@@ -197,18 +195,18 @@ struct FilterCardView: View {
 
                 } label: {
                     Text("Reset")
+                        .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.blue, lineWidth: 2)
+                                .stroke(Color(red: 0.1, green: 0.5, blue: 0.2), lineWidth: 1.5)
                         )
                 }
 
                 // APPLY
                 Button {
-                    // Pass all filter values to the parent view
                     applyAction(
                         tempMaxPrice,
                         tempSelectedBedrooms,
@@ -222,35 +220,42 @@ struct FilterCardView: View {
 
                 } label: {
                     Text("Apply Filters")
+                        .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding()
                         .foregroundColor(.white)
-                        .background(Color.blue)
+                        .background(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                         .cornerRadius(10)
                 }
             }
         }
-        .padding()
+        .padding(20)
         .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(radius: 20)
-        .padding()
+        .cornerRadius(18)
+        .shadow(color: Color.black.opacity(0.15), radius: 20, y: 8)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 10)
     }
 
-    // Bedroom button helper (Used for Bed count)
+    // Bedroom button helper
     @ViewBuilder
     private func filterButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .frame(minWidth: 50)
+                .font(.caption.weight(.medium))
+                .frame(minWidth: 52)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.blue : Color(.systemGray5))
+                .background(
+                    isSelected
+                    ? Color(red: 0.1, green: 0.5, blue: 0.2)
+                    : Color(.systemGray6)
+                )
                 .foregroundColor(isSelected ? .white : .primary)
                 .cornerRadius(8)
         }
     }
     
-    // 🆕 Amenity button helper (New for the amenities)
+    // Amenity button helper
     @ViewBuilder
     private func amenityButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -258,11 +263,16 @@ struct FilterCardView: View {
                 Image(systemName: icon)
                 Text(title)
             }
+            .font(.caption)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.blue : Color(.systemGray5))
+            .background(
+                isSelected
+                ? Color(red: 0.1, green: 0.5, blue: 0.2)
+                : Color(.systemGray6)
+            )
             .foregroundColor(isSelected ? .white : .primary)
-            .cornerRadius(20) // Use a higher corner radius for a pill-style button
+            .cornerRadius(20)
         }
     }
     
@@ -271,8 +281,4 @@ struct FilterCardView: View {
             .compactMap { Double($0.price.filter("0123456789.".contains)) }
             .max() ?? 5000
     }
-    
-
 }
-
-
