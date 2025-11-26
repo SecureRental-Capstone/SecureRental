@@ -58,11 +58,6 @@ class FireDBHelper: ObservableObject {
         let uid = result.user.uid
             // Fetch user profile from Firestore
         if let user = try await getUser(byUID: uid) {
-                // Force bypass for development
-//#if DEBUG
-//            user.locationConsent = true
-//#endif
-
             self.currentUser = user
         }
     }

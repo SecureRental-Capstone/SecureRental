@@ -1,16 +1,17 @@
-////////
-////////  TestView.swift
-////////  SecureRental
-////////
-////////  Created by Haniya Akhtar on 2025-11-18.
+//
+//  TestView.swift
+//  SecureRental
+//
+//  Created by Haniya Akhtar on 2025-11-18.
+//
 
 import SwiftUI
 
 struct SecureRentalHomePage: View {
 
-    let fireDBHelper : FireDBHelper = FireDBHelper.getInstance()
+    let fireDBHelper: FireDBHelper = FireDBHelper.getInstance()
 
-    @Binding var rootView : RootView
+    @Binding var rootView: RootView
     @State private var showFilterCard = false
     @State private var maxPrice: Double = 5000
     @State private var selectedBedrooms: Int? = nil
@@ -22,21 +23,19 @@ struct SecureRentalHomePage: View {
 
     @StateObject var currencyManager = CurrencyViewModel()
     @StateObject var viewModel = RentalListingsViewModel()
-    
+
     @EnvironmentObject var dbHelper: FireDBHelper
-
-
 
     @State private var selectedTab: String = "Search"
     @State private var showAddListing = false
     @State private var showChatbot = false
-    @State private var showUpdateLocationSheet = false
     @State private var float = false
-//    @State private var showTooltip = false
-
     @State private var showHint = true
 
-
+    // 🔹 Location consent / flow state
+    @State private var isConsentFlowLoading = false
+    @State private var shouldOpenLocationSheetAfterConsent = false
+    @State private var reopenFilterAfterLocation = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -63,10 +62,12 @@ struct SecureRentalHomePage: View {
                     case "Messages":
                         MyChatsView()
                     case "Favourites":
-                        FavouriteListingsView(viewModel: viewModel).environmentObject(fireDBHelper).environmentObject(viewModel)
+                        FavouriteListingsView(viewModel: viewModel)
+                            .environmentObject(fireDBHelper)
+                            .environmentObject(viewModel)
                     case "Profile":
                         ProfileView(rootView: $rootView)
-                    default: // Explore
+                    default:
                         exploreContent
                     }
                 }
@@ -78,7 +79,7 @@ struct SecureRentalHomePage: View {
             }
             .ignoresSafeArea(.keyboard)
 
-            // FILTER OVERLAY + CARD (layered above everything when active)
+            // FILTER OVERLAY + CARD
             if showFilterCard {
                 Color.black.opacity(0.25)
                     .ignoresSafeArea()
@@ -115,7 +116,8 @@ struct SecureRentalHomePage: View {
                         hasGym = false
                     },
                     onLocationClick: {
-                        showUpdateLocationSheet = true   // << NAVIGATE!
+                        // 🔹 Use unified location handler (from Filter)
+                        handleLocationButtonTapped(fromFilter: true)
                     }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -123,40 +125,109 @@ struct SecureRentalHomePage: View {
                 .environmentObject(currencyManager)
                 .environmentObject(viewModel)
             }
-            // -------------------------------------------------------------
+
+            // 🔹 Light overlay while handling consent / updating
+            if isConsentFlowLoading {
+                ZStack {
+                    Color.black.opacity(0.05)
+                        .ignoresSafeArea()
+                    ProgressView("Updating location…")
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
+                }
+                .transition(.opacity)
+                .zIndex(20)
+            }
         }
-        .sheet(isPresented: $showUpdateLocationSheet) {
+        // 🔹 Location sheet is driven by the view model flag
+        .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
             NavigationStack {
                 UpdateLocationView(
                     viewModel: viewModel,
                     onBack: {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                            showFilterCard = true
+                        // Only reopen filter if user came from FilterCard
+                        if reopenFilterAfterLocation {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                withAnimation {
+                                    showFilterCard = true
+                                }
+                            }
                         }
                     }
                 )
                 .environmentObject(fireDBHelper)
             }
         }
+        // 🔹 Location consent alert
+        .alert(
+            "Allow SecureRental to access your location?",
+            isPresented: $viewModel.showLocationConsentAlert
+        ) {
+            Button("No") {
+                Task {
+                    await viewModel.handleLocationConsentResponse(granted: false)
+                    isConsentFlowLoading = false
+                    shouldOpenLocationSheetAfterConsent = false
+                    reopenFilterAfterLocation = false
+                }
+            }
+            Button("Yes") {
+                Task {
+                    await viewModel.handleLocationConsentResponse(granted: true)
 
+                    if shouldOpenLocationSheetAfterConsent {
+                        viewModel.showUpdateLocationSheet = true
+                    }
+
+                    isConsentFlowLoading = false
+                    shouldOpenLocationSheetAfterConsent = false
+                    // keep reopenFilterAfterLocation (we still want to reopen filter after sheet)
+                }
+            }
+        } message: {
+            Text("SecureRental uses your location to show nearby rentals and improve your search experience.")
         }
-
-    
+    }
 
     // -------------------------------------------------------------
-    // MARK: Explore (original listing feed) extracted as a View
+    // MARK: Explore (original listing feed)
     // -------------------------------------------------------------
     private var exploreContent: some View {
         VStack(spacing: 0) {
-            
+
+            // HEADER ROW
             HStack {
                 Text("SecureRental")
                     .font(.title3).bold()
 
                 Spacer()
+
+                // 🔹 Location chip
+                Button {
+                    handleLocationButtonTapped(fromFilter: false)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "mappin.and.ellipse")
+                        if let city = viewModel.currentCity {
+                            Text(city)
+                                .font(.caption)
+                        } else {
+                            Text("Set Location")
+                                .font(.caption)
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.blue.opacity(0.10))   // or Color.hunterGreen.opacity(0.12) if defined
+                    .foregroundColor(.blue)
+                    .clipShape(Capsule())
+                }
+
                 AddListingButton {
                     showAddListing = true
                 }
+
                 CurrencyPickerButton(
                     selected: $currencyManager.selectedCurrency,
                     options: currencyManager.currencies
@@ -165,7 +236,7 @@ struct SecureRentalHomePage: View {
             .padding(.horizontal)
             .padding(.top, 10)
             .padding(.bottom, 10)
-            
+
             // SEARCH + FILTER ROW
             HStack(spacing: 12) {
                 SearchBar().environmentObject(viewModel)
@@ -192,7 +263,7 @@ struct SecureRentalHomePage: View {
                     .padding(.horizontal)
                     .padding(.vertical, 10)
 
-                    // --- EMPTY ---
+                // --- EMPTY ---
                 } else if filteredListings.isEmpty {
 
                     VStack(spacing: 10) {
@@ -209,7 +280,7 @@ struct SecureRentalHomePage: View {
                     }
                     .frame(maxWidth: .infinity, minHeight: 300)
 
-                    // --- SUCCESS ---
+                // --- SUCCESS ---
                 } else {
 
                     Text("\(filteredListings.count) properties found")
@@ -221,7 +292,6 @@ struct SecureRentalHomePage: View {
                     LazyVStack(spacing: 20) {
                         ForEach(filteredListings) { listing in
                             NavigationLink {
-//                                ListingDetailView(vm: currencyManager, listing: listing).environmentObject(viewModel).environmentObject(fireDBHelper)
                                 RentalListingDetailView(listing: listing)
                                     .environmentObject(dbHelper)
                             } label: {
@@ -237,10 +307,10 @@ struct SecureRentalHomePage: View {
             .environmentObject(viewModel)
             .zIndex(0)
             .overlay(alignment: .bottomTrailing) {
-                
+
                 VStack(spacing: 6) {
-                    
-                        // HINT BUBBLE
+
+                    // HINT BUBBLE
                     if showHint {
                         Text("Ask a question")
                             .font(.caption)
@@ -251,11 +321,10 @@ struct SecureRentalHomePage: View {
                             .cornerRadius(8)
                             .transition(.opacity)
                     }
-                    
-                        // CHATBOT BUTTON
+
+                    // CHATBOT BUTTON
                     Button(action: { showChatbot = true }) {
                         Image("chatbot2")
-                       
                             .resizable()
                             .scaledToFit()
                             .frame(width: 58, height: 56)
@@ -266,9 +335,7 @@ struct SecureRentalHomePage: View {
                                 Circle()
                                     .stroke(Color(.systemGray5), lineWidth: 2)
                             )
-                            // Soft iOS shadow
                             .shadow(color: Color.blue.opacity(0.15), radius: 12, y: 6)
-                            // Floating animation
                             .offset(y: float ? -8 : 0)
                             .animation(
                                 Animation.easeInOut(duration: 1.8)
@@ -283,13 +350,38 @@ struct SecureRentalHomePage: View {
             .onAppear {
                 float = true
                 showHint = true
-                
-                    // Hide hint after 2 seconds
+
+                // Hide hint after 5 seconds
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                     withAnimation { showHint = false }
                 }
             }
 
+        }
+    }
+
+    // -------------------------------------------------------------
+    // MARK: Location button handler (header + filter)
+    // -------------------------------------------------------------
+    private func handleLocationButtonTapped(fromFilter: Bool) {
+        // If tap came from the filter card, close it and remember to reopen
+        if fromFilter {
+            reopenFilterAfterLocation = true
+            withAnimation {
+                showFilterCard = false
+            }
+        } else {
+            reopenFilterAfterLocation = false
+        }
+
+        // If user already gave consent, just open the sheet
+        if let user = dbHelper.currentUser, user.locationConsent == true {
+            viewModel.showUpdateLocationSheet = true
+        } else {
+            // Otherwise, show consent flow
+            shouldOpenLocationSheetAfterConsent = true
+            isConsentFlowLoading = true
+            viewModel.showLocationConsentAlert = true
         }
     }
 
@@ -317,7 +409,6 @@ struct SecureRentalHomePage: View {
         }
     }
 
-
     // -------------------------------------------------------------
     // MARK: FILTER BUTTON
     // -------------------------------------------------------------
@@ -340,40 +431,11 @@ struct SecureRentalHomePage: View {
         for l in listings {
             print(" - RAW PRICE:", l.price)
         }
-        
+
         var filtered = listings
-        
-            // ---------------------------------------------------------
-            // 🔥 PRICE FILTER (now converts CAD → selected currency!)
-            // ---------------------------------------------------------
-//        filtered = filtered.filter { listing in
-//            
-//                // 1. Clean the price string (Firestore stores strings)
-//            let cleaned = listing.price
-//                .trimmingCharacters(in: .whitespacesAndNewlines)
-//                .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
-//                .joined()
-//            
-//            let cadValue = Double(cleaned) ?? 0
-//            
-//                // 2. Convert CAD → selected currency (USD/EUR/etc.)
-//            let convertedValue = currencyManager.convertToSelectedCurrency(cadValue)
-//            
-//                // Debug print
-//            print("""
-//        🔎 PRICE FILTER ->
-//        id: \(listing.id)
-//        raw: \(listing.price)
-//        cleaned: \(cleaned)
-//        cadValue: \(cadValue)
-//        convertedValue: \(convertedValue)
-//        maxPrice(selected currency): \(maxPrice)
-//        """)
-//            
-//            return convertedValue <= maxPrice
-//        }
+
+        // PRICE FILTER (with currency conversion)
         filtered = filtered.filter { listing in
-            // Clean Firestore price string
             let cleaned = listing.price
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
@@ -381,57 +443,47 @@ struct SecureRentalHomePage: View {
 
             let cadValue = Double(cleaned) ?? 0
 
-            // Convert listing price to selected currency
             let listingInSelectedCurrency = currencyManager.convertToSelectedCurrency(cadValue)
-
-            // Convert slider value to selected currency
             let maxPriceInSelectedCurrency = currencyManager.convertToSelectedCurrency(maxPrice)
 
             return listingInSelectedCurrency <= maxPriceInSelectedCurrency
         }
-        
-            // ---------------------------------------------------------
-            //  BEDROOM FILTER
-            // ---------------------------------------------------------
+
+        // BEDROOM FILTER
         if let beds = selectedBedrooms {
             filtered = filtered.filter { listing in
                 let pass: Bool
-                
+
                 if beds == 3 {
                     pass = listing.numberOfBedrooms >= 3
                 } else {
                     pass = listing.numberOfBedrooms == beds
                 }
-                
+
                 print("🛏 BED FILTER -> id: \(listing.id) actualBeds: \(listing.numberOfBedrooms) selected: \(beds) pass: \(pass)")
                 return pass
             }
         }
-        
-            // ---------------------------------------------------------
-            //  VERIFIED PROPERTIES FILTER
-            // ---------------------------------------------------------
+
+        // VERIFIED PROPERTIES FILTER
         if showVerifiedOnly {
             filtered = filtered.filter { listing in
                 print("🔐 VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
                 return listing.isAvailable
             }
         }
-        
+
         print("""
-    ---------------------------------------------------------
-    FINAL FILTERED COUNT: \(filtered.count)
-    maxPrice(\(currencyManager.selectedCurrency.code)) = \(maxPrice)
-    selectedBedrooms = \(String(describing: selectedBedrooms))
-    verifiedOnly = \(showVerifiedOnly)
-    ---------------------------------------------------------
-    """)
-        
+        ---------------------------------------------------------
+        FINAL FILTERED COUNT: \(filtered.count)
+        maxPrice(\(currencyManager.selectedCurrency.code)) = \(maxPrice)
+        selectedBedrooms = \(String(describing: selectedBedrooms))
+        verifiedOnly = \(showVerifiedOnly)
+        ---------------------------------------------------------
+        """)
+
         return filtered
     }
-
-
-
 
     func resetFilters() {
         maxPrice = 5000

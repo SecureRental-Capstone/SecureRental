@@ -93,7 +93,7 @@ struct SignUpView: View {
 //        // Insert user
 //        let newUser = AppUser(username: email, email: email, name: "NA")
 //        await dbHelper.insertUser(user: newUser)
-//        
+//
 //        // Fetch user by UID
 //        if let user = await dbHelper.getUser(byUID: newUser.id) {
 //            print(user.name)
