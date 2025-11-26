@@ -118,7 +118,8 @@ struct FilterCardView: View {
                 .foregroundColor(.white)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
+//                .background(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
+                .background(.blue) // Dark green price color
                 .cornerRadius(12)
             }
             .padding(.horizontal, 4)
