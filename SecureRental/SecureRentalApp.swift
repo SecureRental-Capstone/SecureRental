@@ -17,6 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   }
 }
 
+
 @main
 struct SecureRentalApp: App {
     
@@ -25,7 +26,6 @@ struct SecureRentalApp: App {
     var body: some Scene {
         WindowGroup {
             LaunchView()
-            //SecureRentalHomePage()
         }
     }
 }

@@ -9,5 +9,5 @@
 import Foundation
 
 enum RootView{
-    case login, main, signUp, splash
+    case login, main, signUp, splash, verification
 }

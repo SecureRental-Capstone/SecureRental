@@ -79,7 +79,3 @@ func createPersonaInquiry(firstName: String, lastName: String, birthdate: String
 
     }.resume()
 }
-
-
-
-

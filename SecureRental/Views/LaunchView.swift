@@ -37,6 +37,9 @@ struct LaunchView: View {
             case .main:
                 //HomeView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
                 SecureRentalHomePage(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+            
+            case .verification:
+                VerificationView(rootView: self.$rootView)
 
                 
 //            case .signUp:
