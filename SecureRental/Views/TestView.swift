@@ -21,6 +21,7 @@ struct SecureRentalHomePage: View {
     @State private var hasParking = false
     @State private var isPetFriendly = false
     @State private var hasGym = false
+    @State private var showVerificationAlert = false
 
     @StateObject var currencyManager = CurrencyViewModel()
     @StateObject var viewModel = RentalListingsViewModel()
@@ -188,6 +189,15 @@ struct SecureRentalHomePage: View {
         } message: {
             Text("SecureRental uses your location to show nearby rentals and improve your search experience.")
         }
+        .alert("Verification Required",
+               isPresented: $showVerificationAlert) {
+            Button("Verify Now") {
+                selectedTab = "Profile"
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Must verify identity to post a listing.")
+        }
         // 🔹 onAppear — SAME PATTERN AS HomeView
         .onAppear {
             Task {
@@ -262,7 +272,12 @@ struct SecureRentalHomePage: View {
                         // Top row: + and currency together
                         HStack(spacing: 8) {
                             AddListingButton {
-                                showAddListing = true
+//                                showAddListing = true
+                                if dbHelper.currentUser?.isVerified == true {
+                                    showAddListing = true
+                                } else {
+                                    showVerificationAlert = true
+                                }
                             }
                             .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
 
