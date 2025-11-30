@@ -47,7 +47,7 @@ struct SecureRentalHomePage: View {
 
                 // Hidden NavigationLinks for programmatic navigation
                 NavigationLink(
-                    destination: ChatbotView(),
+                    destination: ChatbotView().environmentObject(dbHelper),
                     isActive: $showChatbot
                 ) { EmptyView() }
 
