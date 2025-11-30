@@ -275,6 +275,12 @@ struct ProfileView: View {
                     .padding(.horizontal)
                     .padding(.top, 20)
                     
+                    if let user = dbHelper.currentUser, user.isVerified == false {
+                        VerifyIdentityCard {
+                            // Your verification logic here
+                        }
+                        .padding(.top, 10)
+                    }
                     
                         // MARK: - LIST SECTIONS
                     List {
