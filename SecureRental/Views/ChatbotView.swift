@@ -265,60 +265,7 @@ struct ChatbotView: View {
                 
                 // Header
                 ChatbotHeader()
-                
-                // Scrollable Content
-//                ScrollViewReader { proxy in
-//                    ScrollView {
-//                        VStack(spacing: 8) {
-//                            
-//                            // Quick Questions
-////                            if viewModel.messages.count <= 1 {
-////                                QuickQuestionsView(questions: quickQuestions) { prompt in
-////                                    self.inputText = prompt
-////                                    self.send()
-////                                }
-////                                .padding(.top, 10)
-////                            }
-//                            
-//                            QuickQuestionsView(questions: quickQuestions) { prompt in
-//                                self.inputText = prompt
-//                                self.send()
-//                            }
-//                            .padding(.top, 10)
-//                            // Chat Messages
-//                            ForEach(viewModel.messages) { message in
-//                                MessageBubbleView(message: message)
-//                                    .id(message.id)
-//                            }
-//                            
-//                            if viewModel.isLoading {
-//                                HStack {
-//                                    Image("chatbot2")
-//                                        .resizable()
-//                                        .scaledToFit()
-//                                        .frame(width: 35, height: 35)
-//                                        .clipShape(Circle())
-//                                    
-//                                    TypingIndicator()
-//                                    
-//                                    Spacer()
-//                                }
-//                                .padding(.horizontal)
-//                                .transition(.opacity)
-//                            }
-//
-//                        }
-//                        .padding(.bottom, 8)
-//                    }
-//                    .background(Color(.systemGroupedBackground))
-//                    .onChange(of: viewModel.messages.count) { _ in
-//                        if let lastMessage = viewModel.messages.last {
-//                            withAnimation {
-//                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
-//                            }
-//                        }
-//                    }
-//                }
+
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(spacing: 8) {
