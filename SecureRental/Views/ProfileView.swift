@@ -178,6 +178,7 @@
 
 
 import SwiftUI
+import Persona2
 
 struct ProfileView: View {
     @Binding var rootView: RootView
@@ -276,11 +277,10 @@ struct ProfileView: View {
                     .padding(.top, 20)
                     
                     if let user = dbHelper.currentUser, user.isVerified == false {
-                        VerifyIdentityCard {
-                            // Your verification logic here
-                        }
-                        .padding(.top, 10)
-                    }
+                        VerifyIdentityCard(rootView: self.$rootView)
+                             .environmentObject(dbHelper)
+                             .padding(.top, 10)
+                     }
                     
                         // MARK: - LIST SECTIONS
                     List {
@@ -374,6 +374,7 @@ struct ProfileView: View {
             .navigationBarTitle("My Profile", displayMode: .inline)
         }
     }
+
 }
 
 struct ManageAccountView: View { var body: some View { Text("Manage Account") } }

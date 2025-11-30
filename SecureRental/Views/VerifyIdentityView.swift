@@ -4,9 +4,17 @@
 //
 //  Created by Haniya Akhtar on 2025-11-30.
 import SwiftUI
+import Persona2
 
 struct VerifyIdentityCard: View {
-    var onVerify: () -> Void
+    
+    @EnvironmentObject var dbHelper: FireDBHelper
+    @State private var isLoading = false
+    @State private var showError = false
+    @State private var errorMessage: String?
+    @Binding var rootView: RootView
+    
+    private let personaDelegate = PersonaHandler()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -28,29 +36,30 @@ struct VerifyIdentityCard: View {
                         .font(.headline)
                         .fontWeight(.none)
                         .foregroundColor(.black)
-
+                    
                     VStack(alignment: .leading, spacing: 15) {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.seal")
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(Color.black)
                             Text("Post listings")
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(Color.black)
                                 .font(.subheadline)
                         }
                         
                         HStack(spacing: 6) {
                             Image(systemName: "shield")
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(Color.black)
                             Text("Build trust with users")
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(Color.black)
                                 .font(.subheadline)
                         }
                     }
                 }
             }.lineSpacing(15)
-
             
-            Button(action: onVerify) {
+            
+            Button(action: { startPersonaFlowFromProfile() })
+            {
                 Text("Verify Now")
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity, minHeight: 44)
@@ -63,5 +72,62 @@ struct VerifyIdentityCard: View {
         .background(Color(.systemGray6))
         .cornerRadius(16)
         .padding(.horizontal)
+        .onAppear { personaDelegate.dbHelper = dbHelper }
+    }
+    
+    func startPersonaFlowFromProfile() {
+        isLoading = true
+        
+        // 1. Define the action to take upon completion, cancellation, or external dismissal.
+        // The explicit capture list is now omitted or simply [self] (which is the default).
+        let dismissalAction = {
+            // Use 'self' directly
+            
+            // Ensure the dismissal action is run on the main thread for UI updates
+            DispatchQueue.main.async {
+                // Find and dismiss the presented view controller (the wrapper VC)
+                if let wrapperVC = UIApplication.shared.topViewController(of: PersonaWrapperVC.self) {
+                    wrapperVC.dismiss(animated: true) {
+                        // This block executes *after* the Persona flow is dismissed.
+                        self.rootView = .main // Use 'self' directly
+                    }
+                } else {
+                    // Fallback for immediate state change
+                    self.rootView = .main // Use 'self' directly
+                }
+            }
+        }
+
+        // Assign the action to the PersonaHandler
+        self.personaDelegate.onFlowDismissed = dismissalAction
+
+        createPersonaInquiry(firstName: "Jane", lastName: "Doe", birthdate: "1994-04-12") { result in
+            DispatchQueue.main.async {
+                isLoading = false
+
+                switch result {
+                case .success(let inquiryId):
+                    if let topVC = UIApplication.shared.topViewController() {
+                        let wrapper = PersonaWrapperVC()
+                        wrapper.modalPresentationStyle = .fullScreen
+                        wrapper.modalTransitionStyle = .coverVertical
+
+                        // 2. Assign the dismissal action to the wrapper VC
+                        wrapper.onDismiss = dismissalAction
+
+                        topVC.present(wrapper, animated: true) {
+                            Persona2.Inquiry
+                                .from(inquiryId: inquiryId, delegate: self.personaDelegate)
+                                .build()
+                                .start(from: wrapper)
+                        }
+                    }
+
+                case .failure(let error):
+                    showError = true
+                    errorMessage = error.localizedDescription
+                }
+            }
+        }
     }
 }
