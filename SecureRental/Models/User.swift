@@ -16,6 +16,8 @@ class AppUser: ObservableObject, Identifiable, Codable {
     var longitude: Double? = nil
     var radius: Double? // in kilometers
     
+    var isVerified: Bool = false
+    
     // initialization
     init(
         id: String = UUID().uuidString,
@@ -25,7 +27,8 @@ class AppUser: ObservableObject, Identifiable, Codable {
         profilePictureURL: String? = nil,
         rating: Double = 0.0,
         reviews: [String] = [],
-        favoriteListingIDs: [String] = []
+        favoriteListingIDs: [String] = [],
+        isVerified: Bool = false
     ) {
         self.id = id
         self.username = username
@@ -35,6 +38,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
         self.rating = rating
         self.reviews = reviews
         self.favoriteListingIDs = favoriteListingIDs
+        self.isVerified = isVerified
     }
     
     static let sampleUser = AppUser(
@@ -48,6 +52,7 @@ class AppUser: ObservableObject, Identifiable, Codable {
             "Great landlord!",
             "Very responsive and helpful.",
             "Would rent again."
-        ]
+        ],
+        isVerified: false
     )
 }

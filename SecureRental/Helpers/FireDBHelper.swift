@@ -47,7 +47,8 @@ class FireDBHelper: ObservableObject {
             "name": name,
             "profilePictureURL": "",
             "rating": 0,
-            "reviews": []
+            "reviews": [],
+            "isVerified": false
         ])
         self.currentUser = newUser
     }
@@ -103,6 +104,8 @@ class FireDBHelper: ObservableObject {
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
                 
+                user.isVerified = data["isVerified"] as? Bool ?? false // ⬅️ MODIFIED
+                
                 // NEW: Load consent and coordinates
                 user.locationConsent = data["locationConsent"] as? Bool
                 user.latitude = data["latitude"] as? Double
@@ -136,6 +139,9 @@ class FireDBHelper: ObservableObject {
                     reviews: data["reviews"] as? [String] ?? [],
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
+                
+                user.isVerified = data["isVerified"] as? Bool ?? false // ⬅️ MODIFIED
+                
                 // NEW: Load consent and coordinates
                 user.locationConsent = data["locationConsent"] as? Bool
                 user.latitude = data["latitude"] as? Double
@@ -159,7 +165,8 @@ class FireDBHelper: ObservableObject {
                 "name": user.name,
                 "profilePictureURL": user.profilePictureURL ?? "",
                 "rating": user.rating,
-                "reviews": user.reviews
+                "reviews": user.reviews,
+                "isVerified": user.isVerified // ⬅️ MODIFIED
             ]
             
             try await db.collection(COLLECTION_USERS).document(user.id).updateData(data)

@@ -163,7 +163,7 @@ struct SignUpView: View {
 
     @State private var isLoading = false
     @State private var showError = false
-    private let personaDelegate = PersonaHandler()
+//    private let personaDelegate = PersonaHandler()
 
     var body: some View {
         // 1. Background Layer

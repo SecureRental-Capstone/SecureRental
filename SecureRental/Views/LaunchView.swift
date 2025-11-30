@@ -39,7 +39,7 @@ struct LaunchView: View {
                 SecureRentalHomePage(rootView: self.$rootView).environmentObject(self.fireDBHelper)
             
             case .verification:
-                VerificationView(rootView: self.$rootView)
+                VerificationView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
 
                 
 //            case .signUp:
