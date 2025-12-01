@@ -28,22 +28,48 @@ class ChatbotViewModel: ObservableObject {
     // MARK: - Send a user message and get AI response
     func sendMessage(_ text: String) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        
-        // 1️⃣ Append user message
+
+        // 1️⃣ Add user's message to local array
         let userMessage = ChatbotMessage(text: text, isUser: true, timestamp: Date())
         messages.append(userMessage)
         isLoading = true
+        
+        let maxMessages = 20
+        if messages.count > maxMessages {
+            messages = Array(messages.suffix(maxMessages))
+        }
 
-        // 2️⃣ Prepare request body
+        // 2️⃣ Build the full conversation history
+        var history: [[String: String]] = []
+        
+        // SYSTEM MESSAGE FIRST
+        history.append([
+            "role": "system",
+            "content": """
+            You are SecureRental Bot — a friendly, knowledgeable assistant for international students using the rental app. 
+            
+            Rules:
+            - Only answer rental, housing, or app-related questions.
+            - If users ask about unrelated topics, politely redirect.
+            - Provide clear, simple guidance useful for newcomers to the U.S.
+            - You can ask clarifying questions if needed.
+
+            App features include: login, signup with ID verification, home feed with rental listings, messages, favorites, profile, AI chatbot, search, add listing, and listing management.
+            """
+        ])
+        
+        // ADD ENTIRE CHAT HISTORY
+        for msg in messages {
+            history.append([
+                "role": msg.isUser ? "user" : "assistant",
+                "content": msg.text
+            ])
+        }
+        
+        // 3️⃣ Build request body
         let body: [String: Any] = [
             "model": "gpt-4o-mini",
-            "messages": [
-                ["role": "system", "content": """
-                    You are a helpful assistant that answers questions about the rental app. Only answer questions about the app or rental-related queries, not unrelated topics.
-                    The app has a login page, signup flow with ID verification, home page with rental listings, bottom nav with Home, Messages, Favourites, Profile, chat bubble for this bot, search/add listing buttons, and listing management features.
-                    """],
-                ["role": "user", "content": text]
-            ]
+            "messages": history
         ]
         
         guard let jsonData = try? JSONSerialization.data(withJSONObject: body) else {
@@ -52,17 +78,18 @@ class ChatbotViewModel: ObservableObject {
             return
         }
         
-        // 3️⃣ Build request
+        // 4️⃣ Build request
         var request = URLRequest(url: apiURL)
         request.httpMethod = "POST"
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
-        
-        // 4️⃣ Send request
+
+        // 5️⃣ Send request
         URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { data, response -> Data in
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                guard let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200 else {
                     throw URLError(.badServerResponse)
                 }
                 return data
@@ -71,11 +98,9 @@ class ChatbotViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
-                if case .failure(let error) = completion {
-                    print("OpenAI API error: \(error)")
-                    // Optional: Append an error message to the chat
+                if case .failure(_) = completion {
                     self?.messages.append(ChatbotMessage(
-                        text: "Sorry, I couldn't get a response. Please try again.",
+                        text: "Sorry, I couldn't get a response. Please try again!",
                         isUser: false,
                         timestamp: Date()
                     ))
@@ -89,6 +114,7 @@ class ChatbotViewModel: ObservableObject {
             })
             .store(in: &cancellables)
     }
+
 }
 
 // MARK: - OpenAI API Response Models
