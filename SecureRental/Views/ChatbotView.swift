@@ -226,30 +226,106 @@ struct AIListingCardView: View {
     @ObservedObject var vm: CurrencyViewModel
     @EnvironmentObject var rvm: RentalListingsViewModel
     
+    //    var body: some View {
+    //        VStack(alignment: .leading, spacing: 10) { // Changed to VStack
+    //
+    //            // 1. Constrained Image Placeholder (FIX: Limits vertical space)
+    //            ZStack(alignment: .topTrailing) {
+    //                // Placeholder for the actual property photo
+    //                // In a real app, replace Image(systemName: "photo.fill") with AsyncImage
+    //                AsyncImage(url: URL(string: listing.imageURLs.first ?? "")) { image in
+    //                    image.resizable().scaledToFill()
+    //                    .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
+    //                    .clipped()
+    //                    .background(Color.gray.opacity(0.1))
+    //                    .cornerRadius(8)
+    //                } placeholder: {
+    //                    Color(.systemGray4)
+    //                }
+    //
+    //                // Favorite Heart icon (using the one from the screenshot)
+    //                Button {
+    //                    withAnimation(.spring()) {
+    //                        rvm.toggleFavorite(for: listing) // listing is the item you want to favorite
+    //                    }
+    //                } label: {
+    //                    Image(systemName: rvm.isFavorite(listing) ? "heart.fill" : "heart")
+    //                        .padding(6)
+    //                        //.background(Color.black.opacity(0.3))
+    //                        .background(Color.white)
+    //                        .clipShape(Circle())
+    //                        .padding(8)
+    //                        .foregroundColor(rvm.isFavorite(listing) ? .red : .gray)
+    //                }
+    //            }
+    //            .frame(maxWidth: .infinity) // Ensure it fills the card width
+    //
+    //            // 2. Details
+    //            VStack(alignment: .leading, spacing: 4) {
+    //                HStack(alignment: .firstTextBaseline) {
+    //                    Text(listing.title)
+    //                        .font(.subheadline)
+    //                        .fontWeight(.bold)
+    //                        .foregroundColor(.primary)
+    //                        .lineLimit(1)
+    //
+    //                    Spacer()
+    //
+    //                    Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
+    //                        .font(.subheadline)
+    //                        .fontWeight(.heavy)
+    //                        .foregroundColor(.green)
+    //                }
+    //
+    //                // Location Pill
+    //                Text(listing.location)
+    //                    .font(.caption)
+    //                    .foregroundColor(.blue)
+    //                    .padding(.horizontal, 8)
+    //                    .padding(.vertical, 4)
+    //                    .background(Color.blue.opacity(0.1))
+    //                    .cornerRadius(6)
+    //
+    //                // Bed/Bath/Details Bar
+    //                HStack(spacing: 12) {
+    //                    Group {
+    //                        Image(systemName: "bed.double.fill")
+    //                        Text("\(listing.numberOfBedrooms) bed")
+    //
+    //                        Divider()
+    //                            .frame(height: 12)
+    //
+    //                        Image(systemName: "bathtub.fill")
+    //                        Text("\(listing.numberOfBathrooms) bath")
+    //                    }
+    //                    .font(.caption)
+    //                    .foregroundColor(.secondary)
+    //                }
+    //            }
+    //        }
+    //        .padding(12) // Slightly increased internal padding
+    //        .background(Color.white)
+    //        .cornerRadius(12) // Slightly larger corner radius for card look
+    //        .overlay(
+    //             RoundedRectangle(cornerRadius: 12)
+    //                 .stroke(Color.gray.opacity(0.2), lineWidth: 1) // Subtle border
+    //        )
+    //    }
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) { // Changed to VStack
+        VStack(alignment: .leading, spacing: 0) { // spacing: 0 for edge-to-edge look
             
-            // 1. Constrained Image Placeholder (FIX: Limits vertical space)
+            // 1. Constrained Image Placeholder (Edge-to-edge top)
             ZStack(alignment: .topTrailing) {
                 // Placeholder for the actual property photo
-                // In a real app, replace Image(systemName: "photo.fill") with AsyncImage
                 AsyncImage(url: URL(string: listing.imageURLs.first ?? "")) { image in
                     image.resizable().scaledToFill()
-                    .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
-                    .clipped()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
+                        .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
+                        .clipped()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(8)
                 } placeholder: {
                     Color(.systemGray4)
                 }
-//                Image(systemName: "photo.fill")
-//                    .resizable()
-//                    .scaledToFill()
-//                    .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
-//                    .clipped()
-//                    .background(Color.gray.opacity(0.1))
-//                    .cornerRadius(8)
-                
                 // Favorite Heart icon (using the one from the screenshot)
                 Button {
                     withAnimation(.spring()) {
@@ -258,67 +334,76 @@ struct AIListingCardView: View {
                 } label: {
                     Image(systemName: rvm.isFavorite(listing) ? "heart.fill" : "heart")
                         .padding(6)
-                        //.background(Color.black.opacity(0.3))
+                    //.background(Color.black.opacity(0.3))
                         .background(Color.white)
                         .clipShape(Circle())
                         .padding(8)
                         .foregroundColor(rvm.isFavorite(listing) ? .red : .gray)
                 }
             }
-            .frame(maxWidth: .infinity) // Ensure it fills the card width
-            
-            // 2. Details
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(listing.title)
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                    
-                    Spacer()
-                    
-                    Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
-                        .font(.subheadline)
-                        .fontWeight(.heavy)
-                        .foregroundColor(.green)
-                }
+            .frame(maxWidth: .infinity)
 
-                // Location Pill
-                Text(listing.location)
-                    .font(.caption)
-                    .foregroundColor(.blue)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(6)
-
-                // Bed/Bath/Details Bar
-                HStack(spacing: 12) {
-                    Group {
-                        Image(systemName: "bed.double.fill")
-                        Text("\(listing.numberOfBedrooms) bed")
+                // 2. Details (Padded section below the image)
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                    // Title and Price (Top line)
+                    HStack(alignment: .lastTextBaseline) {
+                        Text(listing.title)
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
                         
-                        Divider()
-                            .frame(height: 12)
+                        Spacer()
                         
-                        Image(systemName: "bathtub.fill")
-                        Text("\(listing.numberOfBathrooms) bath")
+                        Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
+                            .font(.subheadline)
+                            .fontWeight(.heavy)
+                            .foregroundColor(.green)
                     }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    
+                    // Location Text
+                    HStack(spacing: 4) {
+                        Image(systemName: "mappin.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(listing.location)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                    
+                    
+                    // Bed/Bath/Details Bar
+                    HStack(spacing: 12) {
+                        Group {
+                            HStack(spacing: 4) {
+                                Image(systemName: "bed.double.fill")
+                                Text("\(listing.numberOfBedrooms) bed")
+                            }
+                            
+                            // Separate amenities with a divider
+                            Divider()
+                                .frame(height: 12)
+                            
+                            HStack(spacing: 4) {
+                                Image(systemName: "bathtub.fill")
+                                Text("\(listing.numberOfBathrooms) bath")
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    }
                 }
+                .padding(12) // Add padding to the detail section
             }
+            .background(Color.white)
+            // Apply corner radius only to the whole card
+            .cornerRadius(12)
+            // Use shadow instead of a border for a sleeker look
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
-        .padding(12) // Slightly increased internal padding
-        .background(Color.white)
-        .cornerRadius(12) // Slightly larger corner radius for card look
-        .overlay(
-             RoundedRectangle(cornerRadius: 12)
-                 .stroke(Color.gray.opacity(0.2), lineWidth: 1) // Subtle border
-        )
     }
-}
 
 struct MessageBubbleView: View {
     let message: ChatbotMessage
