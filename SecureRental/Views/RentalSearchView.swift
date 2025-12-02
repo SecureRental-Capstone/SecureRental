@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RentalSearchView: View {
     @ObservedObject var viewModel: RentalListingsViewModel
+    @EnvironmentObject var currencyManager: CurrencyViewModel
 
     var body: some View {
         VStack {
@@ -40,7 +41,7 @@ struct RentalSearchView: View {
                 Spacer()
             } else {
                 List(viewModel.locationListings) { listing in
-                    NavigationLink(destination: RentalListingDetailView(listing: listing)) {
+                    NavigationLink(destination: RentalListingDetailView(listing: listing).environmentObject(currencyManager)) {
                         Text(listing.title)
                             .font(.headline)
                     }

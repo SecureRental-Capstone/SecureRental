@@ -12,6 +12,7 @@ struct LandlordProfileView: View {
     @State private var listings: [Listing] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
+    @EnvironmentObject var currencyManager: CurrencyViewModel
 
     var body: some View {
         ZStack {
@@ -128,7 +129,7 @@ struct LandlordProfileView: View {
                             LazyVStack(spacing: 10) {
                                 ForEach(listings, id: \.id) { listing in
                                     NavigationLink {
-                                        RentalListingDetailView(listing: listing)
+                                        RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                                             .environmentObject(FireDBHelper.getInstance())
                                     } label: {
                                         ListingCardView(listing: listing)

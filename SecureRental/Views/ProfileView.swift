@@ -183,6 +183,7 @@ import Persona2
 struct ProfileView: View {
     @Binding var rootView: RootView
     @EnvironmentObject var dbHelper: FireDBHelper
+    @EnvironmentObject var currencyManager: CurrencyViewModel
     
     var body: some View {
         NavigationView {
@@ -329,7 +330,7 @@ struct ProfileView: View {
                         
                             // My Listings
                         Section(header: Text("My Listings").font(.headline)) {
-                            NavigationLink(destination: MyListingsView().environmentObject(dbHelper)) {
+                            NavigationLink(destination: MyListingsView().environmentObject(dbHelper).environmentObject(currencyManager)) {
                                 Label("My Listings", systemImage: "house.fill")
                             }
                         }

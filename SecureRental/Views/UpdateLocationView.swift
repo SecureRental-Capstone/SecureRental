@@ -17,6 +17,7 @@ struct IdentifiableCoordinate: Identifiable {
 struct UpdateLocationView: View {
     @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject var viewModel = RentalListingsViewModel()
+    @EnvironmentObject var currencyManager: CurrencyViewModel
     
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 43.78017, longitude: -79.457212),
@@ -215,7 +216,7 @@ struct UpdateLocationView: View {
         }
         .sheet(item: $selectedListing) { listing in
             NavigationView {
-                RentalListingDetailView(listing: listing)
+                RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                     .environmentObject(dbHelper)
                     .navigationBarTitleDisplayMode(.inline)
             }

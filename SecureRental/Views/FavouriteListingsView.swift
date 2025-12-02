@@ -10,7 +10,7 @@ import SwiftUI
 struct FavouriteListingsView: View {
     @ObservedObject var viewModel: RentalListingsViewModel
     @EnvironmentObject var dbHelper: FireDBHelper
-    @StateObject var currencyManager = CurrencyViewModel()
+    @EnvironmentObject var currencyManager: CurrencyViewModel
 
     var body: some View {
         ZStack {
@@ -50,7 +50,7 @@ struct FavouriteListingsView: View {
                         ForEach(viewModel.favouriteListings) { listing in
                             
                             NavigationLink {
-                                RentalListingDetailView(listing: listing)
+                                RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                                     .environmentObject(dbHelper)
                             } label: {
                                 RentalListingCardView(

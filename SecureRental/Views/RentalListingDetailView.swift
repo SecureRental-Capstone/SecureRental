@@ -38,6 +38,8 @@ struct RentalListingDetailView: View {
     @State private var activeConversationId: String?
     @State private var shouldNavigateToChat = false
 
+    @EnvironmentObject var vm: CurrencyViewModel
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -60,7 +62,8 @@ struct RentalListingDetailView: View {
                                 .multilineTextAlignment(.leading)
 
                             HStack(alignment: .center, spacing: 8) {
-                                Text("$\(listing.price)/month")
+//                                Text("$\(listing.price)/month")
+                                Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
                                     .font(.title3.weight(.bold))
                                     .foregroundColor(.hunterGreen)
 
@@ -174,7 +177,7 @@ struct RentalListingDetailView: View {
 
                         if let landlord {
                             NavigationLink {
-                                LandlordProfileView(landlord: landlord)
+                                LandlordProfileView(landlord: landlord).environmentObject(vm)
                             } label: {
                                 UserRow(user: landlord, subtitle: "View profile & other listings")
                             }
@@ -296,7 +299,7 @@ struct RentalListingDetailView: View {
                 destination: {
                     Group {
                         if let convId = activeConversationId {
-                            ChatView(listing: listing, conversationId: convId)
+                            ChatView(listing: listing, conversationId: convId).environmentObject(vm)
                         } else {
                             EmptyView()
                         }

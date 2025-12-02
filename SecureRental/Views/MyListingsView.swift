@@ -12,6 +12,7 @@ struct MyListingsView: View {
     @StateObject private var viewModel = RentalListingsViewModel()
     @State private var selectedListing: Listing?
     @EnvironmentObject var dbHelper: FireDBHelper
+    @EnvironmentObject var currencyManager: CurrencyViewModel
     
     var body: some View {
         NavigationView {
@@ -35,7 +36,7 @@ struct MyListingsView: View {
                     // 👉 Your original list
                     List($viewModel.listings) { $listing in
                         NavigationLink(
-                            destination: RentalListingDetailView(listing: listing)
+                            destination: RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                                 .environmentObject(dbHelper)
                         ) {
                             HStack {

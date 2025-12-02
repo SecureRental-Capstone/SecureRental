@@ -935,7 +935,7 @@ struct ListingDetailView: View {
                 destination: {
                     Group {
                         if let convId = activeConversationId {
-                            ChatView(listing: listing, conversationId: convId)
+                            ChatView(listing: listing, conversationId: convId).environmentObject(vm)
                         } else {
                             EmptyView()
                         }

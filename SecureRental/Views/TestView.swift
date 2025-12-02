@@ -47,7 +47,7 @@ struct SecureRentalHomePage: View {
 
                 // Hidden NavigationLinks for programmatic navigation
                 NavigationLink(
-                    destination: ChatbotView().environmentObject(dbHelper),
+                    destination: ChatbotView().environmentObject(dbHelper).environmentObject(currencyManager),
                     isActive: $showChatbot
                 ) { EmptyView() }
 
@@ -62,13 +62,14 @@ struct SecureRentalHomePage: View {
                     case "Search":
                         exploreContent
                     case "Messages":
-                        MyChatsView()
+                        MyChatsView().environmentObject(currencyManager)
                     case "Favourites":
                         FavouriteListingsView(viewModel: viewModel)
                             .environmentObject(fireDBHelper)
                             .environmentObject(viewModel)
+                            .environmentObject(currencyManager)
                     case "Profile":
-                        ProfileView(rootView: $rootView)
+                        ProfileView(rootView: $rootView).environmentObject(currencyManager)
                     default:
                         exploreContent
                     }
@@ -158,7 +159,7 @@ struct SecureRentalHomePage: View {
                         }
                     }
                 )
-                .environmentObject(fireDBHelper)
+                .environmentObject(fireDBHelper).environmentObject(currencyManager)
             }
         }
         // 🔹 Location consent alert
@@ -367,7 +368,7 @@ struct SecureRentalHomePage: View {
                         LazyVStack(spacing: 20) {
                             ForEach(filteredListings) { listing in
                                 NavigationLink {
-                                    RentalListingDetailView(listing: listing)
+                                    RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                                         .environmentObject(dbHelper)
                                 } label: {
                                     RentalListingCardView(listing: listing, vm: currencyManager)

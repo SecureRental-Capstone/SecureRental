@@ -11,6 +11,8 @@ struct MyChatsView: View {
 
     @State private var isInitialLoading = true
     @State private var searchText: String = ""
+    
+    @EnvironmentObject var vm: CurrencyViewModel
 
     var body: some View {
         NavigationView {
@@ -95,13 +97,13 @@ struct MyChatsView: View {
                                             ChatView(
                                                 listing: listing,
                                                 conversationId: conversation.id ?? ""
-                                            )
+                                            ).environmentObject(vm)
                                         } label: {
                                             ChatRowView(
                                                 listing: listing,
                                                 otherUserName: otherUserName,
                                                 lastMessage: lastMessage
-                                            )
+                                            ).environmentObject(vm)
                                         }
                                         .buttonStyle(.plain)
                                     }
@@ -255,6 +257,8 @@ struct ChatRowView: View {
     let listing: Listing
     let otherUserName: String
     let lastMessage: ChatMessage
+    
+    @EnvironmentObject var currencyManager: CurrencyViewModel
 
     var body: some View {
         HStack(spacing: 12) {
@@ -329,7 +333,8 @@ struct ChatRowView: View {
 
                     // ✅ works whether price is Int, Double, or String
                     if let priceText = formattedPrice(listing.price) {
-                        Text(priceText)
+//                        Text(priceText)
+                        Text(currencyManager.convertedPrice(basePriceString: listing.price) + "/mo")
                             .font(.caption.weight(.semibold))
                             .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
                     }

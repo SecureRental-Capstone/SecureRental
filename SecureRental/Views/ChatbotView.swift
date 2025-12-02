@@ -111,58 +111,13 @@ struct UserMessageBubble: View {
     }
 }
 
-//struct AIMessageBubble: View {
-//    let text: String
-//    let timestamp: Date
-//
-//    var body: some View {
-//        HStack(alignment: .top, spacing: 8) { // Alignment changed to .top
-//            // AI Icon
-//            Image("chatbot2")
-//                .resizable()
-//                .scaledToFit()
-//                .frame(width: 35, height: 35)
-//                .foregroundColor(.white)
-////                .padding(3)
-//                .clipShape(Circle())
-//            
-//            VStack(alignment: .leading, spacing: 0) { // Spacing set to 0 for tighter integration
-//                VStack(alignment: .leading, spacing: 4) { // Tighter spacing inside bubble
-//                    
-//                    //Main Content
-//                    Text(.init(text))
-//                        .font(.body)
-//                        .lineSpacing(4)      // space between lines
-//                        .multilineTextAlignment(.leading)
-////                        .fixedSize(horizontal: false, vertical: true)
-//                }
-//                .padding(12) // Standard internal padding
-//                .background(Color.white)
-//                // Corner radius adjustment: Removed .topRight as the bubble is complex,
-//                // but kept the bottom corner adjustments.
-//                .cornerRadius(18, corners: [.allCorners])
-//                .cornerRadius(4, corners: [.topLeft]) // Slight adjustment to the very top corner near the icon
-//                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-//                Text("SecureRental Bot • \(timestamp, style: .time)")
-//                    .font(.caption)
-//                    .fontWeight(.none)
-//                    .foregroundStyle(Color.gray)
-//                    .padding(.leading, 12) // same as bubble padding
-//                    .padding(.top, 3)
-//            }
-//            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: .leading)
-//            .offset(y: -4) // Slight upward lift to align the bubble top with the icon better
-//        }
-////        .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
-//    }
-//}
 struct AIMessageBubble: View {
     
     let rvm = RentalListingsViewModel()
-    let vm = CurrencyViewModel()
     let message: ChatbotMessage // Changed to accept the full message object
     let dbHelper = FireDBHelper.getInstance()
-
+    @EnvironmentObject var currencyManager: CurrencyViewModel
+    
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             // AI Icon
@@ -193,11 +148,11 @@ struct AIMessageBubble: View {
                             ForEach(listings) { listing in
                                 // Use the new card component
                                 NavigationLink {
-                                    RentalListingDetailView(listing: listing)
+                                    RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                                         .environmentObject(dbHelper)
                                 } label: {
                                     //RentalListingCardView(listing: listing, vm: currencyManager).environmentObject(rvm)
-                                    AIListingCardView(listing: listing, vm: vm).environmentObject(rvm)
+                                    AIListingCardView(listing: listing).environmentObject(rvm).environmentObject(currencyManager)
                                 }
                             }
                         }
@@ -224,7 +179,7 @@ struct AIMessageBubble: View {
 
 struct AIListingCardView: View {
     let listing: Listing
-    @ObservedObject var vm: CurrencyViewModel
+    @EnvironmentObject var vm: CurrencyViewModel
     @EnvironmentObject var rvm: RentalListingsViewModel
 
     var body: some View {
@@ -323,6 +278,7 @@ struct AIListingCardView: View {
 
 struct MessageBubbleView: View {
     let message: ChatbotMessage
+    @EnvironmentObject var currencyManager: CurrencyViewModel
 
     var body: some View {
         HStack {
@@ -339,7 +295,7 @@ struct MessageBubbleView: View {
                 }
             } else {
                 //AIMessageBubble(text: message.text, timestamp: message.timestamp)
-                AIMessageBubble(message: message)
+                AIMessageBubble(message: message).environmentObject(currencyManager)
             }
         }
         .padding(.horizontal)
@@ -421,6 +377,7 @@ struct ChatbotView: View {
     @StateObject private var viewModel = ChatbotViewModel()
     @State private var inputText = ""
     @FocusState private var isTextFieldFocused: Bool
+    @EnvironmentObject var currencyManager: CurrencyViewModel
 
     private let quickQuestions: [QuickQuestion] = [
         QuickQuestion(icon: "house.fill", category: "Housing", prompt: "What documents do I need to rent?"),
@@ -452,7 +409,7 @@ struct ChatbotView: View {
 
                             // Chat Messages
                             ForEach(viewModel.messages) { message in
-                                MessageBubbleView(message: message)
+                                MessageBubbleView(message: message).environmentObject(currencyManager)
                                     .id(message.id) // important for scrollTo
                             }
 

@@ -340,6 +340,7 @@ struct ChatInfoSheet: View {
     let landlord: AppUser?
     let tenant: AppUser?
     let dbHelper: FireDBHelper
+    @EnvironmentObject var currencyManager: CurrencyViewModel
     @Environment(\.dismiss) private var dismiss
 
 
@@ -371,7 +372,7 @@ struct ChatInfoSheet: View {
                     VStack(spacing: 16) {
                         // MARK: - Listing Card
                         NavigationLink {
-                            RentalListingDetailView(listing: listing)
+                            RentalListingDetailView(listing: listing).environmentObject(currencyManager)
                                 .environmentObject(dbHelper)
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
@@ -473,7 +474,7 @@ struct ChatInfoSheet: View {
 
                             if let landlord {
                                 NavigationLink {
-                                    LandlordProfileView(landlord: landlord)
+                                    LandlordProfileView(landlord: landlord).environmentObject(currencyManager)
                                 } label: {
                                     cardWrapper {
                                         UserRow(user: landlord, subtitle: "View profile & other listings")
