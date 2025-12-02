@@ -29,4 +29,12 @@ struct ChatbotMessage: Identifiable {
     let text: String
     let isUser: Bool // true for user, false for AI
     let timestamp: Date
+    let attachedListings: [Listing]? // Has default value
+    
+    init(text: String, isUser: Bool, timestamp: Date, attachedListings: [Listing]? = nil) {
+            self.text = text
+            self.isUser = isUser
+            self.timestamp = timestamp
+            self.attachedListings = attachedListings
+        }
 }

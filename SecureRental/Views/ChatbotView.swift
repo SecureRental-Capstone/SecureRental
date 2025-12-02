@@ -110,49 +110,213 @@ struct UserMessageBubble: View {
     }
 }
 
+//struct AIMessageBubble: View {
+//    let text: String
+//    let timestamp: Date
+//
+//    var body: some View {
+//        HStack(alignment: .top, spacing: 8) { // Alignment changed to .top
+//            // AI Icon
+//            Image("chatbot2")
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 35, height: 35)
+//                .foregroundColor(.white)
+////                .padding(3)
+//                .clipShape(Circle())
+//            
+//            VStack(alignment: .leading, spacing: 0) { // Spacing set to 0 for tighter integration
+//                VStack(alignment: .leading, spacing: 4) { // Tighter spacing inside bubble
+//                    
+//                    //Main Content
+//                    Text(.init(text))
+//                        .font(.body)
+//                        .lineSpacing(4)      // space between lines
+//                        .multilineTextAlignment(.leading)
+////                        .fixedSize(horizontal: false, vertical: true)
+//                }
+//                .padding(12) // Standard internal padding
+//                .background(Color.white)
+//                // Corner radius adjustment: Removed .topRight as the bubble is complex,
+//                // but kept the bottom corner adjustments.
+//                .cornerRadius(18, corners: [.allCorners])
+//                .cornerRadius(4, corners: [.topLeft]) // Slight adjustment to the very top corner near the icon
+//                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+//                Text("SecureRental Bot • \(timestamp, style: .time)")
+//                    .font(.caption)
+//                    .fontWeight(.none)
+//                    .foregroundStyle(Color.gray)
+//                    .padding(.leading, 12) // same as bubble padding
+//                    .padding(.top, 3)
+//            }
+//            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: .leading)
+//            .offset(y: -4) // Slight upward lift to align the bubble top with the icon better
+//        }
+////        .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
+//    }
+//}
 struct AIMessageBubble: View {
-    let text: String
-    let timestamp: Date
+    
+    let rvm = RentalListingsViewModel()
+    let vm = CurrencyViewModel()
+    let message: ChatbotMessage // Changed to accept the full message object
+    let dbHelper = FireDBHelper.getInstance()
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) { // Alignment changed to .top
+        HStack(alignment: .top, spacing: 8) {
             // AI Icon
             Image("chatbot2")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 35, height: 35)
                 .foregroundColor(.white)
-//                .padding(3)
                 .clipShape(Circle())
             
-            VStack(alignment: .leading, spacing: 0) { // Spacing set to 0 for tighter integration
-                VStack(alignment: .leading, spacing: 4) { // Tighter spacing inside bubble
+            VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 4) {
                     
-                    //Main Content
-                    Text(.init(text))
+                    // Main Content (Text)
+                    Text(.init(message.text))
                         .font(.body)
-                        .lineSpacing(4)      // space between lines
+                        .lineSpacing(4)
                         .multilineTextAlignment(.leading)
-//                        .fixedSize(horizontal: false, vertical: true)
+
+                    // 👇 NEW: Conditional Rendering of Attached Listings
+                    if let listings = message.attachedListings, !listings.isEmpty {
+                        
+                        Divider()
+                            .padding(.vertical, 8)
+                        
+                        // Display the list of results
+                        VStack(alignment: .leading, spacing: 10) {
+                            ForEach(listings) { listing in
+                                // Use the new card component
+                                NavigationLink {
+                                    RentalListingDetailView(listing: listing)
+                                        .environmentObject(dbHelper)
+                                } label: {
+                                    //RentalListingCardView(listing: listing, vm: currencyManager).environmentObject(rvm)
+                                    AIListingCardView(listing: listing, vm: vm).environmentObject(rvm)
+                                }
+                            }
+                        }
+                    }
                 }
                 .padding(12) // Standard internal padding
                 .background(Color.white)
-                // Corner radius adjustment: Removed .topRight as the bubble is complex,
-                // but kept the bottom corner adjustments.
                 .cornerRadius(18, corners: [.allCorners])
-                .cornerRadius(4, corners: [.topLeft]) // Slight adjustment to the very top corner near the icon
+                .cornerRadius(4, corners: [.topLeft])
                 .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-                Text("SecureRental Bot • \(timestamp, style: .time)")
+                
+                Text("SecureRental Bot • \(message.timestamp, style: .time)")
                     .font(.caption)
                     .fontWeight(.none)
                     .foregroundStyle(Color.gray)
-                    .padding(.leading, 12) // same as bubble padding
+                    .padding(.leading, 12)
                     .padding(.top, 3)
             }
             .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: .leading)
-            .offset(y: -4) // Slight upward lift to align the bubble top with the icon better
+            .offset(y: -4)
         }
-//        .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
+    }
+}
+
+struct AIListingCardView: View {
+    let listing: Listing
+    @ObservedObject var vm: CurrencyViewModel
+    @EnvironmentObject var rvm: RentalListingsViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) { // Changed to VStack
+            
+            // 1. Constrained Image Placeholder (FIX: Limits vertical space)
+            ZStack(alignment: .topTrailing) {
+                // Placeholder for the actual property photo
+                // In a real app, replace Image(systemName: "photo.fill") with AsyncImage
+                AsyncImage(url: URL(string: listing.imageURLs.first ?? "")) { image in
+                    image.resizable().scaledToFill()
+                    .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
+                    .clipped()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+                } placeholder: {
+                    Color(.systemGray4)
+                }
+//                Image(systemName: "photo.fill")
+//                    .resizable()
+//                    .scaledToFill()
+//                    .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
+//                    .clipped()
+//                    .background(Color.gray.opacity(0.1))
+//                    .cornerRadius(8)
+                
+                // Favorite Heart icon (using the one from the screenshot)
+                Button {
+                    withAnimation(.spring()) {
+                        rvm.toggleFavorite(for: listing) // listing is the item you want to favorite
+                    }
+                } label: {
+                    Image(systemName: rvm.isFavorite(listing) ? "heart.fill" : "heart")
+                        .padding(6)
+                        //.background(Color.black.opacity(0.3))
+                        .background(Color.white)
+                        .clipShape(Circle())
+                        .padding(8)
+                        .foregroundColor(rvm.isFavorite(listing) ? .red : .gray)
+                }
+            }
+            .frame(maxWidth: .infinity) // Ensure it fills the card width
+            
+            // 2. Details
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(listing.title)
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    Spacer()
+                    
+                    Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
+                        .font(.subheadline)
+                        .fontWeight(.heavy)
+                        .foregroundColor(.green)
+                }
+
+                // Location Pill
+                Text(listing.location)
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(6)
+
+                // Bed/Bath/Details Bar
+                HStack(spacing: 12) {
+                    Group {
+                        Image(systemName: "bed.double.fill")
+                        Text("\(listing.numberOfBedrooms) bed")
+                        
+                        Divider()
+                            .frame(height: 12)
+                        
+                        Image(systemName: "bathtub.fill")
+                        Text("\(listing.numberOfBathrooms) bath")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(12) // Slightly increased internal padding
+        .background(Color.white)
+        .cornerRadius(12) // Slightly larger corner radius for card look
+        .overlay(
+             RoundedRectangle(cornerRadius: 12)
+                 .stroke(Color.gray.opacity(0.2), lineWidth: 1) // Subtle border
+        )
     }
 }
 
@@ -173,7 +337,8 @@ struct MessageBubbleView: View {
                         .padding(.top, 3)
                 }
             } else {
-                AIMessageBubble(text: message.text, timestamp: message.timestamp)
+                //AIMessageBubble(text: message.text, timestamp: message.timestamp)
+                AIMessageBubble(message: message)
             }
         }
         .padding(.horizontal)
