@@ -100,7 +100,8 @@ struct UserMessageBubble: View {
     var body: some View {
         Text(text)
             .padding(12)
-            .background(Color.blue.opacity(0.8))
+//            .background(Color.blue.opacity(0.8))
+            .background(Color.primaryPurple)
             .foregroundColor(.white)
             // FIXED CORNERS: Standard chat bubble uses a small/zero radius on the bottom-right corner
             // for the last bubble, but here we fix the inner corner:
@@ -225,92 +226,7 @@ struct AIListingCardView: View {
     let listing: Listing
     @ObservedObject var vm: CurrencyViewModel
     @EnvironmentObject var rvm: RentalListingsViewModel
-    
-    //    var body: some View {
-    //        VStack(alignment: .leading, spacing: 10) { // Changed to VStack
-    //
-    //            // 1. Constrained Image Placeholder (FIX: Limits vertical space)
-    //            ZStack(alignment: .topTrailing) {
-    //                // Placeholder for the actual property photo
-    //                // In a real app, replace Image(systemName: "photo.fill") with AsyncImage
-    //                AsyncImage(url: URL(string: listing.imageURLs.first ?? "")) { image in
-    //                    image.resizable().scaledToFill()
-    //                    .frame(height: 140) // KEY FIX: Limit the image height to prevent zoom effect
-    //                    .clipped()
-    //                    .background(Color.gray.opacity(0.1))
-    //                    .cornerRadius(8)
-    //                } placeholder: {
-    //                    Color(.systemGray4)
-    //                }
-    //
-    //                // Favorite Heart icon (using the one from the screenshot)
-    //                Button {
-    //                    withAnimation(.spring()) {
-    //                        rvm.toggleFavorite(for: listing) // listing is the item you want to favorite
-    //                    }
-    //                } label: {
-    //                    Image(systemName: rvm.isFavorite(listing) ? "heart.fill" : "heart")
-    //                        .padding(6)
-    //                        //.background(Color.black.opacity(0.3))
-    //                        .background(Color.white)
-    //                        .clipShape(Circle())
-    //                        .padding(8)
-    //                        .foregroundColor(rvm.isFavorite(listing) ? .red : .gray)
-    //                }
-    //            }
-    //            .frame(maxWidth: .infinity) // Ensure it fills the card width
-    //
-    //            // 2. Details
-    //            VStack(alignment: .leading, spacing: 4) {
-    //                HStack(alignment: .firstTextBaseline) {
-    //                    Text(listing.title)
-    //                        .font(.subheadline)
-    //                        .fontWeight(.bold)
-    //                        .foregroundColor(.primary)
-    //                        .lineLimit(1)
-    //
-    //                    Spacer()
-    //
-    //                    Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
-    //                        .font(.subheadline)
-    //                        .fontWeight(.heavy)
-    //                        .foregroundColor(.green)
-    //                }
-    //
-    //                // Location Pill
-    //                Text(listing.location)
-    //                    .font(.caption)
-    //                    .foregroundColor(.blue)
-    //                    .padding(.horizontal, 8)
-    //                    .padding(.vertical, 4)
-    //                    .background(Color.blue.opacity(0.1))
-    //                    .cornerRadius(6)
-    //
-    //                // Bed/Bath/Details Bar
-    //                HStack(spacing: 12) {
-    //                    Group {
-    //                        Image(systemName: "bed.double.fill")
-    //                        Text("\(listing.numberOfBedrooms) bed")
-    //
-    //                        Divider()
-    //                            .frame(height: 12)
-    //
-    //                        Image(systemName: "bathtub.fill")
-    //                        Text("\(listing.numberOfBathrooms) bath")
-    //                    }
-    //                    .font(.caption)
-    //                    .foregroundColor(.secondary)
-    //                }
-    //            }
-    //        }
-    //        .padding(12) // Slightly increased internal padding
-    //        .background(Color.white)
-    //        .cornerRadius(12) // Slightly larger corner radius for card look
-    //        .overlay(
-    //             RoundedRectangle(cornerRadius: 12)
-    //                 .stroke(Color.gray.opacity(0.2), lineWidth: 1) // Subtle border
-    //        )
-    //    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { // spacing: 0 for edge-to-edge look
             
@@ -364,7 +280,7 @@ struct AIListingCardView: View {
                     
                     // Location Text
                     HStack(spacing: 4) {
-                        Image(systemName: "mappin.circle.fill")
+                        Image(systemName: "mappin.circle")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text(listing.location)
@@ -437,18 +353,22 @@ struct InputBar: View {
     @Binding var inputText: String
     var sendAction: () -> Void
     
+    @FocusState.Binding var isFocused: Bool
+
     var body: some View {
         VStack(spacing: 0) {
             Divider()
             HStack {
                 TextField("Ask me anything about housing...", text: $inputText)
+                    .focused($isFocused) // Apply focus tracking
                     .padding(.vertical, 10)
                     .padding(.horizontal, 15)
                     .background(Color.white)
                     .cornerRadius(25)
                     .overlay(
                         RoundedRectangle(cornerRadius: 25)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            .stroke(isFocused ? Color.blue : Color.gray.opacity(0.3), lineWidth: isFocused ? 2 : 1)
+//                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                     )
                 Button(action: sendAction) {
                                     Image(systemName: "paperplane.fill")
@@ -500,6 +420,7 @@ struct ChatbotView: View {
     @EnvironmentObject var dbHelper: FireDBHelper
     @StateObject private var viewModel = ChatbotViewModel()
     @State private var inputText = ""
+    @FocusState private var isTextFieldFocused: Bool
 
     private let quickQuestions: [QuickQuestion] = [
         QuickQuestion(icon: "house.fill", category: "Housing", prompt: "What documents do I need to rent?"),
@@ -557,6 +478,9 @@ struct ChatbotView: View {
                         .padding(.bottom, 8)
                     }
                     .background(Color(.systemGroupedBackground))
+                    .onTapGesture {
+                        isTextFieldFocused = false
+                    }
                     // Scroll whenever messages change
                     .onChange(of: viewModel.messages.count) { _ in
                         DispatchQueue.main.async {
@@ -580,7 +504,7 @@ struct ChatbotView: View {
                 }
                 
                 // Input Bar
-                InputBar(inputText: $inputText, sendAction: send)
+                InputBar(inputText: $inputText, sendAction: send, isFocused: $isTextFieldFocused)
             }
         }
     }
