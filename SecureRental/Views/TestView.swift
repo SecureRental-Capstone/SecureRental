@@ -23,6 +23,8 @@ struct SecureRentalHomePage: View {
     @State private var hasGym = false
     @State private var showVerificationAlert = false
 
+    @State private var searchTerm: String = ""
+    
     @StateObject var currencyManager = CurrencyViewModel()
     @StateObject var viewModel = RentalListingsViewModel()
 
@@ -315,7 +317,9 @@ struct SecureRentalHomePage: View {
 
                 // SEARCH + FILTER ROW – styled like Home/MyChats search
                 HStack(spacing: 12) {
-                    SearchBar()
+//                    SearchBar()
+//                        .environmentObject(viewModel)
+                    SearchBar(text: $searchTerm)
                         .environmentObject(viewModel)
 
                     FilterButton {
@@ -328,8 +332,13 @@ struct SecureRentalHomePage: View {
                 // LISTING FEED
                 ScrollView(.vertical, showsIndicators: false) {
 
-                    let filteredListings = applyLocalFilters(to: viewModel.locationListings)
-
+//                    let filteredListings = applyLocalFilters(to: viewModel.locationListings)
+                    // 🔑 MODIFIED: Pass the search term to the filter function
+                    let filteredListings = applyLocalFilters(
+                        to: viewModel.locationListings,
+                        searchTerm: searchTerm
+                    )
+                    
                     // --- LOADING (match HomeView) ---
                     if viewModel.isLoading {
                         LazyVStack(spacing: 20) {
@@ -466,8 +475,34 @@ struct SecureRentalHomePage: View {
     // -------------------------------------------------------------
     // MARK: SEARCH BAR (UI updated, logic same)
     // -------------------------------------------------------------
+//    struct SearchBar: View {
+//        @State private var text = ""
+//        @EnvironmentObject var viewModel: RentalListingsViewModel
+//
+//        var body: some View {
+//            HStack(spacing: 8) {
+//                Image(systemName: "magnifyingglass")
+//                    .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+//                TextField("Search rentals...", text: $text)
+//                    .font(.subheadline)
+//                    .textInputAutocapitalization(.never)
+//                    .disableAutocorrection(true)
+//                    .onChange(of: text) { newValue in
+//                        viewModel.filterListingsNew(
+//                            searchTerm: newValue,
+//                            amenities: [] // or pass real selected amenities
+//                        )
+//                    }
+//            }
+//            .padding(10)
+//            .background(Color(.systemBackground))
+//            .cornerRadius(10)
+//            .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+//        }
+//    }
     struct SearchBar: View {
-        @State private var text = ""
+        // 🔑 MODIFIED: Takes a binding from the parent view
+        @Binding var text: String
         @EnvironmentObject var viewModel: RentalListingsViewModel
 
         var body: some View {
@@ -478,12 +513,7 @@ struct SecureRentalHomePage: View {
                     .font(.subheadline)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
-                    .onChange(of: text) { newValue in
-                        viewModel.filterListingsNew(
-                            searchTerm: newValue,
-                            amenities: [] // or pass real selected amenities
-                        )
-                    }
+                    // 🔑 REMOVED: Redundant call to viewModel.filterListingsNew
             }
             .padding(10)
             .background(Color(.systemBackground))
@@ -511,13 +541,77 @@ struct SecureRentalHomePage: View {
         }
     }
 
-    func applyLocalFilters(to listings: [Listing]) -> [Listing] {
-        print("📦 LOADED LISTINGS COUNT:", listings.count)
-        for l in listings {
-            print(" - RAW PRICE:", l.price)
-        }
-
+//    func applyLocalFilters(to listings: [Listing]) -> [Listing] {
+//        print("📦 LOADED LISTINGS COUNT:", listings.count)
+//        for l in listings {
+//            print(" - RAW PRICE:", l.price)
+//        }
+//
+//        var filtered = listings
+//
+//        // PRICE FILTER (with currency conversion)
+//        filtered = filtered.filter { listing in
+//            let cleaned = listing.price
+//                .trimmingCharacters(in: .whitespacesAndNewlines)
+//                .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
+//                .joined()
+//
+//            let cadValue = Double(cleaned) ?? 0
+//
+//            let listingInSelectedCurrency = currencyManager.convertToSelectedCurrency(cadValue)
+//            let maxPriceInSelectedCurrency = currencyManager.convertToSelectedCurrency(maxPrice)
+//
+//            return listingInSelectedCurrency <= maxPriceInSelectedCurrency
+//        }
+//
+//        // BEDROOM FILTER
+//        if let beds = selectedBedrooms {
+//            filtered = filtered.filter { listing in
+//                let pass: Bool
+//
+//                if beds == 3 {
+//                    pass = listing.numberOfBedrooms >= 3
+//                } else {
+//                    pass = listing.numberOfBedrooms == beds
+//                }
+//
+//                print("🛏 BED FILTER -> id: \(listing.id) actualBeds: \(listing.numberOfBedrooms) selected: \(beds) pass: \(pass)")
+//                return pass
+//            }
+//        }
+//
+//        // VERIFIED PROPERTIES FILTER
+//        if showVerifiedOnly {
+//            filtered = filtered.filter { listing in
+//                print("🔐 VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
+//                return listing.isAvailable
+//            }
+//        }
+//
+//        print("""
+//        ---------------------------------------------------------
+//        FINAL FILTERED COUNT: \(filtered.count)
+//        maxPrice(\(currencyManager.selectedCurrency.code)) = \(maxPrice)
+//        selectedBedrooms = \(String(describing: selectedBedrooms))
+//        verifiedOnly = \(showVerifiedOnly)
+//        ---------------------------------------------------------
+//        """)
+//
+//        return filtered
+//    }
+    func applyLocalFilters(to listings: [Listing], searchTerm: String) -> [Listing] {
         var filtered = listings
+
+        // 🔑 NEW: Search Term Filter (applied first)
+        if !searchTerm.isEmpty {
+            let lowercasedSearchTerm = searchTerm.lowercased()
+            filtered = filtered.filter { listing in
+                // Search by title, city, or description
+                return listing.title.lowercased().contains(lowercasedSearchTerm) ||
+                       listing.city.lowercased().contains(lowercasedSearchTerm) ||
+                       listing.description.lowercased().contains(lowercasedSearchTerm)
+            }
+        }
 
         // PRICE FILTER (with currency conversion)
         filtered = filtered.filter { listing in
@@ -544,8 +638,6 @@ struct SecureRentalHomePage: View {
                 } else {
                     pass = listing.numberOfBedrooms == beds
                 }
-
-                print("🛏 BED FILTER -> id: \(listing.id) actualBeds: \(listing.numberOfBedrooms) selected: \(beds) pass: \(pass)")
                 return pass
             }
         }
@@ -553,19 +645,11 @@ struct SecureRentalHomePage: View {
         // VERIFIED PROPERTIES FILTER
         if showVerifiedOnly {
             filtered = filtered.filter { listing in
-                print("🔐 VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
                 return listing.isAvailable
             }
         }
 
-        print("""
-        ---------------------------------------------------------
-        FINAL FILTERED COUNT: \(filtered.count)
-        maxPrice(\(currencyManager.selectedCurrency.code)) = \(maxPrice)
-        selectedBedrooms = \(String(describing: selectedBedrooms))
-        verifiedOnly = \(showVerifiedOnly)
-        ---------------------------------------------------------
-        """)
+        // Removed print statements for cleaner output
 
         return filtered
     }
