@@ -500,7 +500,7 @@ class ChatbotViewModel: ObservableObject {
     // 2️⃣ Check if the query seems related to rental listings
     func checkRentalQuery(_ text: String, completion: @escaping (Bool) -> Void) {
         // Keywords related to rental listings
-        let rentalKeywords = ["bed", "beds", "bath", "baths", "find me listings", "show me listings", "list places", "find"]
+        let rentalKeywords = ["bed", "beds", "bath", "baths", "bedroom", "bathroom", "bedrooms", "bathrooms"]
         
         // Convert the user's query to lowercase for case-insensitive comparison
         let lowercasedText = text.lowercased()
