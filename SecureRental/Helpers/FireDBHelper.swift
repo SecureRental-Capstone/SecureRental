@@ -599,4 +599,83 @@ class FireDBHelper: ObservableObject {
            convWithId.id = ref.documentID
            return convWithId
        }
+    
+    // MARK: - Delete Account (Comprehensive)
+    @MainActor
+    func deleteAccount() async throws {
+        // 1. Get the currently authenticated user
+        guard let user = Auth.auth().currentUser else {
+            throw NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user logged in"])
+        }
+        
+        let uid = user.uid
+        
+        do {
+            print("Starting comprehensive account deletion for user: \(uid)")
+            
+            // --- A. Delete User's Listings and associated data ---
+            
+            // Fetch all listings owned by the user
+            let userListings = try await fetchListings(for: uid)
+            
+            for listing in userListings {
+                // Delete the listing document
+                try await deleteListing(listing)
+                // Note: CloudinaryHelper.deleteImage or similar logic for Cloud Storage
+                // should ideally be called here or handled via Cloud Functions for reliability.
+                print("  - Deleted Listing: \(listing.id)")
+            }
+            
+            // --- B. Delete User's Conversations ---
+            
+            // Find all conversations where the user is a participant
+            let conversationsSnapshot = try await db.collection("conversations")
+                .whereField("participants", arrayContains: uid)
+                .getDocuments()
+            
+            for doc in conversationsSnapshot.documents {
+                let conversationId = doc.documentID
+                
+                let messagesSnapshot = try await doc.reference.collection("messages").getDocuments()
+                
+                // 2. Delete messages in a batch
+                let batch = db.batch()
+                messagesSnapshot.documents.forEach { messageDoc in
+                    batch.deleteDocument(messageDoc.reference)
+                }
+                try await batch.commit()
+                print("  - Deleted all messages in conversation: \(conversationId)")
+                
+                // 3. Delete the main conversation document
+                try await doc.reference.delete()
+                print("  - Deleted Conversation: \(conversationId)")
+            }
+            
+            // --- C. Delete Firestore User Document ---
+            
+            try await db.collection(COLLECTION_USERS).document(uid).delete()
+            print("✅ User document deleted from Firestore: \(uid)")
+            
+            // --- D. Delete Firebase Authentication User ---
+            
+            // This is the final and most critical step. It requires recent login.
+            try await user.delete()
+            print("✅ User deleted from Firebase Auth: \(uid)")
+            
+            // 5. Clear local state and listeners
+            self.currentUser = nil
+            FireDBHelper.listeners.forEach { $0.remove() }
+            FireDBHelper.listeners = []
+            print("✅ Local state and listeners cleared.")
+            
+        } catch let error as NSError where error.domain == AuthErrorDomain && error.code == AuthErrorCode.requiresRecentLogin.rawValue {
+            // Critical: User must re-authenticate before retrying the deletion.
+            print("❌ Account deletion failed: requires recent login. User needs to sign in again.")
+            // You can throw a custom error to signal this specific need to your UI
+            throw NSError(domain: "AuthError", code: error.code, userInfo: [NSLocalizedDescriptionKey: "Please sign in again to confirm account deletion."])
+        } catch {
+            print("❌ Failed to delete account: \(error.localizedDescription)")
+            throw error
+        }
+    }
 }

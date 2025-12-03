@@ -179,11 +179,15 @@
 
 import SwiftUI
 import Persona2
+import FirebaseAuth
 
 struct ProfileView: View {
     @Binding var rootView: RootView
     @EnvironmentObject var dbHelper: FireDBHelper
     @EnvironmentObject var currencyManager: CurrencyViewModel
+    @State private var showingDeleteConfirmation = false
+    @State private var deletionError: Error?
+    @State private var showingErrorAlert = false
     
     var body: some View {
         NavigationView {
@@ -321,6 +325,18 @@ struct ProfileView: View {
                             }
                         }
                         
+                        Section(header: Text("Account Deletion").font(.headline)) {
+                                Button(role: .destructive) {
+                                    showingDeleteConfirmation = true
+                                } label: {
+                                    HStack {
+                                        Label("Delete Account Permanently", systemImage: "trash.fill")
+                                            .foregroundColor(.red)
+                                        Spacer()
+                                    }
+                                }
+                            }
+                        
                             // Display Settings
                         Section(header: Text("Display Settings").font(.headline)) {
                             NavigationLink(destination: AppThemeSettingsView()) {
@@ -374,8 +390,42 @@ struct ProfileView: View {
             }
             .navigationBarTitle("My Profile", displayMode: .inline)
         }
-    }
-
+        .alert("Delete Account", isPresented: $showingDeleteConfirmation) {
+                    Button("Delete Account", role: .destructive) {
+                        Task {
+                            await attemptAccountDeletion()
+                        }
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("Are you sure? All data will be permanently lost.")
+                }
+                
+                // ➡️ INSERTED: Deletion Error Alert
+                .alert("Deletion Failed", isPresented: $showingErrorAlert) {
+                    Button("OK") {
+                        // If it's a 'requires-recent-login' error, force logout to prompt re-authentication
+                        if let nsError = deletionError as? NSError, nsError.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                            self.rootView = .login
+                        }
+                    }
+                } message: {
+                    Text(deletionError?.localizedDescription ?? "An unknown error occurred while trying to delete your account. Please check your internet connection and try again.")
+                }
+            }
+            
+            // ➡️ INSERTED: Account Deletion Logic
+            private func attemptAccountDeletion() async {
+                do {
+                    try await dbHelper.deleteAccount()
+                    // Success! Go back to the login screen
+                    self.rootView = .login
+                } catch {
+                    // Failure
+                    self.deletionError = error
+                    self.showingErrorAlert = true
+                }
+            }
 }
 
 struct ManageAccountView: View { var body: some View { Text("Manage Account") } }
