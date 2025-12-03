@@ -65,7 +65,7 @@ struct MyListingsView: View {
                                 
                                 Button(action: { selectedListing = listing }) {
                                     Image(systemName: "pencil")
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(Color.primaryPurple)
                                 }
                                 .buttonStyle(BorderlessButtonStyle())
                             }

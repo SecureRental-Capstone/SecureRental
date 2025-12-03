@@ -65,7 +65,7 @@ struct RentalListingDetailView: View {
 //                                Text("$\(listing.price)/month")
                                 Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
                                     .font(.title3.weight(.bold))
-                                    .foregroundColor(.hunterGreen)
+                                    .foregroundColor(.primaryPurple)
 
                                 Spacer()
 
@@ -74,8 +74,8 @@ struct RentalListingDetailView: View {
                                         .font(.caption.weight(.semibold))
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
-                                        .background(Color.hunterGreen.opacity(0.12))
-                                        .foregroundColor(.hunterGreen)
+                                        .background(Color.primaryPurple.opacity(0.12))
+                                        .foregroundColor(.primaryPurple)
                                         .clipShape(Capsule())
                                 } else {
                                     Text("Not available")
@@ -107,7 +107,7 @@ struct RentalListingDetailView: View {
                             Label("\(listing.squareFootage) sq ft", systemImage: "ruler")
                         }
                         .font(.caption)
-                        .foregroundColor(.hunterGreen)
+                        .foregroundColor(.primaryPurple)
 
                         let trimmedDescription = listing.description
                             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -134,7 +134,7 @@ struct RentalListingDetailView: View {
                             coordinateRegion: $region,
                             annotationItems: [MapLocation(coordinate: region.center)]
                         ) { location in
-                            MapMarker(coordinate: location.coordinate, tint: .hunterGreen)
+                            MapMarker(coordinate: location.coordinate, tint: .primaryPurple)
                         }
                         .frame(height: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -152,7 +152,7 @@ struct RentalListingDetailView: View {
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, minHeight: 44)
-                                .background(Color.hunterGreen)
+                                .background(Color.primaryPurple)
                                 .cornerRadius(10)
                         }
                     }
@@ -170,8 +170,8 @@ struct RentalListingDetailView: View {
                                 .font(.caption2)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color.hunterGreen.opacity(0.14))
-                                .foregroundColor(.hunterGreen)
+                                .background(Color.primaryPurple.opacity(0.14))
+                                .foregroundColor(.primaryPurple)
                                 .clipShape(Capsule())
                         }
 
@@ -206,7 +206,7 @@ struct RentalListingDetailView: View {
                                         .font(.footnote.weight(.semibold))
                                         .foregroundColor(.white)
                                         .frame(maxWidth: .infinity, minHeight: 40)
-                                        .background(Color.hunterGreen)
+                                        .background(Color.primaryPurple)
                                         .cornerRadius(10)
                                     }
 
@@ -221,9 +221,9 @@ struct RentalListingDetailView: View {
                                             Text("Favourite")
                                         }
                                         .font(.footnote.weight(.semibold))
-                                        .foregroundColor(viewModel.isFavorite(listing) ? .red : .hunterGreen)
+                                        .foregroundColor(viewModel.isFavorite(listing) ? .red : .primaryPurple)
                                         .frame(maxWidth: .infinity, minHeight: 40)
-                                        .background(Color.hunterGreen.opacity(0.08))
+                                        .background(Color.primaryPurple.opacity(0.08))
                                         .cornerRadius(10)
                                     }
                                 }
@@ -428,8 +428,8 @@ struct FlexibleAmenityChips: View {
                 .font(.caption)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color.hunterGreen.opacity(0.08))
-                .foregroundColor(.hunterGreen)
+                .background(Color.primaryPurple.opacity(0.08))
+                .foregroundColor(.primaryPurple)
                 .clipShape(Capsule())
         }
     }

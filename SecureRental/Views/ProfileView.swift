@@ -221,7 +221,7 @@ struct ProfileView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 80, height: 80)
-                                            .foregroundColor(.blue)
+                                            .foregroundColor(Color.primaryPurple)
                                     @unknown default:
                                         EmptyView()
                                     }
@@ -231,7 +231,7 @@ struct ProfileView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 80, height: 80)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(Color.primaryPurple)
                                     .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
                             

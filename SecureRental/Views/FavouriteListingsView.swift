@@ -18,7 +18,7 @@ struct FavouriteListingsView: View {
             // Background consistent with homepage
             LinearGradient(
                 colors: [
-                    Color.hunterGreen.opacity(0.06),
+                    Color.primaryPurple.opacity(0.06),
                     Color(.systemBackground)
                 ],
                 startPoint: .top,

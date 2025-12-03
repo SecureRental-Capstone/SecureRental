@@ -230,7 +230,7 @@ struct SecureRentalHomePage: View {
             // Background like HomeView / MyChatsView
             LinearGradient(
                 colors: [
-                    Color.hunterGreen.opacity(0.06),
+                    Color.primaryPurple.opacity(0.06),
                     Color(.systemBackground)
                 ],
                 startPoint: .top,
@@ -249,7 +249,7 @@ struct SecureRentalHomePage: View {
 
 //                            .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+                            .foregroundColor(Color.primaryPurple)
 
                         if let user = dbHelper.currentUser {
                             Text("Hi, \(user.name)")
@@ -282,7 +282,7 @@ struct SecureRentalHomePage: View {
                                     showVerificationAlert = true
                                 }
                             }
-                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+                            .foregroundColor(Color.primaryPurple)
 
                             CurrencyPickerButton(
                                 selected: $currencyManager.selectedCurrency,
@@ -306,8 +306,8 @@ struct SecureRentalHomePage: View {
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(Color.hunterGreen.opacity(0.12))
-                            .foregroundColor(.hunterGreen)
+                            .background(Color.primaryPurple.opacity(0.12))
+                            .foregroundColor(.primaryPurple)
                             .clipShape(Capsule())
                         }
                     }
@@ -419,9 +419,9 @@ struct SecureRentalHomePage: View {
                                 .clipShape(Circle())
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.hunterGreen.opacity(0.25), lineWidth: 2)
+                                        .stroke(Color.primaryPurple.opacity(0.25), lineWidth: 2)
                                 )
-                                .shadow(color: Color.hunterGreen.opacity(0.18), radius: 12, y: 6)
+                                .shadow(color: Color.primaryPurple.opacity(0.18), radius: 12, y: 6)
                                 .offset(y: float ? -8 : 0)
                                 .animation(
                                     Animation.easeInOut(duration: 1.8)
@@ -532,7 +532,7 @@ struct SecureRentalHomePage: View {
             Button(action: action) {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 20))
-                    .foregroundColor(.hunterGreen)        // accent color
+                    .foregroundColor(.primaryPurple)        // accent color
                     .padding(10)
                     .background(Color(.systemBackground))
                     .cornerRadius(10)
@@ -737,7 +737,7 @@ struct SecureRentalHomePage: View {
                         .frame(maxWidth: .infinity)
                         .foregroundColor(
                             selectedTab == item.0
-                            ? .hunterGreen      // brand color for selected
+                            ? .primaryPurple      // brand color for selected
                             : .gray.opacity(0.7)
                         )
                     }

@@ -15,7 +15,8 @@
 import Foundation
 import Combine
 import UIKit
-import SwiftUICore
+import SwiftUI
+//import SwiftUICore
 import FirebaseAuth
 import CoreLocation
 

@@ -90,7 +90,7 @@ struct FilterCardView: View {
                     Spacer()
                     Text(currencyManager.convertedPrice(basePriceString: "\(Int(tempMaxPrice))"))
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
+                        .foregroundColor(Color.primaryPurple) // Dark green price color
                 }
 
                 Slider(
@@ -98,7 +98,7 @@ struct FilterCardView: View {
                     in: 0...5000,
                     step: 50
                 )
-                .tint(Color(red: 0.1, green: 0.5, blue: 0.2))
+                .tint(.primaryPurple)
             }
 
             Divider()
@@ -118,8 +118,8 @@ struct FilterCardView: View {
                 .foregroundColor(.white)
                 .padding()
                 .frame(maxWidth: .infinity)
-//                .background(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
-                .background(.blue) // Dark green price color
+//                .background(Color.primaryPurple) // Dark green price color
+                .background(Color.primaryPurple) // Dark green price color
                 .cornerRadius(12)
             }
             .padding(.horizontal, 4)
@@ -199,10 +199,10 @@ struct FilterCardView: View {
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
+                        .foregroundColor(.primaryPurple) // Dark green price color
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color(red: 0.1, green: 0.5, blue: 0.2), lineWidth: 1.5)
+                                .stroke(Color.primaryPurple, lineWidth: 1.5)
                         )
                 }
 
@@ -225,7 +225,7 @@ struct FilterCardView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .foregroundColor(.white)
-                        .background(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
+                        .background(Color.primaryPurple) // Dark green price color
                         .cornerRadius(10)
                 }
             }
@@ -248,7 +248,7 @@ struct FilterCardView: View {
                 .padding(.vertical, 8)
                 .background(
                     isSelected
-                    ? Color(red: 0.1, green: 0.5, blue: 0.2)
+                    ? Color(Color.primaryPurple)
                     : Color(.systemGray6)
                 )
                 .foregroundColor(isSelected ? .white : .primary)
@@ -269,7 +269,7 @@ struct FilterCardView: View {
             .padding(.vertical, 8)
             .background(
                 isSelected
-                ? Color(red: 0.1, green: 0.5, blue: 0.2)
+                ? Color(Color.primaryPurple)
                 : Color(.systemGray6)
             )
             .foregroundColor(isSelected ? .white : .primary)

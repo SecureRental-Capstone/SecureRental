@@ -37,7 +37,7 @@ struct VerificationView: View {
                         // 3. The Checkmark Icon
                         Image(systemName: "checkmark.circle")
                             .font(.system(size: 32, weight: .bold)) // Adjust size and weight for visibility
-                            .foregroundColor(.hunterGreen)
+                            .foregroundColor(.primaryPurple)
                     }
                     .padding(.bottom, 8) // Replaces the padding from the old icon
 

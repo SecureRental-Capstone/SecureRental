@@ -22,7 +22,7 @@ struct VerifyIdentityCard: View {
                 // Circle with warning icon
                 ZStack {
                     Circle()
-                        .fill(Color(red: 1.0, green: 0.93, blue: 0.6))
+                        .fill(Color.primaryPurple)
                         .frame(width: 40, height: 40)
                     Image(systemName: "exclamationmark.circle")
                         .resizable()
@@ -63,7 +63,7 @@ struct VerifyIdentityCard: View {
                 Text("Verify Now")
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(Color.blue)
+                    .background(Color.primaryPurple)
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }

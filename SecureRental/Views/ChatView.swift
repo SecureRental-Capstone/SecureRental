@@ -24,7 +24,7 @@ struct ChatView: View {
             // Background matches HomeView / MyChatsView
             LinearGradient(
                 colors: [
-                    Color.hunterGreen.opacity(0.06),
+                    Color.primaryPurple.opacity(0.06),
                     Color(.systemBackground)
                 ],
                 startPoint: .top,
@@ -63,7 +63,7 @@ struct ChatView: View {
                     } label: {
                         Image(systemName: "info.circle")
                             .font(.title3)
-                            .foregroundColor(.hunterGreen)
+                            .foregroundColor(.primaryPurple)
                     }
                 }
                 .padding(12)
@@ -161,7 +161,7 @@ struct ChatView: View {
                                 .padding(10)
                                 .background(
                                     Circle()
-                                        .fill(isSoldOut ? Color.gray.opacity(0.4) : Color.hunterGreen)
+                                        .fill(isSoldOut ? Color.gray.opacity(0.4) : Color.primaryPurple)
                                 )
                         }
                         .disabled(isSoldOut)
@@ -220,7 +220,7 @@ struct ChatView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 14)
                             .fill(isMe
-                                  ? Color.hunterGreen.opacity(0.90)
+                                  ? Color.primaryPurple.opacity(0.90)
                                   : Color(.systemGray5))
                     )
                     .foregroundColor(isMe ? .white : .primary)
@@ -360,7 +360,7 @@ struct ChatInfoSheet: View {
                 // Match app background
                 LinearGradient(
                     colors: [
-                        Color.hunterGreen.opacity(0.06),
+                        Color.primaryPurple.opacity(0.06),
                         Color(.systemBackground)
                     ],
                     startPoint: .top,
@@ -419,7 +419,7 @@ struct ChatInfoSheet: View {
 
                                         Text("$\(listing.price)/month")
                                             .font(.subheadline.weight(.semibold))
-                                            .foregroundColor(.hunterGreen)
+                                            .foregroundColor(.primaryPurple)
 
                                         HStack(spacing: 4) {
                                             Image(systemName: "mappin.and.ellipse")
@@ -444,13 +444,13 @@ struct ChatInfoSheet: View {
                                             Capsule()
                                                 .fill(
                                                     listing.isAvailable
-                                                    ? Color.hunterGreen.opacity(0.12)
+                                                    ? Color.primaryPurple.opacity(0.12)
                                                     : Color.red.opacity(0.12)
                                                 )
                                         )
                                         .foregroundColor(
                                             listing.isAvailable
-                                            ? .hunterGreen
+                                            ? .primaryPurple
                                             : .red
                                         )
 

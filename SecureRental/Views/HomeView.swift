@@ -22,7 +22,7 @@ struct SkeletonListingCardView: View {
     var body: some View {
         HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.hunterGreen.opacity(0.12))
+                .fill(Color.primaryPurple.opacity(0.12))
                 .frame(width: 110, height: 90)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -101,7 +101,7 @@ struct ListingCardView: View {
 
                 Text("$\(listing.price)/month")
                     .font(.caption.weight(.semibold))  // smaller + bold
-                    .foregroundColor(.hunterGreen)
+                    .foregroundColor(.primaryPurple)
 
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.and.ellipse")

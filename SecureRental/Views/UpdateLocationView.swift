@@ -60,7 +60,7 @@ struct UpdateLocationView: View {
             // Background consistent with rest of app
             LinearGradient(
                 colors: [
-                    Color.hunterGreen.opacity(0.06),
+                    Color.primaryPurple.opacity(0.06),
                     Color(.systemBackground)
                 ],
                 startPoint: .top,
@@ -107,7 +107,7 @@ struct UpdateLocationView: View {
                                 
                                 Text(radiusLabel)
                                     .font(.caption.weight(.semibold))
-                                    .foregroundColor(.hunterGreen)
+                                    .foregroundColor(.primaryPurple)
                             }
                             
                             Slider(value: $sliderPosition, in: 0...1)
@@ -147,8 +147,8 @@ struct UpdateLocationView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 14)
                                 .fill(isFetchingLocation
-                                      ? Color.hunterGreen.opacity(0.6)
-                                      : Color.hunterGreen)
+                                      ? Color.primaryPurple.opacity(0.6)
+                                      : Color.primaryPurple)
                         )
                         .foregroundColor(.white)
                     }

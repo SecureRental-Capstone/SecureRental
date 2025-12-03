@@ -230,7 +230,7 @@ struct AIListingCardView: View {
                         Text(vm.convertedPrice(basePriceString: listing.price) + "/mo")
                             .font(.subheadline)
                             .fontWeight(.heavy)
-                            .foregroundColor(.green)
+                            .foregroundColor(.primaryPurple)
                     }
                     
                     // Location Text

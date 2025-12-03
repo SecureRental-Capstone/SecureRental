@@ -52,7 +52,7 @@ struct ResetPasswordView: View {
                         .foregroundColor(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.blue)
+                        .background(Color.primaryPurple)
                         .cornerRadius(10)
                 }
                 

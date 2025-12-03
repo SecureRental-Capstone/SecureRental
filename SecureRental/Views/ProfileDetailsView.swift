@@ -112,7 +112,7 @@ struct ProfileDetailsView: View {
                             .padding()
                     }
                 }
-                .background(Color.blue)
+                .background(Color.primaryPurple)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .padding()

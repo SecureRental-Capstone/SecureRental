@@ -741,7 +741,7 @@ struct ListingDetailView: View {
                                                 .font(.footnote.weight(.semibold))
                                                 .foregroundColor(.white)
                                                 .frame(maxWidth: .infinity, minHeight: 40)
-                                                .background(Color.hunterGreen)
+                                                .background(Color.primaryPurple)
                                                 .cornerRadius(10)
                                             }
 
@@ -756,9 +756,9 @@ struct ListingDetailView: View {
                                                     Text("Favourite")
                                                 }
                                                 .font(.footnote.weight(.semibold))
-                                                .foregroundColor(viewModel.isFavorite(listing) ? .red : .hunterGreen)
+                                                .foregroundColor(viewModel.isFavorite(listing) ? .red : .primaryPurple)
                                                 .frame(maxWidth: .infinity, minHeight: 40)
-                                                .background(Color.hunterGreen.opacity(0.08))
+                                                .background(Color.primaryPurple.opacity(0.08))
                                                 .cornerRadius(10)
                                             }
                                         }

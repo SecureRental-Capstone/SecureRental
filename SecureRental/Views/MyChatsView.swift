@@ -20,7 +20,7 @@ struct MyChatsView: View {
                 // Same style as HomeView background
                 LinearGradient(
                     colors: [
-                        Color.hunterGreen.opacity(0.06),
+                        Color.primaryPurple.opacity(0.06),
                         Color(.systemBackground)
                     ],
                     startPoint: .top,
@@ -45,7 +45,7 @@ struct MyChatsView: View {
                     // SEARCH BAR (same style as Home search)
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.hunterGreen)
+                            .foregroundColor(.primaryPurple)
                         TextField("Search by name or listing…", text: $searchText)
                             .font(.subheadline)
                             .textInputAutocapitalization(.never)
@@ -392,7 +392,7 @@ struct SkeletonChatRow: View {
     var body: some View {
         HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.hunterGreen.opacity(0.12))
+                .fill(Color.primaryPurple.opacity(0.12))
                 .frame(width: 110, height: 90)
 
             VStack(alignment: .leading, spacing: 6) {

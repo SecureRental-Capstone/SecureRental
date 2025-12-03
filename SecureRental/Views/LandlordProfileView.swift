@@ -19,7 +19,7 @@ struct LandlordProfileView: View {
             // Background matches rest of app
             LinearGradient(
                 colors: [
-                    Color.hunterGreen.opacity(0.06),
+                    Color.primaryPurple.opacity(0.06),
                     Color(.systemBackground)
                 ],
                 startPoint: .top,

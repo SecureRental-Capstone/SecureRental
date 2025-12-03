@@ -72,11 +72,15 @@
 		};
 		0B3ED3CB2CC41BD900136A00 /* SecureRentalTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SecureRentalTests;
 			sourceTree = "<group>";
 		};
 		0B3ED3D52CC41BD900136A00 /* SecureRentalUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SecureRentalUITests;
 			sourceTree = "<group>";
 		};
@@ -574,7 +578,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = 8FZJ48QLS7;
+				DEVELOPMENT_TEAM = Z36V6GABX3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SecureRental/Info.plist;
@@ -615,7 +619,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SecureRental/Preview Content\"";
-				DEVELOPMENT_TEAM = 8FZJ48QLS7;
+				DEVELOPMENT_TEAM = Z36V6GABX3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SecureRental/Info.plist;
