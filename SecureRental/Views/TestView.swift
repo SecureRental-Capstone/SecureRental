@@ -508,7 +508,7 @@ struct SecureRentalHomePage: View {
         var body: some View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+                    .foregroundColor(Color.primaryPurple)
                 TextField("Search rentals...", text: $text)
                     .font(.subheadline)
                     .textInputAutocapitalization(.never)

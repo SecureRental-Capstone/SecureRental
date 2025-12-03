@@ -39,19 +39,19 @@ struct HelpView: View {
                         title: "Frequently Asked Questions",
                         subtitle: "View answers to common app questions.",
                         systemImage: "questionmark.circle.fill",
-                        tint: .blue
+                        tint: .primaryPurple
                     ) {
                         showFAQ = true
                     }
                     Divider()
-                    HelpCard(
-                        title: "Troubleshooting",
-                        subtitle: "Fix login, listing, or notification issues.",
-                        systemImage: "wrench.and.screwdriver.fill",
-                        tint: .orange
-                    ) {
-                        showTroubleshooting = true
-                    }
+//                    HelpCard(
+//                        title: "Troubleshooting",
+//                        subtitle: "Fix login, listing, or notification issues.",
+//                        systemImage: "wrench.and.screwdriver.fill",
+//                        tint: .orange
+//                    ) {
+//                        showTroubleshooting = true
+//                    }
                     Divider()
                     HelpCard(
                         title: "Contact Support",
@@ -135,23 +135,39 @@ struct HelpCard: View {
 }
 
 
-// MARK: – Placeholder Subviews (for now)
+
 struct FAQView: View {
     var body: some View {
         NavigationView {
             List {
                 Section(header: Text("General")) {
-                    Text("How do I edit my listings?")
-                    Text("How do I update my profile?")
-                    Text("How do I reset my password?")
+                    DisclosureGroup("How do I edit my listings?") {
+                        Text("Go to “Profile”, and click My Listings, tap the listing you want to edit, and then tap the Edit button in the top-right corner.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 4)
+                    }
+                    
+                    DisclosureGroup("How do I update my profile?") {
+                        Text("Open the Profile tab, tap “Edit Profile Details”, update your details, and then tap Save.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 4)
+                    }
+                    
+                    DisclosureGroup("How do I reset my password?") {
+                        Text("On the Sign In screen, tap “Forgot Password?”, enter your email, and follow the link sent to your inbox. or Go to Profile Tab and click forgot password ")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 4)
+                    }
                 }
-                
-             
             }
             .navigationTitle("FAQs")
         }
     }
 }
+
 
 struct TroubleshootView: View {
     var body: some View {

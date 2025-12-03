@@ -301,13 +301,13 @@ struct ProfileView: View {
                             NavigationLink(destination: ManagePasswordView()) {
                                 Label("Password and Security", systemImage: "lock.shield")
                             }
-                            NavigationLink(destination: ManageAccountView()) {
-                                Label("Manage Account", systemImage: "gearshape.fill")
-                            }
+//                            NavigationLink(destination: ManageAccountView()) {
+//                                Label("Manage Account", systemImage: "gearshape.fill")
+//                            }
                             
-                            NavigationLink(destination: NotificationPreferencesView()) {
-                                Label("Notification Preferences", systemImage: "bell.badge.fill")
-                            }
+//                            NavigationLink(destination: NotificationPreferencesView()) {
+//                                Label("Notification Preferences", systemImage: "bell.badge.fill")
+//                            }
                         }
                         
                             // General Info
