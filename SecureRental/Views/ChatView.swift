@@ -590,11 +590,13 @@ struct UserRow: View {
                     .fill(Color.gray.opacity(0.3))
                     .frame(width: 46, height: 46)
                     .overlay(Image(systemName: "person.fill"))
+                    .foregroundColor(.black)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.name)
                     .font(.body)
+                    .foregroundColor(.black)
 
                 if let subtitle {
                     Text(subtitle)

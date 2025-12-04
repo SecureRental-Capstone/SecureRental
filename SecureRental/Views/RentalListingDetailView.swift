@@ -170,8 +170,8 @@ struct RentalListingDetailView: View {
                                 .font(.caption2)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color.primaryPurple.opacity(0.14))
-                                .foregroundColor(.primaryPurple)
+                                .background(Color.green.opacity(0.14))
+                                .foregroundColor(Color(red: 34/255, green: 139/255, blue: 34/255))
                                 .clipShape(Capsule())
                         }
 
@@ -201,11 +201,11 @@ struct RentalListingDetailView: View {
                                     } label: {
                                         HStack {
                                             Image(systemName: "message.fill")
-                                            Text("Message Landlord")
+                                            Text("Message")
                                         }
                                         .font(.footnote.weight(.semibold))
                                         .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity, minHeight: 40)
+                                        .frame(width: 150, height: 40)
                                         .background(Color.primaryPurple)
                                         .cornerRadius(10)
                                     }
@@ -222,25 +222,26 @@ struct RentalListingDetailView: View {
                                         }
                                         .font(.footnote.weight(.semibold))
                                         .foregroundColor(viewModel.isFavorite(listing) ? .red : .primaryPurple)
-                                        .frame(maxWidth: .infinity, minHeight: 40)
+                                        .frame(width: 150, height: 40)
                                         .background(Color.primaryPurple.opacity(0.08))
                                         .cornerRadius(10)
                                     }
-                                }
+                                }.frame(maxWidth: .infinity, alignment: .center)
 
                                 Button {
                                     showCommentView = true
                                 } label: {
                                     HStack {
                                         Image(systemName: "star.circle.fill")
-                                        Text("Rate & Review this listing")
+                                        Text("Add a Review")
                                     }
                                     .font(.footnote.weight(.semibold))
                                     .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity, minHeight: 40)
+                                    .frame(width: 200, height: 40)
                                     .background(Color.orange)
                                     .cornerRadius(10)
                                 }
+                                .frame(maxWidth: .infinity, alignment: .center)
                             }
                         }
                     } else {

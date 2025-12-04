@@ -372,7 +372,9 @@ class FireDBHelper: ObservableObject {
             "userName": user.name,
             "rating": rating,
             "comment": comment,
-            "timestamp": FieldValue.serverTimestamp()
+            "timestamp": FieldValue.serverTimestamp(),
+            "profilePictureURL": user.profilePictureURL,
+            "isVerified": user.isVerified 
         ]
         
             // Add the review
