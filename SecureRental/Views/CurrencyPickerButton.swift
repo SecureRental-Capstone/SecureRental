@@ -33,6 +33,7 @@ struct CurrencyPickerButton: View {
                     .font(.system(size: 20))
                 
                 Text(selected.code)
+                    .foregroundColor(.primaryPurple)
                 Image(systemName: "chevron.down")
                     .font(.system(size: 10, weight: .semibold))
             }

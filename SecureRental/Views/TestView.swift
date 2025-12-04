@@ -671,7 +671,9 @@ struct SecureRentalHomePage: View {
             } label: {
                 HStack {
                     Text(currency)
+                       
                     Image(systemName: "chevron.down")
+                        
                 }
                 .padding(8)
                 .background(Color(.systemGray6))

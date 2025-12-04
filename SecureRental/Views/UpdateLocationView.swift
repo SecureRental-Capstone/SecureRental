@@ -111,6 +111,7 @@ struct UpdateLocationView: View {
                             }
                             
                             Slider(value: $sliderPosition, in: 0...1)
+                                .tint(Color.primaryPurple)
                                 .onChange(of: sliderPosition) { newPos in
                                     let newRadius = radiusForSlider(newPos)
                                     updateMapSpan(for: newRadius)
@@ -123,7 +124,7 @@ struct UpdateLocationView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color(.systemBackground))
-                            .shadow(color: Color.black.opacity(0.06),
+                            .shadow(color: Color.primaryPurple.opacity(0.06),
                                     radius: 4, x: 0, y: 2)
                     )
                     .padding(.horizontal, 16)
@@ -172,7 +173,7 @@ struct UpdateLocationView: View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.blue)
+                                .fill(Color.primaryPurple)
                         )
                         .foregroundColor(.white)
                     }
