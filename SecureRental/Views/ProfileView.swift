@@ -238,10 +238,46 @@ struct ProfileView: View {
                             
                                 // MARK: – NAME + RATING
                             VStack(alignment: .leading, spacing: 6) {
-                                Text(user.name ?? "User Name")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                
+//                                Text(user.name ?? "User Name")
+//                                    .font(.title2)
+//                                    .fontWeight(.semibold)
+                                HStack(spacing: 8) {
+                                    Text(user.name ?? "User Name")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+
+                                    if user.isVerified {
+                                        // VERIFIED BADGE
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "checkmark.seal.fill")
+                                                .foregroundColor(Color(red: 34/255, green: 139/255, blue: 34/255))
+                                            Text("Verified")
+                                                .font(.caption)
+                                                .foregroundColor(Color(red: 34/255, green: 139/255, blue: 34/255))
+                                        }
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.green.opacity(0.1))
+                                        .cornerRadius(8)
+                                    
+
+                                    } else {
+                                        // NOT VERIFIED BADGE
+                                                                                HStack(spacing: 4) {
+                                                                                    Image(systemName: "exclamationmark.triangle.fill")
+                                                                                        .foregroundColor(.red)
+                                                                                    Text("Not Verified")
+                                                                                        .font(.caption)
+                                                                                        .foregroundColor(.red)
+                                                                                }
+                                                                                .padding(.horizontal, 8)
+                                                                                .padding(.vertical, 4)
+                                                                                .background(Color.orange.opacity(0.1))
+                                                                                .cornerRadius(8)
+                                    }
+                                }.padding(.bottom, 6)
+                                    .offset(y: -4)
+
                                 HStack(spacing: 4) {
                                     let rating = user.rating ?? 4.0
                                     let full = Int(rating)
