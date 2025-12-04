@@ -10,13 +10,13 @@ import Foundation
 import CoreLocation
 import Firebase
 
-// MARK: - Chatbot ViewModel using OpenAI API
+
 class ChatbotViewModel: ObservableObject {
 
-    @Published private var userInput: String = ""    // User input field
-    @Published private var resultText: String = ""   // To show the results (parsed data)
-    @Published private var coordinates: CLLocationCoordinate2D? = nil // To hold geocoded coordinates
-    @Published private var filteredListings: [Listing] = []  // To hold the filtered listings
+    @Published private var userInput: String = ""
+    @Published private var resultText: String = ""
+    @Published private var coordinates: CLLocationCoordinate2D? = nil
+    @Published private var filteredListings: [Listing] = []
 
     let db = Firestore.firestore()
     @Published var messages: [ChatbotMessage] = []
@@ -35,7 +35,7 @@ class ChatbotViewModel: ObservableObject {
         Task {
             self.dbHelper = await FireDBHelper.getInstance()
 
-            // Ensure that this message update happens on the main thread
+           
             DispatchQueue.main.async {
                 let name = self.dbHelper?.currentUser?.name ?? "Friend"
                 self.messages.append(ChatbotMessage(
@@ -47,11 +47,11 @@ class ChatbotViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Send a user message and get AI response
+   
     func sendMessage(_ text: String) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         
-        // 1️⃣ Add user's message to local array
+        // Add user's message to local array
         let userMessage = ChatbotMessage(text: text, isUser: true, timestamp: Date())
         messages.append(userMessage)
         isLoading = true
@@ -61,7 +61,7 @@ class ChatbotViewModel: ObservableObject {
             messages = Array(messages.suffix(maxMessages))
         }
         
-        // 2️⃣ Check if the query seems related to rental listings
+        // Check if the query seems related to rental listings
         checkRentalQuery(text) { isRentalQuery in
             if isRentalQuery {
                 self.userInput = text
@@ -69,7 +69,7 @@ class ChatbotViewModel: ObservableObject {
                 self.processQuery()  // This already handles calling `queryOpenAIForParsing` and fetching listings
                 print(self.filteredListings)
             } else {
-                // 2️⃣ Build the full conversation history
+                //  Build the full conversation history
                 var history: [[String: String]] = []
                 
                 // SYSTEM MESSAGE FIRST
@@ -96,7 +96,7 @@ class ChatbotViewModel: ObservableObject {
                     ])
                 }
                 
-                // 3️⃣ Build request body
+                //  Build request body
                 let body: [String: Any] = [
                     "model": "gpt-4o-mini",
                     "messages": history
@@ -108,14 +108,14 @@ class ChatbotViewModel: ObservableObject {
                     return
                 }
                 
-                // 4️⃣ Build request
+                //  Build request
                 var request = URLRequest(url: self.apiURL)
                 request.httpMethod = "POST"
                 request.addValue("Bearer \(self.apiKey)", forHTTPHeaderField: "Authorization")
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.httpBody = jsonData
                 
-                // 5️⃣ Send request
+                // Send request
                 URLSession.shared.dataTaskPublisher(for: request)
                     .tryMap { data, response -> Data in
                         guard let httpResponse = response as? HTTPURLResponse,
@@ -243,7 +243,7 @@ class ChatbotViewModel: ObservableObject {
         }.resume()
     }
 
-    // Helper function to extract the number of bedrooms from the AI's response
+ 
     func extractBedroomCount(from text: String) -> Int? {
         if let range = text.range(of: "Bedrooms: \\d+", options: .regularExpression) {
             let bedroomString = text[range]
@@ -253,7 +253,7 @@ class ChatbotViewModel: ObservableObject {
         return nil
     }
 
-    // Helper function to extract the number of bathrooms from the AI's response
+    // Helper function
     func extractBathroomCount(from text: String) -> Int? {
         if let range = text.range(of: "Bathrooms: \\d+", options: .regularExpression) {
             let bathroomString = text[range]
@@ -263,7 +263,7 @@ class ChatbotViewModel: ObservableObject {
         return nil
     }
 
-    // Helper function to extract the location from the AI's response
+    // Helper function
     func extractLocation(from text: String) -> String? {
         if let range = text.range(of: "Location: .+", options: .regularExpression) {
             let locationString = text[range]
@@ -273,7 +273,7 @@ class ChatbotViewModel: ObservableObject {
         return nil
     }
 
-    // Helper function to extract minPrice and maxPrice from the AI's response
+    // Helper function 
     func extractPrice(from text: String) -> (minPrice: Double?, maxPrice: Double?) {
         let priceRegex = "(less than|under|between|from)?\\s?\\$([\\d,]+)(?:\\s?to\\s?\\$([\\d,]+))?"
         

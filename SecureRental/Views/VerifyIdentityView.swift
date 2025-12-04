@@ -77,22 +77,18 @@ struct VerifyIdentityCard: View {
     
     func startPersonaFlowFromProfile() {
         isLoading = true
-        
-        // 1. Define the action to take upon completion, cancellation, or external dismissal.
-        // The explicit capture list is now omitted or simply [self] (which is the default).
+      
         let dismissalAction = {
-            // Use 'self' directly
-            
-            // Ensure the dismissal action is run on the main thread for UI updates
+           
             DispatchQueue.main.async {
                 // Find and dismiss the presented view controller (the wrapper VC)
                 if let wrapperVC = UIApplication.shared.topViewController(of: PersonaWrapperVC.self) {
                     wrapperVC.dismiss(animated: true) {
-                        // This block executes *after* the Persona flow is dismissed.
+                      
                         self.rootView = .main // Use 'self' directly
                     }
                 } else {
-                    // Fallback for immediate state change
+                   
                     self.rootView = .main // Use 'self' directly
                 }
             }
@@ -112,7 +108,7 @@ struct VerifyIdentityCard: View {
                         wrapper.modalPresentationStyle = .fullScreen
                         wrapper.modalTransitionStyle = .coverVertical
 
-                        // 2. Assign the dismissal action to the wrapper VC
+                      
                         wrapper.onDismiss = dismissalAction
 
                         topVC.present(wrapper, animated: true) {

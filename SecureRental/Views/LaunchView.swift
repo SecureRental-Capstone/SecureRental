@@ -41,13 +41,7 @@ struct LaunchView: View {
             case .verification:
                 VerificationView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
 
-                
-//            case .signUp:
-//                SignUpView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
-//            case .login:
-//                SignInView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
-//            case .main:
-//                HomeView(rootView: self.$rootView).environmentObject(self.fireDBHelper)
+  
             }
         }
     }

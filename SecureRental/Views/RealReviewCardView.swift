@@ -14,7 +14,7 @@ struct RealReviewCardView: View {
             
             HStack(alignment: .top) {
                 
-                    // 🔵 Initial Circle
+                    //  Initial Circle
                 Text(String(review.userName.prefix(1)).uppercased())
                     .font(.title2)
                     .foregroundColor(.white)
@@ -24,25 +24,18 @@ struct RealReviewCardView: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     
-                        // 👤 Name + VERIFIED badge
+                      
                     HStack {
                         Text(review.userName)
                             .font(.headline)
                         
-//                        if review.isVerified {
-//                            Text("Verified")
-//                                .font(.caption2.bold())
-//                                .foregroundColor(.white)
-//                                .padding(.horizontal, 6)
-//                                .padding(.vertical, 2)
-//                                .background(Color.green)
-//                                .cornerRadius(5)
-//                        }
+
+
                         
                         Spacer()
                     }
                     
-                        // 📅 Date
+                        //  Date
                     Text(formattedDate(review.timestamp))
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -50,7 +43,7 @@ struct RealReviewCardView: View {
                 
                 Spacer()
                 
-                    // ⭐ Stars
+                    //  Stars
                 HStack(spacing: 2) {
                     ForEach(0..<5) { index in
                         Image(systemName: index < Int(review.rating.rounded()) ? "star.fill" : "star")
@@ -59,7 +52,7 @@ struct RealReviewCardView: View {
                 }
             }
             
-                // 💬 Comment
+                //  Comment
             Text(review.comment)
                 .font(.body)
                 .foregroundColor(.gray)
@@ -67,7 +60,7 @@ struct RealReviewCardView: View {
         .padding(.vertical, 10)
     }
     
-        // MARK: - Format Firestore Date
+
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM yyyy"

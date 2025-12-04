@@ -19,7 +19,7 @@ struct PrivacyPolicyView: View {
                 Divider().padding(.vertical, 5)
                 
                 Group {
-                    Text("🔐 Your Privacy Matters")
+                    Text("Your Privacy Matters")
                         .font(.headline)
                     Text("""
                     At SecureRental, we are committed to protecting your personal information and ensuring transparency about how your data is used. This policy explains what data we collect, how we use it, and the rights you have.
@@ -27,7 +27,7 @@ struct PrivacyPolicyView: View {
                 }
                 
                 Group {
-                    Text("📦 Information We Collect")
+                    Text("Information We Collect")
                         .font(.headline)
                     Text("""
                     • Profile details (name, email, phone number)
@@ -38,7 +38,7 @@ struct PrivacyPolicyView: View {
                 }
                 
                 Group {
-                    Text("🛠 How We Use Your Information")
+                    Text("How We Use Your Information")
                         .font(.headline)
                     Text("""
                     • To provide accurate listing matches
@@ -49,7 +49,7 @@ struct PrivacyPolicyView: View {
                 }
                 
                 Group {
-                    Text("🔒 Data Protection")
+                    Text("Data Protection")
                         .font(.headline)
                     Text("""
                     Your data is encrypted and stored securely. We do not sell your personal information to third parties. Only trusted service partners may access necessary data to operate core app functions (e.g., authentication).
@@ -57,7 +57,7 @@ struct PrivacyPolicyView: View {
                 }
                 
                 Group {
-                    Text("👤 Your Rights")
+                    Text("Your Rights")
                         .font(.headline)
                     Text("""
                     You can request to:
@@ -69,7 +69,7 @@ struct PrivacyPolicyView: View {
                 }
                 
                 Group {
-                    Text("📩 Contact Us")
+                    Text("Contact Us")
                         .font(.headline)
                     Text("""
                     If you have questions about this policy or need help, please contact us at:

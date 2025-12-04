@@ -133,13 +133,13 @@ struct ProfileDetailsView: View {
             updatedUser.name = name
             updatedUser.username = username
 
-            // 👇 NEW: if user picked a photo, upload to Cloudinary
+            // if user picked a photo, upload to Cloudinary
             if let img = profilePicture {
                 do {
                     let urlString = try await CloudinaryHelper.uploadImage(img)
                     updatedUser.profilePictureURL = urlString
                 } catch {
-                    print("❌ Cloudinary upload failed: \(error)")
+                    print(" Cloudinary upload failed: \(error)")
                     alertMessage = "Photo upload failed. Profile saved without new photo."
                     // we still continue to save text changes
                 }

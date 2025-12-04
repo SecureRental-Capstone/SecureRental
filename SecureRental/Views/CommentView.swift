@@ -26,7 +26,7 @@ struct CommentView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
-                    // ⭐ Star Rating View
+                    //  Star Rating View
                 VStack(spacing: 8) {
                     Text("Your Rating")
                         .font(.subheadline)
@@ -46,7 +46,7 @@ struct CommentView: View {
                         .foregroundColor(.gray)
                 }
                 
-                    // 📝 Comment input
+                    //  Comment input
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Please tell us about your experience")
                         .font(.subheadline)
@@ -56,7 +56,7 @@ struct CommentView: View {
                 }
                 .padding(.horizontal)
                 
-                    // ✅ Submit button
+                    //  Submit button
                 Button(action: submitComment) {
                     Text("Submit")
                         .frame(maxWidth: .infinity)
@@ -78,7 +78,7 @@ struct CommentView: View {
         }
     }
     
-        // MARK: - Star View Logic
+     
     private func starView(for index: Int) -> Image {
         let threshold = Double(index)
         if rating >= threshold {
@@ -111,7 +111,7 @@ struct CommentView: View {
         }
     }
     
-        // MARK: - Submit Logic
+    
     private func submitComment() {
         guard rating >= 1 else {
             alertMessage = "Please select a rating between 1 and 5."

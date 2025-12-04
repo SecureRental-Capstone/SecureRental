@@ -5,7 +5,7 @@
 //  Created by Anchal  Sharma  on 2024-11-14.
 //
 
-// Custom ImagePicker component for uploading images
+
 import PhotosUI
 import SwiftUI
 

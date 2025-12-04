@@ -73,7 +73,7 @@ struct ChatView: View {
                         .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                 )
 
-                // MARK: - Availability banner
+            
                 if isSoldOut {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -88,7 +88,7 @@ struct ChatView: View {
                     .background(Color.gray.opacity(0.95))
                 }
 
-                // MARK: - Messages
+             
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 10) {
@@ -129,7 +129,7 @@ struct ChatView: View {
                     }
                 }
 
-                // MARK: - Input bar
+          
                 VStack(spacing: 0) {
                     Divider()
 
@@ -203,7 +203,7 @@ struct ChatView: View {
         }
     }
 
-    // MARK: - Bubble builder
+   
 
     @ViewBuilder
     private func messageBubble(_ message: ChatMessage) -> some View {
@@ -237,7 +237,7 @@ struct ChatView: View {
         .transition(.opacity.combined(with: .move(edge: isMe ? .trailing : .leading)))
     }
 
-    // MARK: - Derived
+   
 
     private var otherPartyName: String {
         let myId = Auth.auth().currentUser?.uid
@@ -248,7 +248,7 @@ struct ChatView: View {
         }
     }
 
-    // MARK: - Load landlord / tenant
+
 
     private func loadPeople() async {
         guard let myId = Auth.auth().currentUser?.uid else { return }
@@ -262,7 +262,7 @@ struct ChatView: View {
 
             guard let data = convDoc.data(),
                   let participants = data["participants"] as? [String] else {
-                print("❌ No participants for conversation")
+                print(" No participants for conversation")
                 return
             }
 
@@ -287,11 +287,11 @@ struct ChatView: View {
                 }
             }
         } catch {
-            print("❌ Failed to load people: \(error.localizedDescription)")
+            print(" Failed to load people: \(error.localizedDescription)")
         }
     }
 
-    // MARK: - Helpers (same logic, just grouped)
+ 
 
     func groupMessagesByDate(_ messages: [ChatMessage]) -> [(String, [ChatMessage])] {
         let calendar = Calendar.current
@@ -467,7 +467,7 @@ struct ChatInfoSheet: View {
                         }
                         .buttonStyle(.plain)
 
-                        // MARK: - Landlord Section
+                    
                         VStack(alignment: .leading, spacing: 8) {
                             Text(landlordSectionTitle)
                                 .font(.subheadline.weight(.semibold))
@@ -494,7 +494,7 @@ struct ChatInfoSheet: View {
                         }
                         .padding(.horizontal, 16)
 
-                        // MARK: - Tenant Section
+                       
                         VStack(alignment: .leading, spacing: 8) {
                             Text(tenantSectionTitle)
                                 .font(.subheadline.weight(.semibold))
@@ -540,7 +540,7 @@ struct ChatInfoSheet: View {
         }
     }
 
-    // MARK: - Small helper for consistent cards
+
     @ViewBuilder
     private func cardWrapper<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()

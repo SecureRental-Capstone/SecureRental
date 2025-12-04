@@ -21,13 +21,13 @@ func createPersonaInquiry(firstName: String, lastName: String, birthdate: String
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     
-    // 1. Set Headers
+
     request.setValue("2023-01-05", forHTTPHeaderField: "Persona-Version")
     request.setValue("application/json", forHTTPHeaderField: "accept")
     request.setValue("application/json", forHTTPHeaderField: "content-type")
     request.setValue("Bearer \(personaApiKey)", forHTTPHeaderField: "authorization")
     
-    // 2. Prepare JSON Body
+
     let body: [String: Any] = [
         "data": [
             "attributes": [
@@ -48,7 +48,7 @@ func createPersonaInquiry(firstName: String, lastName: String, birthdate: String
         return
     }
 
-    // 3. Execute the Request
+
     URLSession.shared.dataTask(with: request) { data, response, error in
         if let error = error {
             completion(.failure(error))
@@ -61,7 +61,7 @@ func createPersonaInquiry(firstName: String, lastName: String, birthdate: String
         }
 
         do {
-            // Attempt to parse the JSON response
+         
             if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                let dataDict = jsonResponse["data"] as? [String: Any],
                let inquiryId = dataDict["id"] as? String {
@@ -70,7 +70,7 @@ func createPersonaInquiry(firstName: String, lastName: String, birthdate: String
                 completion(.success(inquiryId))
                 
             } else {
-                // Handle non-standard or error response
+              
                 let responseString = String(data: data, encoding: .utf8) ?? "Unknown error"
                 completion(.failure(NSError(domain: "PersonaAPI", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to parse Inquiry ID: \(responseString)"])))
             }

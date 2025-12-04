@@ -96,12 +96,7 @@ struct CreateRentalListingView: View {
                     .disabled(!isFormValid() || isSaving)
             )
                                 
-//            .navigationBarItems(leading: Button("Cancel") {
-//                presentationMode.wrappedValue.dismiss()
-//            }, trailing: Button("Save") {
-//                saveListing()
-//                presentationMode.wrappedValue.dismiss()
-//            }.disabled(!isFormValid()))
+
         }
     }
     
@@ -111,29 +106,7 @@ struct CreateRentalListingView: View {
                !squareFootage.isEmpty && !images.isEmpty
     }
     
-//    private func saveListing() {
-//        guard let landlordId = Auth.auth().currentUser?.uid else { return }
-//
-//        let newListing = Listing(
-//                title: title,
-//                description: description,
-//                price: price,
-//                imageURLs: [], // will be filled after upload
-//                location: "\(street), \(city), \(province)",
-//                isAvailable: isAvailable,
-//                numberOfBedrooms: numberOfBedrooms,
-//                numberOfBathrooms: numberOfBathrooms,
-//                squareFootage: Int(squareFootage) ?? 0,
-//                amenities: selectedAmenities + (customAmenity.isEmpty ? [] : [customAmenity]),
-//                street: street,
-//                city: city,
-//                province: province,
-//                datePosted: Date(),
-//                landlordId: landlordId
-//            )
-//            
-//            viewModel.addListing(newListing, images: images)
-//    }
+
     
     private func saveListing() async {
         guard let landlordId = Auth.auth().currentUser?.uid else { return }
@@ -178,7 +151,7 @@ struct CreateRentalListingView: View {
             await viewModel.loadHomePageListings() // Refresh listings
             presentationMode.wrappedValue.dismiss()
         } catch {
-            print("❌ Failed to save listing: \(error.localizedDescription)")
+            print(" Failed to save listing: \(error.localizedDescription)")
         }
         
         isSaving = false
@@ -191,7 +164,7 @@ struct CreateRentalListingView: View {
                 if let coordinate = placemarks?.first?.location?.coordinate {
                     continuation.resume(returning: coordinate)
                 } else {
-                    print("❌ Failed to geocode address: \(error?.localizedDescription ?? "unknown error")")
+                    print(" Failed to geocode address: \(error?.localizedDescription ?? "unknown error")")
                     continuation.resume(returning: nil)
                 }
             }

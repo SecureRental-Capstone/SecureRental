@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 struct Review: Codable, Identifiable {
-    @DocumentID var id: String?  // Firestore will auto-generate this
+    @DocumentID var id: String?
     var userId: String
     var userName: String
     var rating: Double
@@ -17,5 +17,5 @@ struct Review: Codable, Identifiable {
     var timestamp: Date
     var profilePictureURL: String?
     var isVerified: Bool? 
-//    var isVerified: Bool
+
 }

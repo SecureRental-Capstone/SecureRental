@@ -10,11 +10,11 @@ import Foundation
 struct ListingFilter {
     var minPrice: Double?
     var maxPrice: Double?
-    var bedrooms: Int? // For exact bedroom match
-    var bathrooms: Int? // For exact bathroom match
-    var location: String? // Location name (user input)
-    var latitude: Double? // Latitude for location-based filtering
-    var longitude: Double? // Longitude for location-based filtering
+    var bedrooms: Int?
+    var bathrooms: Int?
+    var location: String?
+    var latitude: Double?
+    var longitude: Double? 
 
     init(minPrice: Double? = nil, maxPrice: Double? = nil, bedrooms: Int? = nil, bathrooms: Int? = nil, location: String? = nil, latitude: Double? = nil, longitude: Double? = nil) {
         self.minPrice = minPrice

@@ -5,12 +5,6 @@
 //  Created by Anchal  Sharma  on 2024-11-07.
 //
 
-//
-//  RentalListingViewModel.swift
-//  SecureRental
-//
-//  Created by Anchal Sharma on 2024-11-07.
-//
 
 import Foundation
 import Combine
@@ -42,9 +36,7 @@ class RentalListingsViewModel: ObservableObject {
     @Published var currentCity: String?
     @Published var listingReviews: [Review] = []
 
-//    @Published var radiusInKm: Double? = self.dbHelper.currentUser?.radius ?? 6.0
-    
-    // Derived property for favorite listings
+
     var favouriteListings: [Listing] {
         fetchListings()
         return listings.filter { favoriteListingIDs.contains($0.id) }
@@ -76,7 +68,7 @@ class RentalListingsViewModel: ObservableObject {
                 await fetchFavoriteListings() // sync favorites after fetching listings
 
             } catch {
-                print("❌ Failed to fetch listings: \(error.localizedDescription)")
+                print(" Failed to fetch listings: \(error.localizedDescription)")
             }
         }
     }
@@ -90,7 +82,7 @@ class RentalListingsViewModel: ObservableObject {
                     self.listings = fetched
                 }
             } catch {
-                print("❌ Failed to fetch my listings: \(error.localizedDescription)")
+                print(" Failed to fetch my listings: \(error.localizedDescription)")
             }
         }
     }
@@ -101,7 +93,7 @@ class RentalListingsViewModel: ObservableObject {
                 try await dbHelper.addListing(listing, images: images)
 //                await fetchListings() // refresh after save
             } catch {
-                print("❌ Failed to add listing: \(error.localizedDescription)")
+                print(" Failed to add listing: \(error.localizedDescription)")
             }
         }
     }
@@ -115,7 +107,7 @@ class RentalListingsViewModel: ObservableObject {
             do {
                 try await dbHelper.updateListing(listing)
             } catch {
-                print("❌ Failed to update listing in Firestore: \(error.localizedDescription)")
+                print(" Failed to update listing in Firestore: \(error.localizedDescription)")
             }
         }
     }
@@ -126,7 +118,7 @@ class RentalListingsViewModel: ObservableObject {
                 do {
                     await loadHomePageListings(forceReload: true)
                 } catch {
-                    print("❌ Failed to loadHomePageListings : \(error.localizedDescription)")
+                    print(" Failed to loadHomePageListings : \(error.localizedDescription)")
                 }
             }
         } else {
@@ -184,7 +176,7 @@ class RentalListingsViewModel: ObservableObject {
             do {
                 try await dbHelper.deleteListing(listing)
             } catch {
-                print("❌ Failed to delete listing from Firestore: \(error.localizedDescription)")
+                print(" Failed to delete listing from Firestore: \(error.localizedDescription)")
                     // Optionally, add it back locally if deletion fails
                 await MainActor.run {
                     self.listings.append(listing)
@@ -199,7 +191,7 @@ class RentalListingsViewModel: ObservableObject {
                 try await dbHelper.toggleFavorite(listingId: listing.id)
                 self.favoriteListingIDs = Set(dbHelper.currentUser?.favoriteListingIDs ?? [])
             } catch {
-                print("❌ Failed to toggle favorite: \(error.localizedDescription)")
+                print(" Failed to toggle favorite: \(error.localizedDescription)")
             }
         }
     }
@@ -248,7 +240,7 @@ class RentalListingsViewModel: ObservableObject {
             locationListings = nearby
             await fetchFavoriteListings()
         } catch {
-            print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
+            print(" Failed to fetch nearby listings: \(error.localizedDescription)")
         }
     }
     
@@ -278,11 +270,7 @@ class RentalListingsViewModel: ObservableObject {
                                                     latitude: location.latitude,
                                                     longitude: location.longitude,
                                                     radius: 5.0)
-                // Hardcoded current location
-//                await dbHelper.updateLocationConsent(consent: true,
-//                                                     latitude: 43.7791987,
-//                                                     longitude: -79.4172125,
-//                                                     radius: 5.0)
+                
                 
                 await fetchListingsNearby(latitude: location.latitude,
                                           longitude: location.longitude)
@@ -310,22 +298,7 @@ class RentalListingsViewModel: ObservableObject {
                                                     longitude: location.longitude,
                                                      radius: setRadius)
                 await fetchListingsNearby(latitude: location.latitude, longitude: location.longitude)
-//            }
-                // Hardcoded current location
-//            if granted {
-//                dbHelper.currentUser?.locationConsent = true
-//
-//                dbHelper.currentUser?.latitude = 43.7791987
-//                dbHelper.currentUser?.longitude = -79.4172125
-//                dbHelper.currentUser?.radius = 5.0
-//                let setLatitude = 43.7791987
-//                let setLongitude = -79.4172125
-//                let setRadius = 5.0
-//                await dbHelper.updateLocationConsent(consent: true,
-//                                                     latitude: setLatitude,
-//                                                     longitude: setLongitude,
-//                                                     radius: setRadius)
-//                await fetchListingsNearby(latitude: setLatitude, longitude: setLongitude)
+
                 
             } else {
                 locationListings = listings
@@ -344,9 +317,7 @@ class RentalListingsViewModel: ObservableObject {
         
         // Save to Firestore
         await dbHelper.updateUserLocation(userId: user.id, latitude: latitude, longitude: longitude, radius: radius)
-//        await dbHelper.updateUserRadius(userId: user.id, radius: radius)
 
-        // Update local user object
         dbHelper.currentUser?.latitude = latitude
         dbHelper.currentUser?.longitude = longitude
         dbHelper.currentUser?.radius = radius
@@ -380,14 +351,14 @@ class RentalListingsViewModel: ObservableObject {
     }
     @MainActor
     func fetchReviews(for listingId: String) async {
-        print("🔎 [VM] fetchReviews called for listing:", listingId)
+        print(" [VM] fetchReviews called for listing:", listingId)
         listingReviews = []      // clear previous reviews
         
         await dbHelper.fetchReviews(for: listingId)
-        print("📥 [VM] dbHelper.reviews after fetch =", dbHelper.reviews.count)
+        print("[VM] dbHelper.reviews after fetch =", dbHelper.reviews.count)
             // Sync from FireDBHelper into your VM
         listingReviews = dbHelper.reviews
-        print("📤 [VM] listingReviews stored =", listingReviews.count)
+        print(" [VM] listingReviews stored =", listingReviews.count)
     }
 
 

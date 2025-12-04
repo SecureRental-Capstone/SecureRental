@@ -28,7 +28,7 @@ struct LandlordProfileView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 12) {
-                // MARK: - Profile Card
+               
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .center, spacing: 12) {
                         UserRow(user: landlord)   // already styled avatar + name + rating
@@ -151,7 +151,7 @@ struct LandlordProfileView: View {
         }
     }
 
-    // MARK: - Derived text
+ 
 
     private var profileSubtitle: String {
         if isLoading { return "Loading listings…" }
@@ -161,7 +161,7 @@ struct LandlordProfileView: View {
         return "This landlord has \(count) other active listings."
     }
 
-    // MARK: - Data
+ 
 
     private func loadListings() async {
         isLoading = true
@@ -177,7 +177,7 @@ struct LandlordProfileView: View {
                 self.errorMessage = "Failed to load listings."
                 self.isLoading = false
             }
-            print("❌ Failed to load landlord listings: \(error.localizedDescription)")
+            print(" Failed to load landlord listings: \(error.localizedDescription)")
         }
     }
 }

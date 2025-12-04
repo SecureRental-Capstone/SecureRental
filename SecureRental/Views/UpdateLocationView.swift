@@ -31,7 +31,7 @@ struct UpdateLocationView: View {
     @State private var isFetchingLocation = false
     @Environment(\.dismiss) var dismiss
     var onBack: () -> Void
-    // 👇 NEW: listings to show as pins on the map
+  
     @State private var nearbyListings: [Listing] = []
     
     // Logical radius in km derived from sliderPosition (0...1)
@@ -44,9 +44,9 @@ struct UpdateLocationView: View {
         return min(radius, 25)
     }
     
-    @State private var selectedListing: Listing?    // 👈 NEW
+    @State private var selectedListing: Listing?
 
-        // 👇 ADD THIS INITIALIZER
+      
     init(
         viewModel: RentalListingsViewModel,
         onBack: @escaping () -> Void
@@ -72,8 +72,7 @@ struct UpdateLocationView: View {
                 VStack(spacing: 16) {
                     // Title + subtitle
                     VStack(spacing: 4) {
-//                        Text("Update Your Location")
-//                            .font(.title3.weight(.semibold))
+
                         
                         Text("Choose where to search for listings and how far around it.")
                             .font(.caption)
@@ -91,7 +90,7 @@ struct UpdateLocationView: View {
                             selectedCoordinate: $selectedCoordinate,
                             nearbyListings: nearbyListings,
                             radiusKm: radius,
-                            selectedListing: $selectedListing          // 👈 NEW
+                            selectedListing: $selectedListing
                         )
                         .frame(height: 300)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -202,7 +201,7 @@ struct UpdateLocationView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadUserData()
-            Task { await refreshNearbyListings() }   // 👈 NEW
+            Task { await refreshNearbyListings() }
         }
         .alert(
             alertMessage ?? "",
@@ -225,7 +224,7 @@ struct UpdateLocationView: View {
 
     }
     
-    // MARK: - Derived
+  
     
     private var radiusLabel: String {
         if radius <= 0 {
@@ -249,12 +248,9 @@ struct UpdateLocationView: View {
         }
     }
     
-    // MARK: - Slider <-> Radius mapping
 
-    // Given slider position t in [0, 1], return radius in [1, 300]
-    // - 0.0  -> ~1 km
-    // - 0.5  -> 25 km
-    // - 1.0  -> 300 km
+
+ 
     private func radiusForSlider(_ t: Double) -> Double {
         let clampedT = min(max(t, 0), 1)
 
@@ -270,7 +266,7 @@ struct UpdateLocationView: View {
         }
     }
 
-    /// Inverse: given a radius in [1, 300], return slider position in [0, 1]
+   
     private func sliderForRadius(_ r: Double) -> Double {
         let clampedR = min(max(r, 1), 300)
 
@@ -285,8 +281,7 @@ struct UpdateLocationView: View {
     }
 
 
-    
-    // MARK: - Load User Data
+
     
     func loadUserData() {
         guard let user = dbHelper.currentUser else { return }
@@ -301,10 +296,10 @@ struct UpdateLocationView: View {
         // Set radius from user's saved radius (default 5)
         let savedRadius = user.radius ?? 5.0
         let clamped = min(max(savedRadius, 1), 300)
-        sliderPosition = sliderForRadius(clamped)   // 👈 derive slider position
+        sliderPosition = sliderForRadius(clamped)
     }
     
-    // MARK: - Nearby listings refresh
+
     
     func refreshNearbyListings() async {
         guard let coord = selectedCoordinate?.coordinate else {
@@ -330,14 +325,14 @@ struct UpdateLocationView: View {
                 self.nearbyListings = filtered
             }
         } catch {
-            print("❌ Failed to fetch nearby listings: \(error.localizedDescription)")
+            print(" Failed to fetch nearby listings: \(error.localizedDescription)")
             await MainActor.run {
                 self.nearbyListings = []
             }
         }
     }
     
-    /// Simple Haversine distance in km
+
     private func distanceKm(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
         let earthRadius = 6371.0
         
@@ -353,7 +348,7 @@ struct UpdateLocationView: View {
         return earthRadius * c
     }
     
-    // MARK: - Save Updated Location
+ 
     
     @MainActor
     func updateUserLocation() async {
@@ -372,7 +367,7 @@ struct UpdateLocationView: View {
         alertMessage = "Location and radius updated successfully!"
     }
     
-    // MARK: - Use Device Location
+
     
     @MainActor
     func setCurrentLocation() async {
@@ -399,7 +394,7 @@ struct UpdateLocationView: View {
         
         alertMessage = "Location set to your current position!"
         
-        await refreshNearbyListings()   // 👈 NEW
+        await refreshNearbyListings()
         
         isFetchingLocation = false
     }

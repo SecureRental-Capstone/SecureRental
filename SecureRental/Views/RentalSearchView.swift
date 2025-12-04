@@ -52,7 +52,7 @@ struct RentalSearchView: View {
         .onAppear {
             viewModel.shouldAutoFilter = true
             Task {
-                await viewModel.loadHomePageListings(forceReload: true) // ✅ fetch fresh listings
+                await viewModel.loadHomePageListings(forceReload: true) // fetch fresh listings
             }
         }
     }

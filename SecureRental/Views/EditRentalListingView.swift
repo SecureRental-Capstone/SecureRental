@@ -90,67 +90,6 @@ struct EditRentalListingView: View {
                 }
             }
 
-//            Section(header: Text("Image")) {
-//                if let selectedImage = selectedImage {
-//                    Image(uiImage: selectedImage)
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(height: 200)
-//                        .cornerRadius(10)
-//                } else {
-//                    Text("No Image Selected")
-//                }
-//
-//                Button("Select Image") {
-//                    isShowingImagePicker = true
-//                }
-//            }
-//            HStack(spacing: 20) { // Adjust spacing as needed
-//                Button(action: {
-//                    saveChanges()
-//                }) {
-//                    Text("Save Changes")
-//                        .foregroundColor(.white)
-//                        .padding()
-//                        .frame(maxWidth: .infinity)
-//                        .background(Color.blue)
-//                        .cornerRadius(10)
-//                }
-//                
-//
-//                VStack {   // wrap the delete button in a container
-//                    Button(action: {
-//                        showDeleteAlert = true
-//                    }) {
-//                        Text("Delete Listing")
-//                            .foregroundColor(.white)
-//                            .padding()
-//                            .frame(maxWidth: .infinity)
-//                            .background(Color.red)
-//                            .cornerRadius(10)
-//                    }
-//                }
-//                .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
-//                    Button("Delete", role: .destructive) {
-//                        Task {
-//                            try? await viewModel.deleteListing(listing)
-//                            dismiss()
-//                        }
-//                    }
-//                    Button("Cancel", role: .cancel) { }
-//                }
-//
-//            }
-          
-//            .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
-//                Button("Delete", role: .destructive) {
-//                    Task {
-//                        try? await viewModel.deleteListing(listing)
-//                        dismiss()
-//                    }
-//                }
-//                Button("Cancel", role: .cancel) { }
-//            }
 
 
         }
@@ -181,9 +120,9 @@ struct EditRentalListingView: View {
                         .cornerRadius(12)
                 }
             }
-            .padding()                   // ✅ space around
-            .background(.regularMaterial) // ✅ blurry iOS bar style
-            .ignoresSafeArea(.keyboard)   // ✅ buttons stay visible
+            .padding()                   // space around
+            .background(.regularMaterial) //  blurry iOS bar style
+            .ignoresSafeArea(.keyboard)   //  buttons stay visible
         }
         .alert("Are you sure you want to delete this listing?", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {

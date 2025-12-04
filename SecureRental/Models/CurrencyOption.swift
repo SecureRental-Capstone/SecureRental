@@ -9,10 +9,10 @@ import Foundation
 
 struct CurrencyOption: Identifiable, Hashable {
     let id = UUID()
-    let code: String       // e.g. "USD"
-    let symbol: String     // e.g. "$"
-    let flag: String       // e.g. "🇺🇸"
-    let rate: Double       // exchange rate relative to base
+    let code: String       
+    let symbol: String
+    let flag: String
+    let rate: Double
 }
 
 struct RateResponse: Codable {

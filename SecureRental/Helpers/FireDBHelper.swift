@@ -35,7 +35,7 @@ class FireDBHelper: ObservableObject {
         return shared!
     }
     
-        // MARK: - Sign Up (Auth + Firestore)
+        
     func signUp(email: String, password: String, name: String) async throws {
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
         let uid = result.user.uid
@@ -53,7 +53,7 @@ class FireDBHelper: ObservableObject {
         self.currentUser = newUser
     }
     
-        // MARK: - Sign In (Auth)
+        
     func signIn(email: String, password: String) async throws {
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
         let uid = result.user.uid
@@ -64,29 +64,6 @@ class FireDBHelper: ObservableObject {
     }
     
     
-//    // MARK: - Insert User
-//    func insertUser(user: AppUser) async {
-//        do {
-//            let data: [String: Any] = [
-//                "id": user.id,
-//                "username": user.username,
-//                "email": user.email,
-//                "name": user.name,
-//                "profilePictureURL": user.profilePictureURL ?? "",
-//                "rating": user.rating,
-//                "reviews": user.reviews
-//            ]
-//
-//            try await db.collection(COLLECTION_USERS).document(user.id).setData(data)
-//            print("✅ User inserted successfully")
-//
-//            // Update current user
-//            self.currentUser = user
-//
-//        } catch {
-//            print("❌ Failed to insert user: \(error.localizedDescription)")
-//        }
-//    }
     
     // Retreive User by Id
     func getUser(byUID uid: String) async -> AppUser? {
@@ -104,7 +81,7 @@ class FireDBHelper: ObservableObject {
                     favoriteListingIDs: data["favoriteListingIDs"] as? [String] ?? []
                 )
                 
-                user.isVerified = data["isVerified"] as? Bool ?? false // ⬅️ MODIFIED
+                user.isVerified = data["isVerified"] as? Bool ?? false
                 
                 // NEW: Load consent and coordinates
                 user.locationConsent = data["locationConsent"] as? Bool
@@ -115,7 +92,7 @@ class FireDBHelper: ObservableObject {
                 return user
             }
         } catch {
-            print("❌ Failed to fetch user: \(error.localizedDescription)")
+            print(" Failed to fetch user: \(error.localizedDescription)")
         }
         return nil
     }
@@ -151,7 +128,7 @@ class FireDBHelper: ObservableObject {
                 return user
             }
         } catch {
-            print("❌ Failed to fetch user by email: \(error.localizedDescription)")
+            print(" Failed to fetch user by email: \(error.localizedDescription)")
         }
         return nil
     }
@@ -170,28 +147,28 @@ class FireDBHelper: ObservableObject {
             ]
             
             try await db.collection(COLLECTION_USERS).document(user.id).updateData(data)
-            print("✅ User updated successfully")
+            print(" User updated successfully")
             self.currentUser = user
             
         } catch {
-            print("❌ Failed to update user: \(error.localizedDescription)")
+            print("Failed to update user: \(error.localizedDescription)")
         }
     }
     
 
     func uploadImage(_ image: UIImage, listingId: String) async throws -> String {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            print("❌ Image data is nil for listing \(listingId)")
+            print(" Image data is nil for listing \(listingId)")
             throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image"])
         }
         
         let fileName = "\(UUID().uuidString).jpg"
         let storageRef = Storage.storage().reference().child("listingImages/\(listingId)/\(fileName)")
-        print("📤 Uploading to: listingImages/\(listingId)/\(fileName), size: \(imageData.count) bytes")
+        print("Uploading to: listingImages/\(listingId)/\(fileName), size: \(imageData.count) bytes")
         
         _ = try await storageRef.putDataAsync(imageData)
         let downloadURL = try await storageRef.downloadURL()
-        print("✅ Uploaded, URL: \(downloadURL.absoluteString)")
+        print(" Uploaded, URL: \(downloadURL.absoluteString)")
         return downloadURL.absoluteString
     }
 
@@ -321,12 +298,12 @@ class FireDBHelper: ObservableObject {
     func deleteListing(_ listing: Listing) async throws {
             
         try await db.collection(COLLECTION_LISTINGS).document(listing.id).delete()
-        print("✅ Listing \(listing.id) deleted from Firestore")
+        print(" Listing \(listing.id) deleted from Firestore")
         
         
     }
     
-    // MARK: - Fetch Last Message for Conversation
+
     func fetchLastMessage(for conversationId: String) async throws -> ChatMessage? {
         let snapshot = try await db.collection("conversations")
             .document(conversationId)
@@ -383,7 +360,7 @@ class FireDBHelper: ObservableObject {
                 print("❌ Failed to add review: \(error.localizedDescription)")
                 return
             }
-            print("✅ Review added successfully")
+            print(" Review added successfully")
             
                 // Update average
             self.updateAverageRating(for: listing, newRating: rating)
@@ -395,7 +372,7 @@ class FireDBHelper: ObservableObject {
         
         listingRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
-                print("❌ Failed to fetch listing for average rating")
+                print(" Failed to fetch listing for average rating")
                 return
             }
             
@@ -425,11 +402,11 @@ class FireDBHelper: ObservableObject {
                 "ratingsCount": updatedCount
             ]) { error in
                 if let error = error {
-                    print("❌ Failed to update average rating: \(error.localizedDescription)")
+                    print(" Failed to update average rating: \(error.localizedDescription)")
                 } else {
-                    print("✅ Average rating updated for listing: \(roundedAverage)")
+                    print(" Average rating updated for listing: \(roundedAverage)")
                     
-                        // ✅ Update the owner's rating
+                        //  Update the owner's rating
                     self.updateUserRating(for: ownerId)
                 }
             }
@@ -439,7 +416,7 @@ class FireDBHelper: ObservableObject {
 
     private func updateUserRating(for ownerId: String) {
         guard Auth.auth().currentUser != nil else {
-            print("❌ No authenticated user. Can't update user rating.")
+            print(" No authenticated user. Can't update user rating.")
             return
         }
         
@@ -447,11 +424,11 @@ class FireDBHelper: ObservableObject {
         
         listingsRef.getDocuments { snapshot, error in
             if let error = error {
-                print("❌ Failed to fetch listings: \(error.localizedDescription)")
+                print(" Failed to fetch listings: \(error.localizedDescription)")
                 return
             }
             guard let docs = snapshot?.documents, !docs.isEmpty else {
-                print("❌ No listings found for this landlord")
+                print(" No listings found for this landlord")
                 return
             }
             
@@ -468,16 +445,16 @@ class FireDBHelper: ObservableObject {
                     "rating": rounded
                 ]) { error in
                     if let error = error {
-                        print("❌ Failed to update user rating: \(error.localizedDescription)")
+                        print(" Failed to update user rating: \(error.localizedDescription)")
                     } else {
-                        print("✅ User rating updated: \(rounded)")
+                        print(" User rating updated: \(rounded)")
                     }
                 }
             }
         }
     }
     
-        // MARK: - Fetch Reviews for a Listing
+       
     @Published var reviews: [Review] = []
     
     func fetchReviews(for listingId: String) async {
@@ -495,10 +472,10 @@ class FireDBHelper: ObservableObject {
             DispatchQueue.main.async {
                 self.reviews = docs
             }
-            print("✅ Loaded \(docs.count) reviews for listing \(listingId)")
+            print("Loaded \(docs.count) reviews for listing \(listingId)")
             
         } catch {
-            print("❌ Failed to fetch reviews: \(error.localizedDescription)")
+            print(" Failed to fetch reviews: \(error.localizedDescription)")
             self.reviews = []
         }
     }
@@ -508,12 +485,7 @@ class FireDBHelper: ObservableObject {
     @MainActor
     func updateLocationConsent(consent: Bool, latitude: Double? = nil, longitude: Double? = nil, radius: Double? = nil) async {
 
-//        bypass
-//#if DEBUG
-//        print("🚧 DEBUG MODE: Skipping location consent logic")
-//        currentUser?.locationConsent = true
-//        return
-//#endif
+
 
         guard let user = currentUser else { return }
         var data: [String: Any] = ["locationConsent": consent]
@@ -526,27 +498,7 @@ class FireDBHelper: ObservableObject {
             print("error in updating consent or calling update location")
         }
 
-//        if let lat = latitude, let lon = longitude, let rad = radius {
-//            data["latitude"] = lat
-//            data["longitude"] = lon
-//            data["radius"] = rad
-//        }
-//        do {
-//
-//            try await db.collection("Users").document(user.id).updateData(data)
-//            currentUser?.locationConsent = consent
-//            if consent {
-//
-//                currentUser?.latitude = latitude
-//                currentUser?.longitude = longitude
-//                currentUser?.radius = radius
-//            }
-//
-//            print("✅ Location consent saved")
-//
-//        } catch {
-//            print("❌ Failed to save location consent: \(error.localizedDescription)")
-//        }
+
     }
     
 
@@ -564,9 +516,9 @@ class FireDBHelper: ObservableObject {
                 currentUser?.longitude = longitude
                 currentUser?.radius = radius
             }
-            print("✅ Updated user location: \(currentUser?.latitude), \(currentUser?.longitude), \(currentUser?.radius)")
+            print("Updated user location: \(currentUser?.latitude), \(currentUser?.longitude), \(currentUser?.radius)")
         } catch {
-            print("❌ Failed to save location consent: \(error.localizedDescription)")
+            print(" Failed to save location consent: \(error.localizedDescription)")
         }
   }
     
@@ -602,7 +554,7 @@ class FireDBHelper: ObservableObject {
            return convWithId
        }
     
-    // MARK: - Delete Account (Comprehensive)
+   
     @MainActor
     func deleteAccount() async throws {
         // 1. Get the currently authenticated user
@@ -623,14 +575,13 @@ class FireDBHelper: ObservableObject {
             for listing in userListings {
                 // Delete the listing document
                 try await deleteListing(listing)
-                // Note: CloudinaryHelper.deleteImage or similar logic for Cloud Storage
-                // should ideally be called here or handled via Cloud Functions for reliability.
+              
                 print("  - Deleted Listing: \(listing.id)")
             }
             
-            // --- B. Delete User's Conversations ---
+           
             
-            // Find all conversations where the user is a participant
+          
             let conversationsSnapshot = try await db.collection("conversations")
                 .whereField("participants", arrayContains: uid)
                 .getDocuments()
@@ -640,7 +591,7 @@ class FireDBHelper: ObservableObject {
                 
                 let messagesSnapshot = try await doc.reference.collection("messages").getDocuments()
                 
-                // 2. Delete messages in a batch
+         
                 let batch = db.batch()
                 messagesSnapshot.documents.forEach { messageDoc in
                     batch.deleteDocument(messageDoc.reference)
@@ -648,35 +599,35 @@ class FireDBHelper: ObservableObject {
                 try await batch.commit()
                 print("  - Deleted all messages in conversation: \(conversationId)")
                 
-                // 3. Delete the main conversation document
+              
                 try await doc.reference.delete()
                 print("  - Deleted Conversation: \(conversationId)")
             }
             
-            // --- C. Delete Firestore User Document ---
+      
             
             try await db.collection(COLLECTION_USERS).document(uid).delete()
-            print("✅ User document deleted from Firestore: \(uid)")
+            print(" User document deleted from Firestore: \(uid)")
             
-            // --- D. Delete Firebase Authentication User ---
+           
             
-            // This is the final and most critical step. It requires recent login.
+          
             try await user.delete()
-            print("✅ User deleted from Firebase Auth: \(uid)")
+            print(" User deleted from Firebase Auth: \(uid)")
             
-            // 5. Clear local state and listeners
+        
             self.currentUser = nil
             FireDBHelper.listeners.forEach { $0.remove() }
             FireDBHelper.listeners = []
-            print("✅ Local state and listeners cleared.")
+            print(" Local state and listeners cleared.")
             
         } catch let error as NSError where error.domain == AuthErrorDomain && error.code == AuthErrorCode.requiresRecentLogin.rawValue {
-            // Critical: User must re-authenticate before retrying the deletion.
-            print("❌ Account deletion failed: requires recent login. User needs to sign in again.")
+           
+            print(" Account deletion failed: requires recent login. User needs to sign in again.")
             // You can throw a custom error to signal this specific need to your UI
             throw NSError(domain: "AuthError", code: error.code, userInfo: [NSLocalizedDescriptionKey: "Please sign in again to confirm account deletion."])
         } catch {
-            print("❌ Failed to delete account: \(error.localizedDescription)")
+            print(" Failed to delete account: \(error.localizedDescription)")
             throw error
         }
     }

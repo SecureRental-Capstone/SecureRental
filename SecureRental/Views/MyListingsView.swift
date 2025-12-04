@@ -18,7 +18,7 @@ struct MyListingsView: View {
         NavigationView {
             Group {
                 if viewModel.listings.isEmpty {
-                    // 👉 Empty state
+                    //  Empty state
                     VStack(spacing: 10) {
                         Image(systemName: "house")
                             .font(.system(size: 40))

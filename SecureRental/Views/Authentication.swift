@@ -15,7 +15,7 @@ struct Authentication: View {
     @State private var isDocumentUploaded: Bool = false
     @Binding var rootView : RootView
 
-    // Document types for dropdown
+ 
     let documentTypes = ["Drivers License", "Passport", "Health Card"]
     
     var body: some View {
@@ -65,9 +65,7 @@ struct Authentication: View {
                 .padding(.horizontal)
             }
             
-            //Spacer()
-            
-            // Upload Section
+         
             Button(action: {
                 // Logic for uploading
                 isDocumentUploaded.toggle()

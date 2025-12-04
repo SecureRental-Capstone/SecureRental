@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// A single reusable card view for a rental listing.
+
 struct RentalListingCardView: View {
     // Requires Listing (Models.swift) and CurrencyViewModel (CurrencyViewModel.swift)
     let listing: Listing
@@ -15,7 +15,7 @@ struct RentalListingCardView: View {
     
     @EnvironmentObject var viewModel: RentalListingsViewModel
 
-//    @StateObject var viewModel = RentalListingsViewModel()
+
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -32,33 +32,10 @@ struct RentalListingCardView: View {
                 
                 // Badges (Top Left & Top Right)
                 HStack {
-                    // Verified Badge
-//                    if listing.isAvailable { //should be is verified
-//                        Text("Verified")
-//                            .font(.caption2.bold())
-//                            .foregroundColor(.white)
-//                            .padding(.horizontal, 8)
-//                            .padding(.vertical, 4)
-//                            .background(Color.green)
-//                            .cornerRadius(10)
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: 10)
-//                                    .stroke(Color.white, lineWidth: 1)
-//                            )
-//                    }
+
                     
                     Spacer()
-                    
-                    // Heart Icon
-//                    Button {
-//                        // Action to favorite
-//                    } label: {
-//                        Image(systemName: "heart.fill")
-//                            .padding(8)
-//                            .background(Color.white)
-//                            .clipShape(Circle())
-//                            .foregroundColor(.red) // Red for favorited, gray for unfavorited
-//                    }
+  
                     Button {
                         withAnimation(.spring()) {
                             viewModel.toggleFavorite(for: listing) // listing is the item you want to favorite
@@ -77,7 +54,7 @@ struct RentalListingCardView: View {
             // Uses the extension from Extensions.swift
             .cornerRadius(15, corners: [.topLeft, .topRight])
             
-            // MARK: Details
+ 
             VStack(alignment: .leading, spacing: 6) {
                 // Title and Price (HStack)
                 HStack(alignment: .top) {
@@ -93,17 +70,9 @@ struct RentalListingCardView: View {
                         .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
                 }
                 
-//                // Location
-//                HStack(spacing: 4) {
-//                    Image(systemName: "location.fill")
-//                        .font(.caption)
-//                        .foregroundColor(.secondary)
-//                    Text(listing.location)
-//                        .font(.subheadline)
-//                        .foregroundColor(.secondary)
-//                }
+
                 
-                // Proximity Pill
+          
                 Text(listing.location)
                     .font(.footnote.weight(.semibold))
                     .foregroundColor(.blue)

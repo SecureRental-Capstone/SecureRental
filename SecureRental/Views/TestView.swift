@@ -121,7 +121,7 @@ struct SecureRentalHomePage: View {
                         hasGym = false
                     },
                     onLocationClick: {
-                        // 🔹 Use unified location handler (from Filter)
+                  
                         handleLocationButtonTapped(fromFilter: true)
                     }
                 )
@@ -131,7 +131,7 @@ struct SecureRentalHomePage: View {
                 .environmentObject(viewModel)
             }
 
-            // 🔹 Light overlay while handling consent / updating
+          
             if isConsentFlowLoading {
                 ZStack {
                     Color.black.opacity(0.05)
@@ -145,7 +145,7 @@ struct SecureRentalHomePage: View {
                 .zIndex(20)
             }
         }
-        // 🔹 Location sheet is driven by the view model flag
+
         .sheet(isPresented: $viewModel.showUpdateLocationSheet) {
             NavigationStack {
                 UpdateLocationView(
@@ -164,7 +164,7 @@ struct SecureRentalHomePage: View {
                 .environmentObject(fireDBHelper).environmentObject(currencyManager)
             }
         }
-        // 🔹 Location consent alert
+
         .alert(
             "Allow SecureRental to access your location?",
             isPresented: $viewModel.showLocationConsentAlert
@@ -201,7 +201,7 @@ struct SecureRentalHomePage: View {
         } message: {
             Text("Must verify identity to post a listing.")
         }
-        // 🔹 onAppear — SAME PATTERN AS HomeView
+ 
         .onAppear {
             Task {
                 if let uid = Auth.auth().currentUser?.uid,
@@ -222,9 +222,7 @@ struct SecureRentalHomePage: View {
         }
     }
 
-    /// -------------------------------------------------------------
-    // MARK: Explore (original listing feed) – Home-style UI
-    // -------------------------------------------------------------
+  
     private var exploreContent: some View {
         ZStack {
             // Background like HomeView / MyChatsView
@@ -240,7 +238,7 @@ struct SecureRentalHomePage: View {
 
             VStack(spacing: 12) {
 
-                // HEADER ROW – brand + greeting on the left, controls on the right
+           
                 HStack(alignment: .top) {
                     // LEFT: brand + greeting
                     VStack(alignment: .leading, spacing: 2) {
@@ -270,7 +268,7 @@ struct SecureRentalHomePage: View {
 
                     Spacer()
 
-                    // RIGHT: + & currency on top, location under them
+               
                     VStack(alignment: .trailing, spacing: 6) {
                         // Top row: + and currency together
                         HStack(spacing: 8) {
@@ -290,7 +288,7 @@ struct SecureRentalHomePage: View {
                             )
                         }
 
-                        // Bottom: location chip under them
+                 
                         Button {
                             handleLocationButtonTapped(fromFilter: false)
                         } label: {
@@ -315,10 +313,9 @@ struct SecureRentalHomePage: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 10)
 
-                // SEARCH + FILTER ROW – styled like Home/MyChats search
+              
                 HStack(spacing: 12) {
-//                    SearchBar()
-//                        .environmentObject(viewModel)
+
                     SearchBar(text: $searchTerm)
                         .environmentObject(viewModel)
 
@@ -332,8 +329,6 @@ struct SecureRentalHomePage: View {
                 // LISTING FEED
                 ScrollView(.vertical, showsIndicators: false) {
 
-//                    let filteredListings = applyLocalFilters(to: viewModel.locationListings)
-                    // 🔑 MODIFIED: Pass the search term to the filter function
                     let filteredListings = applyLocalFilters(
                         to: viewModel.locationListings,
                         searchTerm: searchTerm
@@ -365,7 +360,7 @@ struct SecureRentalHomePage: View {
                         }
                         .frame(maxWidth: .infinity, minHeight: 300)
 
-                    // --- SUCCESS ---
+              
                     } else {
 
                         Text("\(filteredListings.count) properties found")
@@ -447,9 +442,7 @@ struct SecureRentalHomePage: View {
     }
 
 
-    // -------------------------------------------------------------
-    // MARK: Location button handler (header + filter)
-    // -------------------------------------------------------------
+   
     private func handleLocationButtonTapped(fromFilter: Bool) {
         // If tap came from the filter card, close it and remember to reopen
         if fromFilter {
@@ -472,36 +465,9 @@ struct SecureRentalHomePage: View {
         }
     }
 
-    // -------------------------------------------------------------
-    // MARK: SEARCH BAR (UI updated, logic same)
-    // -------------------------------------------------------------
-//    struct SearchBar: View {
-//        @State private var text = ""
-//        @EnvironmentObject var viewModel: RentalListingsViewModel
-//
-//        var body: some View {
-//            HStack(spacing: 8) {
-//                Image(systemName: "magnifyingglass")
-//                    .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
-//                TextField("Search rentals...", text: $text)
-//                    .font(.subheadline)
-//                    .textInputAutocapitalization(.never)
-//                    .disableAutocorrection(true)
-//                    .onChange(of: text) { newValue in
-//                        viewModel.filterListingsNew(
-//                            searchTerm: newValue,
-//                            amenities: [] // or pass real selected amenities
-//                        )
-//                    }
-//            }
-//            .padding(10)
-//            .background(Color(.systemBackground))
-//            .cornerRadius(10)
-//            .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
-//        }
-//    }
+
     struct SearchBar: View {
-        // 🔑 MODIFIED: Takes a binding from the parent view
+     
         @Binding var text: String
         @EnvironmentObject var viewModel: RentalListingsViewModel
 
@@ -513,7 +479,7 @@ struct SecureRentalHomePage: View {
                     .font(.subheadline)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
-                    // 🔑 REMOVED: Redundant call to viewModel.filterListingsNew
+                  
             }
             .padding(10)
             .background(Color(.systemBackground))
@@ -522,9 +488,7 @@ struct SecureRentalHomePage: View {
         }
     }
 
-    // -------------------------------------------------------------
-    // MARK: FILTER BUTTON
-    // -------------------------------------------------------------
+   
     struct FilterButton: View {
         let action: () -> Void
 
@@ -541,68 +505,11 @@ struct SecureRentalHomePage: View {
         }
     }
 
-//    func applyLocalFilters(to listings: [Listing]) -> [Listing] {
-//        print("📦 LOADED LISTINGS COUNT:", listings.count)
-//        for l in listings {
-//            print(" - RAW PRICE:", l.price)
-//        }
-//
-//        var filtered = listings
-//
-//        // PRICE FILTER (with currency conversion)
-//        filtered = filtered.filter { listing in
-//            let cleaned = listing.price
-//                .trimmingCharacters(in: .whitespacesAndNewlines)
-//                .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
-//                .joined()
-//
-//            let cadValue = Double(cleaned) ?? 0
-//
-//            let listingInSelectedCurrency = currencyManager.convertToSelectedCurrency(cadValue)
-//            let maxPriceInSelectedCurrency = currencyManager.convertToSelectedCurrency(maxPrice)
-//
-//            return listingInSelectedCurrency <= maxPriceInSelectedCurrency
-//        }
-//
-//        // BEDROOM FILTER
-//        if let beds = selectedBedrooms {
-//            filtered = filtered.filter { listing in
-//                let pass: Bool
-//
-//                if beds == 3 {
-//                    pass = listing.numberOfBedrooms >= 3
-//                } else {
-//                    pass = listing.numberOfBedrooms == beds
-//                }
-//
-//                print("🛏 BED FILTER -> id: \(listing.id) actualBeds: \(listing.numberOfBedrooms) selected: \(beds) pass: \(pass)")
-//                return pass
-//            }
-//        }
-//
-//        // VERIFIED PROPERTIES FILTER
-//        if showVerifiedOnly {
-//            filtered = filtered.filter { listing in
-//                print("🔐 VERIFIED FILTER -> id:\(listing.id) isAvailable:\(listing.isAvailable)")
-//                return listing.isAvailable
-//            }
-//        }
-//
-//        print("""
-//        ---------------------------------------------------------
-//        FINAL FILTERED COUNT: \(filtered.count)
-//        maxPrice(\(currencyManager.selectedCurrency.code)) = \(maxPrice)
-//        selectedBedrooms = \(String(describing: selectedBedrooms))
-//        verifiedOnly = \(showVerifiedOnly)
-//        ---------------------------------------------------------
-//        """)
-//
-//        return filtered
-//    }
+
     func applyLocalFilters(to listings: [Listing], searchTerm: String) -> [Listing] {
         var filtered = listings
 
-        // 🔑 NEW: Search Term Filter (applied first)
+  
         if !searchTerm.isEmpty {
             let lowercasedSearchTerm = searchTerm.lowercased()
             filtered = filtered.filter { listing in
@@ -613,7 +520,7 @@ struct SecureRentalHomePage: View {
             }
         }
 
-        // PRICE FILTER (with currency conversion)
+      
         filtered = filtered.filter { listing in
             let cleaned = listing.price
                 .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -711,9 +618,7 @@ struct SecureRentalHomePage: View {
         }
     }
 
-    // -------------------------------------------------------------
-    // MARK: CUSTOM TAB BAR
-    // -------------------------------------------------------------
+  
     struct CustomTabBar: View {
         @Binding var selectedTab: String
 

@@ -1,15 +1,14 @@
 ////
 ////  VerificationView.swift
 ////  SecureRental
-////
-////  Created by Haniya Akhtar on 2025-10-04.
+//  Created by Haniya Akhtar on 2025-10-04.
 
 import SwiftUI
 import Persona2
 
-// MARK: - Main View
+
 struct VerificationView: View {
-    // Placeholder state for managing the action (e.g., navigating to verification flow)
+  
     @State private var shouldVerify = false
     @Binding var rootView: RootView
     @State private var errorMessage: String?
@@ -19,22 +18,22 @@ struct VerificationView: View {
     private let personaDelegate = PersonaHandler()
         
     var body: some View {
-        // 1. Background Layer
+
         ZStack {
             Color.lightGrayBackground.ignoresSafeArea()
 
-            // 2. Main Card Container (VStack for vertical layout)
+        
             VStack(spacing: 0) {
                 // Header Section
                 VStack(spacing: 16) {
-                    // Success Checkmark Icon with Circular Badge
+                   
                     ZStack {
-                        // 1. Background Circle (Light green fill)
+                      
                         Circle()
                             .fill(Color.lightSuccessBackground)
                             .frame(width: 64, height: 64)
 
-                        // 3. The Checkmark Icon
+                    
                         Image(systemName: "checkmark.circle")
                             .font(.system(size: 32, weight: .bold)) // Adjust size and weight for visibility
                             .foregroundColor(.primaryPurple)
@@ -121,10 +120,7 @@ struct VerificationView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                             .background(Color.white)
-//                            .overlay( // Creates the subtle border/outline
-//                                RoundedRectangle(cornerRadius: 12)
-//                                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                          //  )
+
                     }
                 }
                 .padding(.horizontal, 24)
@@ -143,21 +139,18 @@ struct VerificationView: View {
     func startPersonaFlow() {
         isLoading = true
         
-        // 1. Define the action to take upon completion, cancellation, or external dismissal.
-        // The explicit capture list is now omitted or simply [self] (which is the default).
+      
         let dismissalAction = {
-            // Use 'self' directly
-            
-            // Ensure the dismissal action is run on the main thread for UI updates
+          
             DispatchQueue.main.async {
-                // Find and dismiss the presented view controller (the wrapper VC)
+         
                 if let wrapperVC = UIApplication.shared.topViewController(of: PersonaWrapperVC.self) {
                     wrapperVC.dismiss(animated: true) {
                         // This block executes *after* the Persona flow is dismissed.
                         self.rootView = .main // Use 'self' directly
                     }
                 } else {
-                    // Fallback for immediate state change
+                  
                     self.rootView = .main // Use 'self' directly
                 }
             }

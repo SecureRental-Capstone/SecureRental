@@ -33,7 +33,7 @@ struct SplashView: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.blue.opacity(0.9), .purple.opacity(0.8)],
+                                colors: [.blue.opacity(0.7), .purple.opacity(0.9)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )

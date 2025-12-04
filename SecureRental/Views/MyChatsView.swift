@@ -125,7 +125,7 @@ struct MyChatsView: View {
         }
     }
 
-    // MARK: - Filter + Sort
+  
 
     private var filteredConversations: [Conversation] {
         let withMessages = viewModel.conversations.filter { conv in
@@ -331,7 +331,7 @@ struct ChatRowView: View {
 
                     Spacer()
 
-                    // ✅ works whether price is Int, Double, or String
+                    //  works whether price is Int, Double, or String
                     if let priceText = formattedPrice(listing.price) {
 //                        Text(priceText)
                         Text(currencyManager.convertedPrice(basePriceString: listing.price) + "/mo")

@@ -40,9 +40,6 @@ struct AppThemeSettingsView: View {
     }
 }
 
-//#Preview {
-//    AppThemeSettingsView()
-//}
 enum AppTheme: String, CaseIterable, Identifiable {
     case system
     case light

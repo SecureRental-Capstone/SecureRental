@@ -13,11 +13,7 @@ struct ReviewRow: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            // Profile Image Placeholder
-//            Image(systemName: "person.circle.fill")
-//                .resizable()
-//                .frame(width: 50, height: 50)
-//                .foregroundColor(.gray.opacity(0.5))
+
             if let urlString = review.profilePictureURL,
                            !urlString.isEmpty,
                            let url = URL(string: urlString) {

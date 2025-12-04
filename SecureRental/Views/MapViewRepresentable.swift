@@ -16,10 +16,10 @@ struct MapViewRepresentable: UIViewRepresentable {
     @Binding var selectedCoordinate: IdentifiableCoordinate?
     
     
-    let nearbyListings: [Listing]    // 👈 NEW
-    let radiusKm: Double             // 👈 NEW
+    let nearbyListings: [Listing]
+    let radiusKm: Double
     
-    @Binding var selectedListing: Listing?      // 👈 NEW
+    @Binding var selectedListing: Listing?
 
     
     func makeCoordinator() -> Coordinator {
@@ -33,7 +33,7 @@ struct MapViewRepresentable: UIViewRepresentable {
             self.parent = parent
         }
         
-        // Handle tap gesture to drop or move pin
+       
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
             guard let mapView = gesture.view as? MKMapView else { return }
             let locationInView = gesture.location(in: mapView)
@@ -42,7 +42,7 @@ struct MapViewRepresentable: UIViewRepresentable {
             parent.updateAnnotation(on: mapView, coordinate: tappedCoordinate)
         }
         
-        // Enable draggable annotation
+   
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             if annotation is MKUserLocation {
                 return nil
@@ -79,7 +79,7 @@ struct MapViewRepresentable: UIViewRepresentable {
             
         }
         
-        // When a pin is tapped
+    
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             guard
                 let annotation = view.annotation as? ListingAnnotation,
@@ -155,7 +155,7 @@ struct MapViewRepresentable: UIViewRepresentable {
             
             let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
             let annotation = ListingAnnotation()
-            annotation.listingId = listing.id              // 👈 store ID
+            annotation.listingId = listing.id              //  store ID
             annotation.coordinate = coord
             annotation.title = listing.title
             annotation.subtitle = "$\(listing.price)/month"

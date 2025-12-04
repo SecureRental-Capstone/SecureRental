@@ -10,7 +10,7 @@ struct ManagePasswordView: View {
         ScrollView {
             VStack(spacing: 24) {
                 
-                    // MARK: Header
+                   
                 VStack(spacing: 8) {
                     Text("Security Settings")
                         .font(.largeTitle)
@@ -25,7 +25,7 @@ struct ManagePasswordView: View {
                 .padding(.top, 20)
                 
                 
-                    // MARK: Options
+               
                 VStack(spacing: 16) {
                     
                         // Reset Password

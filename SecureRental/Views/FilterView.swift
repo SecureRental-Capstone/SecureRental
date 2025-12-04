@@ -9,12 +9,12 @@ import SwiftUI
 struct FilterCardView: View {
     @Binding var isVisible: Bool
 
-    // Temporary state for the filters
+ 
     @State private var tempMaxPrice: Double
     @State private var tempSelectedBedrooms: Int?
     @State private var tempShowVerifiedOnly: Bool
     
-    // Amenity State Variables
+
     @State private var tempHasWifi: Bool
     @State private var tempHasParking: Bool
     @State private var tempIsPetFriendly: Bool
@@ -23,12 +23,12 @@ struct FilterCardView: View {
     @EnvironmentObject var currencyManager: CurrencyViewModel
     @EnvironmentObject var viewModel: RentalListingsViewModel
 
-    // Parent closures
+
     var applyAction: (Double, Int?, Bool, Bool, Bool, Bool, Bool) -> Void
     var resetAction: () -> Void
     var onLocationClick: () -> Void
 
-    // Initializer to load parent values into temp
+   
     init(
         isVisible: Binding<Bool>,
         maxPrice: Double,
@@ -103,11 +103,11 @@ struct FilterCardView: View {
 
             Divider()
 
-            // Location button (same logic, green UI)
+           
             Button(action: {
-                isVisible = false   // close filter card first
+                isVisible = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    onLocationClick()   // trigger navigation
+                    onLocationClick()
                 }
             }) {
                 HStack {
@@ -118,8 +118,8 @@ struct FilterCardView: View {
                 .foregroundColor(.white)
                 .padding()
                 .frame(maxWidth: .infinity)
-//                .background(Color.primaryPurple) // Dark green price color
-                .background(Color.primaryPurple) // Dark green price color
+
+                .background(Color.primaryPurple) 
                 .cornerRadius(12)
             }
             .padding(.horizontal, 4)

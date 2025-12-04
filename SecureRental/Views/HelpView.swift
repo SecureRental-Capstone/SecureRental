@@ -17,7 +17,7 @@ struct HelpView: View {
         ScrollView {
             VStack(spacing: 24) {
                 
-                // MARK: – Header
+              
                 VStack(spacing: 8) {
                     Text("Help & Support")
                         .font(.largeTitle)
@@ -32,7 +32,7 @@ struct HelpView: View {
                 .padding(.top)
               
                 
-                // MARK: – Quick Options
+            
                 VStack(spacing: 16) {
                     
                     HelpCard(
@@ -44,14 +44,7 @@ struct HelpView: View {
                         showFAQ = true
                     }
                     Divider()
-//                    HelpCard(
-//                        title: "Troubleshooting",
-//                        subtitle: "Fix login, listing, or notification issues.",
-//                        systemImage: "wrench.and.screwdriver.fill",
-//                        tint: .orange
-//                    ) {
-//                        showTroubleshooting = true
-//                    }
+
                     Divider()
                     HelpCard(
                         title: "Contact Support",
@@ -65,7 +58,7 @@ struct HelpView: View {
                 .padding(.horizontal)
                 
                 
-                // MARK: – App Info
+             
                 VStack(alignment: .leading, spacing: 6) {
                     Text("App Information")
                         .font(.headline)
@@ -96,7 +89,7 @@ struct HelpView: View {
 }
 
 
-// MARK: – Reusable Help Card Component
+
 struct HelpCard: View {
     var title: String
     var subtitle: String

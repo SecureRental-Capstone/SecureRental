@@ -35,7 +35,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    // MARK: - CLLocationManagerDelegate
+ 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:

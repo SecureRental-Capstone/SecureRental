@@ -5,16 +5,10 @@
 //  Created by Haniya Akhtar on 2025-09-28.
 //
 
-//import Foundation
-//
-//struct ChatbotMessage: Identifiable {
-//    let id = UUID()
-//    let text: String
-//    let isUser: Bool
-//}
+
 import SwiftUI
 
-// MARK: - 1. Data Model for Quick Questions
+//Data model
 struct QuickQuestion: Identifiable {
     let id = UUID()
     let icon: String
@@ -22,14 +16,13 @@ struct QuickQuestion: Identifiable {
     let prompt: String
 }
 
-// NOTE: You must define your ChatMessage model here or ensure it's available.
-// Assuming a simple model like this:
+
 struct ChatbotMessage: Identifiable {
     let id = UUID()
     let text: String
-    let isUser: Bool // true for user, false for AI
+    let isUser: Bool
     let timestamp: Date
-    let attachedListings: [Listing]? // Has default value
+    let attachedListings: [Listing]? 
     
     init(text: String, isUser: Bool, timestamp: Date, attachedListings: [Listing]? = nil) {
             self.text = text

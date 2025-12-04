@@ -15,7 +15,7 @@ class CurrencyViewModel: ObservableObject {
     let basePrice: Double = 100.0  // Example base price in USD
 
     init() {
-        // Initial placeholder value before async fetch finishes
+  
         selectedCurrency = CurrencyOption(code: "CAD", symbol: "$", flag: "🇨🇦", rate: 1.0)
 
         Task {
@@ -56,20 +56,17 @@ class CurrencyViewModel: ObservableObject {
         }
     }
 
-//    func convertedPrice() -> String {
-//        let value = basePrice * selectedCurrency.rate
-//        return String(format: "%@%.2f", selectedCurrency.symbol, value)
-//    }
+
     func convertedPrice(basePriceString: String) -> String {
-        // Ensure the price string can be converted to a Double.
+     
         guard let basePriceInUSD = Double(basePriceString) else {
             return "N/A"
         }
         
-        // Find the rate for the selected currency. Use 1.0 if somehow missing.
+       
         let rate = selectedCurrency.rate
         
-        // Calculate the converted price
+      
         let convertedValue = basePriceInUSD * rate
         
         // Format the output string
@@ -77,7 +74,7 @@ class CurrencyViewModel: ObservableObject {
         formatter.numberStyle = .currency
         formatter.currencyCode = selectedCurrency.code
         formatter.currencySymbol = selectedCurrency.symbol
-        formatter.maximumFractionDigits = 0 // Show whole numbers for rent
+        formatter.maximumFractionDigits = 0 
         
         return formatter.string(from: NSNumber(value: convertedValue)) ?? "\(selectedCurrency.symbol)\(Int(convertedValue))"
     }

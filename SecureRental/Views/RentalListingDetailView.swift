@@ -4,14 +4,14 @@ import CoreLocation
 import FirebaseAuth
 import Contacts
 
-// MARK: - Map Annotation Model
+
 
 struct MapLocation: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
 }
 
-// MARK: - Detail View
+
 
 struct RentalListingDetailView: View {
     var listing: Listing
@@ -45,7 +45,7 @@ struct RentalListingDetailView: View {
             ScrollView {
                 VStack(spacing: 18) {
 
-                    // MARK: - HERO IMAGES
+              
                     if !listing.imageURLs.isEmpty {
                         CarouselView(imageURLs: listing.imageURLs)
                             .frame(height: 280)
@@ -54,7 +54,7 @@ struct RentalListingDetailView: View {
                             .padding(.horizontal)
                     }
 
-                    // MARK: - TITLE + PRICE + STATUS
+            
                     SectionBox {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(listing.title)
@@ -99,7 +99,7 @@ struct RentalListingDetailView: View {
                         }
                     }
 
-                    // MARK: - PROPERTY DETAILS
+      
                     SectionBox(title: "Property Details") {
                         HStack(spacing: 16) {
                             Label("\(listing.numberOfBedrooms) bed", systemImage: "bed.double.fill")
@@ -121,14 +121,14 @@ struct RentalListingDetailView: View {
                         }
                     }
 
-                    // MARK: - AMENITIES
+
                     if !listing.amenities.isEmpty {
                         SectionBox(title: "Amenities") {
                             FlexibleAmenityChips(amenities: listing.amenities)
                         }
                     }
 
-                    // MARK: - MAP + DIRECTIONS
+             
                     SectionBox(title: "Location on Map") {
                         Map(
                             coordinateRegion: $region,
@@ -160,7 +160,7 @@ struct RentalListingDetailView: View {
                         geocodeAddressWithAnimation()
                     }
 
-                    // MARK: - LANDLORD
+                
                     SectionBox {
                         HStack {
                             Text("Landlord")
@@ -188,7 +188,7 @@ struct RentalListingDetailView: View {
                         }
                     }
 
-                    // MARK: - ACTIONS (MESSAGE / FAV / REVIEW)
+            
                     if listing.landlordId != Auth.auth().currentUser?.uid {
                         SectionBox {
                             VStack(spacing: 10) {
@@ -252,7 +252,6 @@ struct RentalListingDetailView: View {
                         }
                     }
 
-                    // MARK: - REVIEWS
                     SectionBox(title: "Reviews") {
                         if dbHelper.reviews.isEmpty {
                             Text("No reviews yet. Be the first to review this listing!")
@@ -284,7 +283,7 @@ struct RentalListingDetailView: View {
                 }
             }
 
-            // MARK: - Location loading overlay
+      
             if isConsentFlowLoading {
                 Color.black.opacity(0.05)
                     .ignoresSafeArea()
@@ -294,7 +293,7 @@ struct RentalListingDetailView: View {
                     .cornerRadius(12)
             }
 
-            // MARK: - Hidden navigation to Chat
+     
             NavigationLink(
                 isActive: $shouldNavigateToChat,
                 destination: {
@@ -312,7 +311,7 @@ struct RentalListingDetailView: View {
             )
             .hidden()
         }
-        // MARK: - Location consent alert
+    
         .alert("Allow SecureRental to access your location?", isPresented: $showLocationConsentAlert) {
             Button("No") {
                 Task {
@@ -332,7 +331,7 @@ struct RentalListingDetailView: View {
                 }
             }
         }
-        // MARK: - Map picker
+  
         .confirmationDialog("Open directions in…", isPresented: $showMapPicker, titleVisibility: .visible) {
             Button("Apple Maps") { openInAppleMaps() }
             Button("Google Maps") { openInGoogleMaps() }
@@ -340,7 +339,7 @@ struct RentalListingDetailView: View {
         }
     }
 
-    // MARK: - Chat
+
     private func openOrCreateChat() async {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
 
@@ -355,11 +354,11 @@ struct RentalListingDetailView: View {
                 self.shouldNavigateToChat = true
             }
         } catch {
-            print("❌ failed to open/create chat: \(error)")
+            print(" failed to open/create chat: \(error)")
         }
     }
 
-    // MARK: - Map helpers
+
     private func geocodeAddressWithAnimation() {
         let geocoder = CLGeocoder()
         let address = "\(listing.street), \(listing.city), \(listing.province)"
@@ -373,7 +372,7 @@ struct RentalListingDetailView: View {
                     )
                 }
             } else if let error = error {
-                print("❌ Geocoding failed: \(error.localizedDescription)")
+                print(" Geocoding failed: \(error.localizedDescription)")
             }
         }
     }
@@ -414,7 +413,6 @@ struct RentalListingDetailView: View {
     }
 }
 
-// MARK: - Amenity chips (wrap layout)
 
 struct FlexibleAmenityChips: View {
     let amenities: [String]
@@ -436,7 +434,7 @@ struct FlexibleAmenityChips: View {
     }
 }
 
-// MARK: - Generic flexible wrap view
+
 
 struct FlexibleView<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
     let data: Data
@@ -495,7 +493,7 @@ struct FlexibleView<Data: RandomAccessCollection, Content: View>: View where Dat
     private var intrinsicHeight: CGFloat { 100 }
 }
 
-// MARK: - Reusable Section Box
+
 
 struct SectionBox<Content: View>: View {
     let title: String?

@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-// MARK: - 4. Chatbot Header Component
+
 struct ChatbotHeader: View {
     var body: some View {
         HStack {
@@ -35,7 +35,7 @@ struct ChatbotHeader: View {
     }
 }
 
-// MARK: - 5. Quick Question Card Component
+
 struct QuestionCard: View {
     let question: QuickQuestion
     var action: (String) -> Void
@@ -72,7 +72,7 @@ struct QuestionCard: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
-// MARK: - 6. Quick Questions Container
+
 struct QuickQuestionsView: View {
     let questions: [QuickQuestion]
     var action: (String) -> Void
@@ -94,7 +94,7 @@ struct QuickQuestionsView: View {
     }
 }
 
-// MARK: - 7. Message Bubbles
+
 struct UserMessageBubble: View {
     let text: String
     var body: some View {
@@ -103,8 +103,7 @@ struct UserMessageBubble: View {
 //            .background(Color.blue.opacity(0.8))
             .background(Color.primaryPurple)
             .foregroundColor(.white)
-            // FIXED CORNERS: Standard chat bubble uses a small/zero radius on the bottom-right corner
-            // for the last bubble, but here we fix the inner corner:
+           
             .cornerRadius(18, corners: [.topLeft, .topRight, .bottomLeft]) // Original corners
             .cornerRadius(4, corners: [.bottomLeft]) // Make the inner corner slightly sharper
             .fixedSize(horizontal: false, vertical: true)
@@ -131,13 +130,13 @@ struct AIMessageBubble: View {
             VStack(alignment: .leading, spacing: 0) {
                 VStack(alignment: .leading, spacing: 4) {
                     
-                    // Main Content (Text)
+               
                     Text(.init(message.text))
                         .font(.body)
                         .lineSpacing(4)
                         .multilineTextAlignment(.leading)
 
-                    // 👇 NEW: Conditional Rendering of Attached Listings
+          
                     if let listings = message.attachedListings, !listings.isEmpty {
                         
                         Divider()
@@ -370,7 +369,7 @@ struct TypingIndicator: View {
     }
 }
 
-// MARK: - 9. Main Chatbot View (The orchestrator)
+
 struct ChatbotView: View {
     
     @EnvironmentObject var dbHelper: FireDBHelper
@@ -466,7 +465,7 @@ struct ChatbotView: View {
         }
     }
 
-    // MARK: - Send Action
+
     func send() {
         let trimmed = inputText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
