@@ -65,7 +65,7 @@ struct ManagePasswordView: View {
 
 
 
-    // MARK: – Reusable Card Component
+    
 struct SecurityOptionCard: View {
     
     var title: String
@@ -109,23 +109,86 @@ struct SecurityOptionCard: View {
 
 
 
+//Mock Functionality
 struct TwoFactorAuthPage: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var code: String = ""
+    @State private var message: String = ""
+    @State private var isError: Bool = false
+    
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text("Two-Factor Authentication")
-                    .font(.title2)
-                    .fontWeight(.semibold)
+        ZStack(alignment: .topTrailing) {
+            
+            // Close Button
+            Button(action: { dismiss() }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(.gray)
+                    .padding()
+            }
+            
+            VStack(spacing: 24) {
+                Spacer().frame(height: 20)
                 
-                Text("Add extra security to your account with two-factor authentication.")
+        
+                Text("Two-Factor Authentication")
+                    .font(.largeTitle)
+                    .bold()
+                
+               
+                Text("Enter the 6-digit verification code to continue.")
+                    .font(.subheadline)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                
+          
+                TextField("Verification Code", text: $code)
+                    .keyboardType(.numberPad)
                     .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                
+      
+                Button(action: mockVerifyCode) {
+                    Text("Verify Code")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.primaryPurple)
+                        .cornerRadius(10)
+                }
+                .opacity(code.isEmpty ? 0.5 : 1)
+                .disabled(code.isEmpty)
+                
+        
+                if !message.isEmpty {
+                    Text(message)
+                        .foregroundColor(isError ? .red : .green)
+                        .padding(.top)
+                }
                 
                 Spacer()
             }
-            .navigationTitle("Two-Factor Auth")
             .padding()
+        }
+    }
+    
+   
+    func mockVerifyCode() {
+        guard !code.isEmpty else {
+            message = "Please enter the verification code."
+            isError = true
+            return
+        }
+        
+        if code == "123456" { 
+            message = "Code verified successfully!"
+            isError = false
+        } else {
+            message = "Invalid verification code."
+            isError = true
         }
     }
 }
