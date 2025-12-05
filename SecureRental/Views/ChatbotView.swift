@@ -379,9 +379,9 @@ struct ChatbotView: View {
     @EnvironmentObject var currencyManager: CurrencyViewModel
 
     private let quickQuestions: [QuickQuestion] = [
-        QuickQuestion(icon: "house.fill", category: "Housing", prompt: "What documents do I need to rent?"),
-        QuickQuestion(icon: "dollarsign.circle.fill", category: "Payments", prompt: "How does the security deposit work?"),
-        QuickQuestion(icon: "mappin.and.ellipse", category: "Location", prompt: "Best areas for international students?"),
+        QuickQuestion(icon: "house.fill", category: "Housing", prompt: "How do you negotiate rent?"),
+        QuickQuestion(icon: "dollarsign.circle.fill", category: "Payments", prompt: "How to avoid rental scams?"),
+        QuickQuestion(icon: "mappin.and.ellipse", category: "Location", prompt: "Renting advice for newcomers?"),
         QuickQuestion(icon: "graduationcap.fill", category: "Community", prompt: "Tips for finding roommates?"),
     ]
 
@@ -437,22 +437,22 @@ struct ChatbotView: View {
                     .onTapGesture {
                         isTextFieldFocused = false
                     }
-                    // Scroll whenever messages change
                     .onChange(of: viewModel.messages.count) { _ in
                         DispatchQueue.main.async {
                             if let lastMessage = viewModel.messages.last {
                                 withAnimation {
-                                    proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                                    // Change anchor to .top to ensure the new message is the last item visible
+                                    proxy.scrollTo(lastMessage.id, anchor: .top) // ✅ FIX APPLIED HERE
                                 }
                             }
                         }
                     }
-                    // Scroll to typing indicator when loading
                     .onChange(of: viewModel.isLoading) { _ in
                         DispatchQueue.main.async {
                             if viewModel.isLoading {
                                 withAnimation {
-                                    proxy.scrollTo("typingIndicator", anchor: .bottom)
+                                    // Also change the anchor here for the typing indicator
+                                    proxy.scrollTo("typingIndicator", anchor: .top) // ✅ APPLY FIX HERE
                                 }
                             }
                         }
