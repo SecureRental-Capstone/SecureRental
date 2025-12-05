@@ -38,22 +38,56 @@ struct RentalListingDetailView: View {
     @State private var activeConversationId: String?
     @State private var shouldNavigateToChat = false
 
+    @State private var showingAnalysis = false
+    
     @EnvironmentObject var vm: CurrencyViewModel
 
     var body: some View {
         ZStack {
             ScrollView {
                 VStack(spacing: 18) {
-
-              
-                    if !listing.imageURLs.isEmpty {
-                        CarouselView(imageURLs: listing.imageURLs)
-                            .frame(height: 280)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
-                            .padding(.horizontal)
+                    
+                    
+                    //                    if !listing.imageURLs.isEmpty {
+                    //                        CarouselView(imageURLs: listing.imageURLs)
+                    //                            .frame(height: 280)
+                    //                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    //                            .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
+                    //                            .padding(.horizontal)
+                    //                    }
+                    
+                    // ZStack for Image Carousel and Button Overlay
+                    ZStack(alignment: .bottomTrailing) {
+                        if !listing.imageURLs.isEmpty {
+                            CarouselView(imageURLs: listing.imageURLs)
+                                .frame(height: 280)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
+                                .padding(.horizontal)
+                        }
+                        
+                        VStack {
+                            Button(action: {
+                                showingAnalysis = true
+                            }) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "lightbulb.circle.fill")
+                                        .resizable()
+                                        .frame(width: 20, height: 20)
+                                    
+                                    Text("Analyze Listing")
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 15)
+                                .background(Color.blue)
+                                .clipShape(Capsule())
+                                .shadow(radius: 5)
+                            }
+                            .padding([.trailing, .bottom], 30)
+                        }
                     }
-
             
                     SectionBox {
                         VStack(alignment: .leading, spacing: 8) {
@@ -284,6 +318,10 @@ struct RentalListingDetailView: View {
                 .padding(.top, 10)
                 .navigationTitle("Listing details")
                 .navigationBarTitleDisplayMode(.inline)
+                .sheet(isPresented: $showingAnalysis) {
+                                    // Check if selectedListing is set before initializing ScamScoreView
+                    ScamScoreView(listing: listing) // Pass the main listing object directly
+                }
                 .sheet(isPresented: $showCommentView) {
                     CommentView(listing: listing)
                         .environmentObject(dbHelper)
