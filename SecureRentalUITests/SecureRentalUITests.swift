@@ -30,6 +30,7 @@ final class SecureRentalUITests: XCTestCase {
 
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
+    
 
     @MainActor
     func testLaunchPerformance() throws {
