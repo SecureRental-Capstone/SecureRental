@@ -39,7 +39,7 @@ class ChatbotViewModel: ObservableObject {
             DispatchQueue.main.async {
                 let name = self.dbHelper?.currentUser?.name ?? "Friend"
                 self.messages.append(ChatbotMessage(
-                    text: "Hi \(name)! I'm here to help international students navigate housing. Ask me anything about renting apartments, required documents, finding roommates, or understanding the rental process!",
+                    text: "Hi \(name)! I'm here to help you navigate housing. Ask me anything about renting, required documents, finding roommates, or understanding the rental process!",
                     isUser: false,
                     timestamp: Date()
                 ))
