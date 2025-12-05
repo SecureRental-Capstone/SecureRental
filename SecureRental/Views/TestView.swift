@@ -363,12 +363,6 @@ struct SecureRentalHomePage: View {
               
                     } else {
 
-                        Text("\(filteredListings.count) properties found")
-                            .font(.callout)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 8)
-
                         LazyVStack(spacing: 20) {
                             ForEach(filteredListings) { listing in
                                 NavigationLink {
