@@ -140,6 +140,18 @@ struct RentalListingDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
 
                         Button {
+                            viewModel.openStreetView(lat: listing.latitude ?? 0, lng: listing.longitude ?? 0)
+                        } label: {
+                            Label("Open Street View", systemImage: "car.circle.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.primaryPurple)
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(Color.primaryPurple.opacity(0.12))
+                                .cornerRadius(10)
+                        }
+                        .padding(.bottom, 8)
+                        
+                        Button {
                             if let user = dbHelper.currentUser, user.locationConsent == true {
                                 showMapPicker = true
                             } else {

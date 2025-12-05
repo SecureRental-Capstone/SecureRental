@@ -360,6 +360,23 @@ class RentalListingsViewModel: ObservableObject {
         listingReviews = dbHelper.reviews
         print(" [VM] listingReviews stored =", listingReviews.count)
     }
+    
+    func openStreetView(lat: Double, lng: Double) {
+        // Google Maps Street View URL scheme
+        let urlString = "comgooglemaps://?center=\(lat),\(lng)&mapmode=streetview"
+        
+        if let url = URL(string: urlString) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                // Fallback: open in browser if Google Maps app is not installed
+                let webString = "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=\(lat),\(lng)"
+                if let webURL = URL(string: webString) {
+                    UIApplication.shared.open(webURL, options: [:], completionHandler: nil)
+                }
+            }
+        }
+    }
 
 
 }
