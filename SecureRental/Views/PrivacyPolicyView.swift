@@ -12,7 +12,7 @@ struct PrivacyPolicyView: View {
                     .padding(.top, 10)
                 
                     // Subtitle
-                Text("Last updated: November 2025")
+                Text("Last updated: December 2025")
                     .font(.subheadline)
                     .foregroundColor(.gray)
                 
@@ -63,7 +63,6 @@ struct PrivacyPolicyView: View {
                     You can request to:
                     • Delete your account  
                     • Update your information  
-                    • Export your data  
                     • Disable certain permissions  
                     """)
                 }
