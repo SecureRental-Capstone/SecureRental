@@ -100,7 +100,7 @@ struct ListingCardView: View {
 
                 Text("$\(listing.price)/month")
                     .font(.caption.weight(.semibold))  // smaller + bold
-                    .foregroundColor(.primaryPurple)
+                    .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
 
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.and.ellipse")

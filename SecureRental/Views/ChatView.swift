@@ -63,7 +63,7 @@ struct ChatView: View {
                     } label: {
                         Image(systemName: "info.circle")
                             .font(.title3)
-                            .foregroundColor(.primaryPurple)
+                            .foregroundColor(.yellow)
                     }
                 }
                 .padding(12)
@@ -419,7 +419,7 @@ struct ChatInfoSheet: View {
 
                                         Text("$\(listing.price)/month")
                                             .font(.subheadline.weight(.semibold))
-                                            .foregroundColor(.primaryPurple)
+                                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2)) // Dark green price color
 
                                         HStack(spacing: 4) {
                                             Image(systemName: "mappin.and.ellipse")
