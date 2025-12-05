@@ -1,44 +1,14 @@
 import Foundation
 import SwiftUI
 
-struct ChatMessageE: Codable {
-    let role: String
-    let content: String
-}
-
-struct ChatRequest: Codable {
-    let model: String
-    let messages: [ChatMessageE]
-}
-
-struct DiscrepancyResult: Codable {
-    let discrepancy_detected: Bool?
-    let details: String
-}
-
-struct SightengineResponse: Decodable {
-    struct TypeInfo: Decodable {
-        let ai_generated: Double
-    }
-    let status: String
-    let type: TypeInfo
-}
-
-struct ListingAnalysisResult {
-    let discrepancy: DiscrepancyResult
-    let aiImageScores: [Double] // 0.0–1.0
-}
-
-// MARK: - ScamScoreView (Updated)
-
 struct ScamScoreView: View {
     let listing: Listing
     @Environment(\.dismiss) var dismiss
 
     @State private var analysisResult: ListingAnalysisResult? = nil
     @State private var isLoading = false
+    @EnvironmentObject var viewModel: ChatbotViewModel
     
-    // NOTE: This key should be loaded securely, not hardcoded.
     private let apiKey = "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"
     
     var body: some View {
@@ -78,9 +48,7 @@ struct ScamScoreView: View {
     
     // MARK: - API Functions
 
-    // 1. Checks listing title/description against specifications using OpenAI
     func checkListingDiscrepancy(listing: Listing, apiKey: String) async -> DiscrepancyResult {
-        // ... (No change to this function, error handling is via return) ...
         let url = URL(string: "https://api.openai.com/v1/chat/completions")!
 
         let prompt = """
@@ -109,8 +77,8 @@ struct ScamScoreView: View {
         let requestBody = ChatRequest(
             model: "gpt-4o-mini",
             messages: [
-                ChatMessageE(role: "system", content: "You are a helpful assistant."),
-                ChatMessageE(role: "user", content: prompt)
+                AnalyzerMessage(role: "system", content: "You are a helpful assistant."),
+                AnalyzerMessage(role: "user", content: prompt)
             ]
         )
         
@@ -145,19 +113,18 @@ struct ScamScoreView: View {
                 return DiscrepancyResult(discrepancy_detected: nil, details: "Raw AI Output: \(content)")
             }
         } catch {
-            print("OpenAI API ERROR: \(error.localizedDescription)") // Added logging
+            print("OpenAI API ERROR: \(error.localizedDescription)")
             return DiscrepancyResult(discrepancy_detected: nil, details: "API Error: \(error.localizedDescription)")
         }
     }
 
-    // 2. Checks a single image URL for AI generation likelihood using Sightengine
     func checkImageUrlIsAI(_ imageUrl: String) async throws -> Double {
         var components = URLComponents(string: "https://api.sightengine.com/1.0/check.json")!
         components.queryItems = [
             URLQueryItem(name: "url", value: imageUrl),
             URLQueryItem(name: "models", value: "genai"),
-            URLQueryItem(name: "api_user", value: "144619963"), // Replace with your Sightengine API User
-            URLQueryItem(name: "api_secret", value: "yyjHktmyS7txFeYBDhWayb2xNzwmXUf8") // Replace with your Sightengine API Secret
+            URLQueryItem(name: "api_user", value: "535122157"),
+            URLQueryItem(name: "api_secret", value: "d7ZjjRV3SDZondvyiiG3GFcQG92yxkn6")
         ]
         let url = components.url!
         
@@ -172,12 +139,10 @@ struct ScamScoreView: View {
             throw URLError(.badServerResponse)
         }
         
-        let decoded = try JSONDecoder().decode(SightengineResponse.self, from: data)
+        let decoded = try JSONDecoder().decode(SightEngResponse.self, from: data)
         return decoded.type.ai_generated
     }
-    
-    // MARK: - Perform Analysis (Updated with Critical Error Handling)
-    
+        
     private func performAnalysis() async {
         // 1. Set Loading State
         await MainActor.run {
@@ -202,8 +167,6 @@ struct ScamScoreView: View {
                 
                 for url in listing.imageURLs {
                     group.addTask {
-                        // Return score or -1 if check fails
-                        // The try? handles errors from checkImageUrlIsAI
                         return (try? await checkImageUrlIsAI(url)) ?? -1.0
                     }
                 }
@@ -226,7 +189,7 @@ struct ScamScoreView: View {
         } catch {
             //catching crashes
             print("CRITICAL ANALYSIS RUNTIME ERROR: \(error.localizedDescription)")
-            // Provide a failure result to display something on the screen
+            //provide a failure result to display something on the screen
             let errorResult = ListingAnalysisResult(
                 discrepancy: DiscrepancyResult(discrepancy_detected: true, details: "Fatal error: \(error.localizedDescription)"),
                 aiImageScores: []
@@ -237,8 +200,6 @@ struct ScamScoreView: View {
         }
     }
 }
-
-// --- Report Content View (No Changes Needed Here) ---
 
 struct ReportContent: View {
     let result: ListingAnalysisResult
@@ -280,7 +241,6 @@ struct ReportContent: View {
                                     .foregroundColor(.white)
                             }
                         }
-                        // Use a strong color for the status background
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .background(result.discrepancy.discrepancy_detected ?? false ? Color.red : Color.green)
@@ -334,7 +294,8 @@ struct ReportContent: View {
                                             .foregroundColor(percentage > 50 ? .red : .primary)
 
                                         // Progress bar
-                                        ProgressView(value: score, total: 1.0)
+                                        ProgressView(value: min(max(score, 0.0), 1.0), total: 1.0)
+//                                        ProgressView(value: score, total: 1.0)
                                             .progressViewStyle(LinearProgressViewStyle(tint: percentage > 50 ? .red : .blue))
                                             .frame(width: 50)
                                     }
@@ -351,7 +312,7 @@ struct ReportContent: View {
 
                 } // End of main VStack
                 .padding(.horizontal)
-                .padding(.vertical, 20) // Give space at top/bottom of the scroll view
+                .padding(.vertical, 20)
 
             } // End of ScrollView
             .background(Color(.systemGroupedBackground).edgesIgnoringSafeArea(.all)) // Light gray background

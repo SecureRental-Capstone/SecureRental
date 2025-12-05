@@ -17,13 +17,13 @@ class ChatbotViewModel: ObservableObject {
     @Published private var resultText: String = ""
     @Published private var coordinates: CLLocationCoordinate2D? = nil
     @Published private var filteredListings: [Listing] = []
-
+    @Published var analysisResult: ListingAnalysisResult? = nil
+    
     let db = Firestore.firestore()
     @Published var messages: [ChatbotMessage] = []
     @Published var isLoading: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
-    // Using FireDBHelper singleton to handle user data
     private var dbHelper: FireDBHelper?
 
     // TODO: Replace with your real OpenAI API key securely
@@ -51,7 +51,6 @@ class ChatbotViewModel: ObservableObject {
     func sendMessage(_ text: String) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         
-        // Add user's message to local array
         let userMessage = ChatbotMessage(text: text, isUser: true, timestamp: Date())
         messages.append(userMessage)
         isLoading = true
@@ -65,8 +64,7 @@ class ChatbotViewModel: ObservableObject {
         checkRentalQuery(text) { isRentalQuery in
             if isRentalQuery {
                 self.userInput = text
-                // If it's a rental query, process the query with processQuery
-                self.processQuery()  // This already handles calling `queryOpenAIForParsing` and fetching listings
+                self.processQuery()
                 print(self.filteredListings)
             } else {
                 //  Build the full conversation history
@@ -88,7 +86,6 @@ class ChatbotViewModel: ObservableObject {
             """
                 ])
                 
-                // ADD ENTIRE CHAT HISTORY
                 for msg in self.messages {
                     history.append([
                         "role": msg.isUser ? "user" : "assistant",
@@ -300,60 +297,19 @@ class ChatbotViewModel: ObservableObject {
         return (nil, nil)
     }
     
-    //uncomment if dont work
-//    func processQuery() {
-//        queryOpenAIForParsing(query: userInput) { bedrooms, bathrooms, location, minPrice, maxPrice in
-//            // Create ListingFilter with extracted details
-//            var filter = ListingFilter(minPrice: minPrice, maxPrice: maxPrice, bedrooms: bedrooms, bathrooms: bathrooms, location: location)
-//
-//            // If location is specified, geocode it to get latitude/longitude
-//            if let location = location {
-//                self.getCoordinates(from: location) { coord in
-//                    if let coord = coord {
-//                        // Update the filter with the geocoded coordinates
-//                        filter.latitude = coord.latitude
-//                        filter.longitude = coord.longitude
-//                    }
-//
-//                    // Query Firestore with the updated filter
-//                    self.fetchFilteredListings(filter: filter) { listings in
-//                        self.filteredListings = listings
-//                        if listings.isEmpty {
-//                            self.resultText = "No listings found for your criteria."
-//                        } else {
-//                            self.resultText = "Found \(listings.count) listings."
-//                        }
-//                    }
-//                }
-//            } else {
-//                // If no location, query Firestore based on other filters
-//                self.fetchFilteredListings(filter: filter) { listings in
-//                    self.filteredListings = listings
-//                    if listings.isEmpty {
-//                        self.resultText = "No listings found for your criteria."
-//                    } else {
-//                        self.resultText = "Found \(listings.count) listings."
-//                    }
-//                }
-//            }
-//        }
-//    }
-    // INSIDE ChatbotViewModel
     func processQuery() {
-        // 1. Start by calling the OpenAI API to parse the user's input
         queryOpenAIForParsing(query: userInput) { bedrooms, bathrooms, location, minPrice, maxPrice in
             
             // 2. Initialize the filter struct with parsed details
             var filter = ListingFilter(minPrice: minPrice, maxPrice: maxPrice, bedrooms: bedrooms, bathrooms: bathrooms, location: location)
 
-            // Define the block of code that runs AFTER fetching is complete (with or without location)
             let completionBlock: ([Listing]) -> Void = { listings in
                 // All UI updates MUST be executed on the main thread
                 DispatchQueue.main.async {
                     
                     // Update the ViewModel's state properties
-                    self.filteredListings = listings // ✅ Updates the list property (observed by List view)
-                    self.isLoading = false // ✅ Stop the loading indicator
+                    self.filteredListings = listings
+                    self.isLoading = false
 
                     // 3. Construct the result message for the chat interface
                     if listings.isEmpty {
@@ -368,7 +324,7 @@ class ChatbotViewModel: ObservableObject {
                             text: text,
                             isUser: false,
                             timestamp: Date(),
-                            attachedListings: listings // 👇 Attach the final filtered list
+                            attachedListings: listings
                         ))
                     }
                 }
@@ -415,7 +371,6 @@ class ChatbotViewModel: ObservableObject {
         }
     }
 
-    // Helper function to calculate distance between two geographical points (latitude/longitude) in kilometers
     func distanceBetween(lat1: Double, lon1: Double, lat2: Double, lon2: Double) -> Double {
         let earthRadius = 6371.0 // Radius of the Earth in kilometers
         let dLat = (lat2 - lat1) * .pi / 180
@@ -497,7 +452,6 @@ class ChatbotViewModel: ObservableObject {
             completion(filteredListings)
         }
     }
-    // 2️⃣ Check if the query seems related to rental listings
     func checkRentalQuery(_ text: String, completion: @escaping (Bool) -> Void) {
         // Keywords related to rental listings
         let rentalKeywords = ["bed", "beds", "bath", "baths", "bedroom", "bathroom", "bedrooms", "bathrooms"]
@@ -518,18 +472,4 @@ class ChatbotViewModel: ObservableObject {
         completion(isRentalQuery)
     }
 
-}
-
-// MARK: - OpenAI API Response Models
-struct OpenAIResponse: Codable {
-    let choices: [Choice]
-    
-    struct Choice: Codable {
-        let message: Message
-    }
-    
-    struct Message: Codable {
-        let role: String
-        let content: String
-    }
 }

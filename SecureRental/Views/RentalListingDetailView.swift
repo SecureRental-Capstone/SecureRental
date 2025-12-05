@@ -319,8 +319,7 @@ struct RentalListingDetailView: View {
                 .navigationTitle("Listing details")
                 .navigationBarTitleDisplayMode(.inline)
                 .sheet(isPresented: $showingAnalysis) {
-                                    // Check if selectedListing is set before initializing ScamScoreView
-                    ScamScoreView(listing: listing) // Pass the main listing object directly
+                    ScamScoreView(listing: listing)
                 }
                 .sheet(isPresented: $showCommentView) {
                     CommentView(listing: listing)
