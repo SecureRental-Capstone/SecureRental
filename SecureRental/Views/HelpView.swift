@@ -65,7 +65,7 @@ struct HelpView: View {
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Version: 1.0.0")
-                        Text("Updated: November 2025")
+                        Text("Updated: December 2025")
                         Text("SecureRental © 2025")
                     }
                     .font(.caption)
@@ -150,6 +150,18 @@ struct FAQView: View {
                     
                     DisclosureGroup("How do I reset my password?") {
                         Text("On the Sign In screen, tap “Forgot Password?”, enter your email, and follow the link sent to your inbox. or Go to Profile Tab and click forgot password ")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 4)
+                    }
+                    DisclosureGroup("How do I create a new Listing?") {
+                        Text("In the order to create a new listing, you have to verify your Identity on the Profile Page. Once, the identity is verified, Create Listing button will be automatically enabled ")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 4)
+                    }
+                    DisclosureGroup("How do I change the currency?") {
+                        Text("In the HomePage, on the top right, there is icon to change the currency of the displayed listing prices. ")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.vertical, 4)

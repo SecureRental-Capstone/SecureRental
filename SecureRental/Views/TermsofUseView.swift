@@ -12,9 +12,9 @@ struct TermsofUseView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Terms of Use")
-                    .font(.largeTitle)
-                    .bold()
+//                Text("Terms of Use")
+//                    .font(.largeTitle)
+//                    .bold()
                 
                 Text("""
 Welcome to SecureRental. By using our app, you agree to comply with these Terms of Use. Please read them carefully.
