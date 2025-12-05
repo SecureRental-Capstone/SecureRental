@@ -477,7 +477,13 @@ struct ChatInfoSheet: View {
                                     LandlordProfileView(landlord: landlord).environmentObject(currencyManager)
                                 } label: {
                                     cardWrapper {
-                                        UserRow(user: landlord, subtitle: "View profile & other listings")
+                                        HStack {
+                                            UserRow(user: landlord, subtitle: "View profile & other listings")
+                                            Spacer()
+                                            Image(systemName: "chevron.right")
+                                                .font(.headline)
+                                                .foregroundColor(.secondary)
+                                        }
                                     }
                                 }
                                 .buttonStyle(.plain)
