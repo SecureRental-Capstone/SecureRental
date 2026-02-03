@@ -1,0 +1,1 @@
+SecureRental is an iOS rental marketplace built to address the safety and trust gaps in traditional housing platforms. The app is specifically designed for international students, providing verified landlords, transparent listings, and intelligent in-app support to help users make safe and informed rental decisions.
